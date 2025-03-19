@@ -10,6 +10,7 @@ interface JsonNode {
 }
 
 interface ExtractedImage {
+    AssetId:string|null;
     VideoRef: string | null;
     coordinates: { x: string; y: string; width: string; height: string;rot:string;flipH: boolean } | null;
 
@@ -48,12 +49,15 @@ interface ExtractedImage {
 //export default imageFind;
 
 function extractImageData(node: JsonNode): ExtractedImage | null {
+    let AssetId:string|null=null
     let VideoRef: string | null = null;
     let coordinates: { x: string; y: string; width: string; height: string;rot:string;flipH: boolean } | null = null;
     
-    if (node.Type === "Media" && node.Name === "Media") {
+    if ((node.Type === "Media" && node.Name === "Media")) {
         VideoRef = node.Value; 
-        console.log("Found Video", VideoRef);
+        AssetId=node.Asset;
+        
+        console.log("Found Video", VideoRef,AssetId);
     }
     if (node.Type === "Coordinates") {
         try {
@@ -74,6 +78,7 @@ function extractImageData(node: JsonNode): ExtractedImage | null {
     for (const child of node.children) {
         const childData = extractImageData(child);
         if (childData) {
+            if(childData.AssetId)AssetId=childData.AssetId;
             if (childData.VideoRef) VideoRef = childData.VideoRef;
 
              
@@ -81,7 +86,7 @@ function extractImageData(node: JsonNode): ExtractedImage | null {
         }
     }
 
-    return VideoRef || coordinates ? { VideoRef, coordinates } : null;
+    return AssetId||VideoRef || coordinates ? { AssetId,VideoRef, coordinates } : null;
 }
 
 function findAllVideos(data: JsonNode): ExtractedImage[] {

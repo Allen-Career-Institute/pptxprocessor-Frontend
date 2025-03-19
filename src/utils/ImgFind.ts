@@ -10,6 +10,8 @@ interface JsonNode {
 }
 
 interface ExtractedImage {
+    AssetType:string|null;
+    AssetId:string|null;
     imageRef: string | null;
     coordinates: { x: string; y: string; width: string; height: string;rot:string;flipH: boolean } | null;
     cropping:{b:string;l:string;r:string;t:string}|null;
@@ -48,11 +50,15 @@ interface ExtractedImage {
 //export default imageFind;
 
 function extractImageData(node: JsonNode): ExtractedImage | null {
+    let AssetType:string|null=null;
+    let AssetId:string|null=null;
     let imageRef: string | null = null;
     let coordinates: { x: string; y: string; width: string; height: string;rot:string;flipH: boolean } | null = null;
     let cropping:{b:string;l:string;r:string;t:string}|null=null;
     if (node.Type === "Image" && node.Name === "BlipImage=./a:blip") {
         imageRef = node.Value; // Extract the image reference
+        AssetId=node.Asset;
+        AssetType=node.Type
         console.log("Found Image", imageRef);
     }
     if (node.Type === "Coordinates") {
@@ -84,18 +90,20 @@ function extractImageData(node: JsonNode): ExtractedImage | null {
             console.error("Error parsing cropping details", error);
         }
     }
-    
+
 
     for (const child of node.children) {
         const childData = extractImageData(child);
         if (childData) {
+            if(childData.AssetType)AssetType=childData.AssetType;
+            if(childData.AssetId)AssetId=childData.AssetId;
             if (childData.imageRef) imageRef = childData.imageRef;
             if (childData.coordinates) coordinates = childData.coordinates;
             if(childData.cropping)cropping=childData.cropping;
         }
     }
 
-    return imageRef || coordinates ||cropping ? { imageRef, coordinates,cropping } : null;
+    return AssetType||AssetId||imageRef || coordinates ||cropping ? {AssetType,AssetId, imageRef, coordinates,cropping } : null;
 }
 
 function findAllImages(data: JsonNode): ExtractedImage[] {

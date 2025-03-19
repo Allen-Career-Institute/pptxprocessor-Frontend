@@ -25,12 +25,15 @@ const App = () => {
 
   function handlenext() {
     if (currSlide < num_slides) {
+      console.clear() 
       setCurrSlide(prev => prev + 1);
     }
   }
 
   function handleprev() {
     if (currSlide > 1) {
+      console.clear() 
+
       setCurrSlide(prev => prev - 1);
     }
   }
