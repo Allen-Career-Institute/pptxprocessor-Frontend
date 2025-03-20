@@ -6,6 +6,8 @@ import Image from "./Image";
 import Video from "./Video";
 import asseter from "../utils/finalassetmaker";
 import "../App.css";
+import { v4 as uuidv4 } from 'uuid';
+
 
 interface PageProps {
   currSlide: number;
@@ -43,14 +45,14 @@ const Page: React.FC<PageProps> = ({ currSlide, currSlideData }) => {
           console.log("Rendering Asset:", item);
           return item.AssetType==="Image" ? (
             <Image 
-              key={index}
+              key={uuidv4()}
               imagepath={item.imageRef} 
               coordinates={item.coordinates}
               cropping={item.cropping}
             />
           ) : (
             <Video 
-              key={index}
+              key={uuidv4()}
               path={item.VideoRef}
               coordinates={item.coordinates}
             />
