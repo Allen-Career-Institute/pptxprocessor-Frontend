@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+// import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import obj from './assets/asset copy.json';
 import Page from './Slides/Page';
 import './App.css'; // Import the CSS file
-
+import { Stage,Layer,Rect,Ellipse } from 'react-konva';
 const App = () => {
   const [currSlide, setCurrSlide] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -42,12 +42,14 @@ const App = () => {
 //  //console.log(currSlideData[abc[0]])
   return (
     <div className="app-container">
+      
       <div className="content">
        {!loading && <Page currSlide={currSlide} currSlideData={getSlideData()}/> }
        {/* {obj[JSON.stringify(Object.keys(obj)[currSlide-1])]} */
        // obj[JSON.stringify(currSlideData)][Object.keys(obj[currSlideData])[0]]
        //JSON.stringify(currSlideData[Object.keys(currSlideData)[0]])
        }
+       
       </div>
       <div className="pagination">
         <h1>{currSlide}</h1>

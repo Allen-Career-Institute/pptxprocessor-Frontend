@@ -50,6 +50,7 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
+  border: black;
 }
 
 .content {
@@ -90,19 +91,24 @@
 }
 
 .slide-page {
-  position: relative;
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  width: 1268px;
+  height: 780px;
   overflow: hidden;
   background-color: grey;
+  border: black;
+  
 }
 
 .slide-page h1 {
-  text-align: right;
+  
   margin-bottom: 20px;
   color: white;
+  bottom: 0px;
+  left:10px;
+  position:absolute;
 }
 
 .slide-page img {
-  position: absolute;
+  position: realtive;
 }

@@ -9,13 +9,14 @@ const Image = ({ imagepath, coordinates, cropping }: any) => {
     return basePath + imagepath.slice(2);
   }
 
+
   const style: React.CSSProperties = {
     position: "absolute",
     left: pxl(coordinates?.x || 0),
     top: pxl(coordinates?.y || 0),
     width: pxl(coordinates?.width || 0),
     height: pxl(coordinates?.height || 0),
-    transform: `rotate(${degree(coordinates?.rot || "0")}deg)`,
+    transform: `rotate(${degree(coordinates?.rot || "0")}deg)  scaleX(${(coordinates.flipH==="1")?(-1):(1)})`,
     // clipPath: `inset(
     //   ${((cropping?.t ?? 0) / 100000) * (coordinates?.height ?? 0)}px 
     //   ${(100 - ((cropping?.r ?? 0) / 100000) * 100)}px
@@ -31,6 +32,10 @@ const Image = ({ imagepath, coordinates, cropping }: any) => {
       <img src={pathbuilder(imagepath)} style={style} />
     </div>
   );
-};
 
+};
 export default Image;
+
+function rotate(arg0: number, deg: any): import("csstype").Property.Transform | undefined {
+  throw new Error('Function not implemented.');
+}

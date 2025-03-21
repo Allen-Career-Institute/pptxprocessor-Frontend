@@ -70,7 +70,7 @@ function extractImageData(node: JsonNode): ExtractedImage | null {
                 width: coordData.extent.cx,
                 height: coordData.extent.cy,
                 rot: coordData.rotation,
-                flipH: coordData.flipH
+                flipH: coordData.flipH||0
             };
         } catch (error) {
             console.error("Error parsing coordinates:", error);
