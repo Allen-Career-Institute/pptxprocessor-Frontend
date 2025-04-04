@@ -2,60 +2,73 @@ import React, { useEffect, useState } from "react";
 import findAllImages from "../utils/ImgFind";
 import findAllVideos from "../utils/VideoFnd";
 import findAllAssets from "../utils/assetfinder";
+import findAllShapes from "../utils/ShapeFind";
 import Image from "./Image";
 import Video from "./Video";
 import Shape from "./Shape";
 import asseter from "../utils/finalassetmaker";
 import "../App.css";
 import { v4 as uuidv4 } from 'uuid';
-import findAllShapes from "../utils/ShapeFind";
-import { Stage,Layer } from "react-konva";
-
+import { Stage, Layer, Text } from "react-konva";
+import ComponentFactory from "./ComponentFactory";
+import pics from "../utils/ImgFind";
 interface PageProps {
   currSlide: number;
   currSlideData: any;
 }
 
 const Page: React.FC<PageProps> = ({ currSlide, currSlideData }) => {
+
   const [assets, setAssets] = useState<any[]>([]);
-  const [shapes,setShapes]=useState<any[]>([]);
-  //console.log(findAllShapes())
+  const [shapes, setShapes] = useState<any[]>([]);
+  const [video,setvideo]=useState<any[]>([]);
+  const [image, setImageList] = useState<any[]>([]);
   useEffect(() => {
     if (!currSlideData) return;
 
     console.log("useEffect triggered for slide:", currSlide);
 
     const slideData = currSlideData[Object.keys(currSlideData)[0]];
-    const imageList = findAllImages(slideData);
+    const imageList = pics(slideData).images;
+    
+    setImageList(imageList);  
+
+    console.log("Extracted Images Immediately:", imageList); // ✅ Correct way to log extracted images
+    //const imageList = ;
     const videoList = findAllVideos(slideData);
     const assetList = findAllAssets(slideData);
-    const shapelist = findAllShapes(slideData);
-    console.log("Extracted Images:", imageList);
-    console.log("Extracted Videos:", videoList);
-    console.log("Extracted Assets:", assetList);
-    console.log("extracted shapes:", shapelist);
-    setShapes(shapelist);
-    const orderedAssets = asseter(assetList, imageList, videoList);
-    setAssets(orderedAssets);
-    
-  }, [currSlideData]);
+    const shapeList = pics(slideData).shapes;
+    setvideo(videoList);
+   
+    // console.log("Extracted Videos:", videoList);
+    // console.log("Extracted Assets:", assetList);
+    // console.log("Extracted Shapes:", shapeList);
 
+    setShapes(shapeList);
+    setAssets(asseter(assetList, imageList, videoList));
+    
+  }, [currSlideData,currSlide]);
+  useEffect(() => {
+    console.log("Updated State (imageList):", image);
+}, [image]); 
+if(currSlide===12)console.log("sher")
   return (
     <div className="slide-page">
-      <h1>Total Assets: {assets.length}</h1>
-      
-      {assets.length > 0 ? (
-        assets.map((item, index) => {
+
+      <h1>Total Assets: {image.length}</h1>
+      {/* <ComponentFactory currSlide={currSlide} currSlideData={currSlideData[Object.keys(currSlideData)[0]]} /> */}
+      {/* {assets.length > 0 ? (
+        assets.map((item) => {
           console.log("Rendering Asset:", item);
-          return item.AssetType==="Image" ? (
-            <Image 
+          return item.AssetType === "Image" ? (
+            <Image
               key={uuidv4()}
-              imagepath={item.imageRef} 
+              imagepath={item.imageRef}
               coordinates={item.coordinates}
               cropping={item.cropping}
             />
           ) : (
-            <Video 
+            <Video
               key={uuidv4()}
               path={item.VideoRef}
               coordinates={item.coordinates}
@@ -63,23 +76,44 @@ const Page: React.FC<PageProps> = ({ currSlide, currSlideData }) => {
           );
         })
       ) : (
-        <div>No assets found in this slide</div>
-      )}
-      <Stage width={window.innerWidth} height={window.innerHeight}>
+        <p>No assets found in this slide</p>
+      )} */}
+       {
+        
+        image.length>0?(image.map((val,index)=>
+        {
+            console.log("Inside iamges")
+            
+            val.style.zIndex=index;
+            console.log(val)
+         return  <Image key={index} style={val.style}/>
+        }
+              
+        )):(<p>No Images</p>)
+      }
+      
+
+      <Stage width={1280} height={720}>
         <Layer>
           {shapes.length > 0 ? (
-            shapes.map((item, index) => (
+            shapes.map((item) => (
               <Shape
                 key={uuidv4()}
-                coordinates={item.coordinates}
-                assettype={item.assettype } // Default to "rect" if missing
+                style={item.style}// Default to "rect" if missing
               />
             ))
           ) : (
-            <div>No shapes found in this slide</div>
+            <Text // Konva does not support direct divs, so we replace it with a Konva Text component
+              text="No shapes found in this slide"
+              fontSize={16}
+              x={10}
+              y={10}
+              fill="black"
+            />
           )}
         </Layer>
       </Stage>
+     
     </div>
   );
 };

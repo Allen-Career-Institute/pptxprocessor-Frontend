@@ -1,5 +1,5 @@
 function pxl(emu: number): number {
-    return (emu/914400)*96;
+    return (emu/9525);
 }
 
 export default pxl;
