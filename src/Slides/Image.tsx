@@ -1,61 +1,72 @@
-import React from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import pxl from '../utils/emutopxl';
 import degree from '../utils/Todegree';
-import  PowerPointStyle  from '../utils/css_convertor';
-const Image = ({ style }: any) => {
- const s=PowerPointStyle(style)
- console.log(s)
-const basePath = "src/assets";
-  function pathbuilderImg() {
-    if(s.Image==="No")return ""
-    return basePath + style.Image.slice(2);
-  }
-  function pathbuilderVid(){
-    if(s.Video==="No") return ""
-    return basePath +style.Media.slice(2)
-  }
- 
-//const s=PowerPointStyle(style).stylecss;
-//console.log(PowerPointStyle(style))
+import PowerPointStyle from '../utils/css_convertor';
 
-  // const style: React.CSSProperties = {
-  //   position: "absolute",
-  //   left: pxl(coordinates?.x || 0),
-  //   top: pxl(coordinates?.y || 0),
-  //   width: pxl(coordinates?.width || 0),
-  //   height: pxl(coordinates?.height || 0),
-  //   transform: `rotate(${degree(coordinates?.rot || "0")}deg)  scaleX(${(coordinates.flipH==="1")?(-1):(1)})`,
-  //   // clipPath: `inset(
-  //   //   ${((cropping?.t ?? 0) / 100000) * (coordinates?.height ?? 0)}px 
-  //   //   ${(100 - ((cropping?.r ?? 0) / 100000) * 100)}px
-  //   //   ${(100 - ((cropping?.b ?? 0) / 100000) * 100)}px
-  //   //   ${((cropping?.l ?? 0) / 100000) * (coordinates?.width ?? 0)}px
-  //   // )`,
-  //   //opacity:(pxl(coordinates?.width)>=1250 && pxl(coordinates?.height)>=700)?0:1
-  // };
-  // console.log(style)
+const Image = ({ style }: any) => {
+  const s = PowerPointStyle(style);
+  const basePath = "src/assets";
+
+  const [isPlaying, setIsPlaying] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  const pathbuilderImg = () => {
+    if (s.Image === "No") return "";
+    return basePath + style.Image.slice(2);
+  };
+
+  const pathbuilderVid = () => {
+    if (s.Video === "No") return "";
+    return basePath + style.Media.slice(2);
+  };
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const handlePlay = () => setIsPlaying(true);
+    const handlePause = () => setIsPlaying(false);
+    const handleEnded = () => setIsPlaying(false);
+
+    video.addEventListener('play', handlePlay);
+    video.addEventListener('pause', handlePause);
+    video.addEventListener('ended', handleEnded);
+
+    return () => {
+      video.removeEventListener('play', handlePlay);
+      video.removeEventListener('pause', handlePause);
+      video.removeEventListener('ended', handleEnded);
+    };
+  }, []);
+
+  const handleVideoClick = () => {
+    if (videoRef.current) {
+      videoRef.current.play();
+    }
+  };
 
   return (
     <div>
-  {s.Image === "Yes" && (
-    <>
-      {s.Video === "Yes" ? (
-        <video
-          src={pathbuilderVid()}
-           // Image as video thumbnail
-           poster={pathbuilderImg()}
-          style={PowerPointStyle(style).stylecss}
-         controls autoPlay
-        />
-      ) : (
-        <img src={pathbuilderImg()} style={PowerPointStyle(style).stylecss} />
+      
+      {s.Image === "Yes" && (
+        <>
+          {s.Video === "Yes" ? (
+           
+              <video
+              style={s.stylecss}
+                src={pathbuilderVid()}
+                poster={pathbuilderImg()}
+               controls autoPlay
+              />
+            
+         
+          ) : (
+            <img src={pathbuilderImg()} style={s.stylecss} />
+          )}
+        </>
       )}
-    </>
-  )}
-</div>
+    </div>
   );
-
 };
+
 export default Image;
-
-

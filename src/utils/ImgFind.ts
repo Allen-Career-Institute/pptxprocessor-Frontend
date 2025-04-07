@@ -135,7 +135,7 @@ function findAllImages(data:any,images: { style: any; parent: any }[] ,shapes: {
         //     }
             
         // }
-        if(data.Type==="Group=./p:grpSp"||data.Type==="ShapeTree=./p:spTree"){
+       // if(data.Type==="Group=./p:grpSp"||data.Type==="ShapeTree=./p:spTree"){
         // if(child.Type==="GroupShapeProperties=./p:grpSpPr"){
         //     console.log(child.children)
         // }  
@@ -158,9 +158,9 @@ function findAllImages(data:any,images: { style: any; parent: any }[] ,shapes: {
             if(child.Type==="Picture=./p:pic")
             images.push({ style: child.Style, parent: data.Type});            // images.push(child.Style,child.Parent)
             if(child.Type==="Shape=./p:sp")
-            shapes.push({style:child.Style,parent:child.Asset});
+            shapes.push({style:child.Style,parent:child.Name});
 
-        }
+       // }
     }
         
            

@@ -15,7 +15,9 @@ if (!asset) {
   console.log("no shape (null or undefined)");
   return 0; // or some default value for missing shape
 }
-
+// if(asset === "Freeform: Shape 19"){
+  
+// }
 if (asset === "roundRect") {
   console.log("round rect");
   return 15;
@@ -53,6 +55,7 @@ return 0;
          cornerRadius= {border()}
         
         />
+        
     );
 }
 

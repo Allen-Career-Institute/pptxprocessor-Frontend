@@ -38,22 +38,28 @@ function convertPowerPointStyle(pptxStyle: PowerPointStyle): any {
     
     let left = coords.offset.x ? emuToPx(coords.offset.x) : 0;
     let top = coords.offset.y ? emuToPx(coords.offset.y) : 0;
-    const width = coords.extent.cx ? emuToPx(coords.extent.cx) : 0;
-    const height = coords.extent.cy ? emuToPx(coords.extent.cy) : 0;
+    let width = coords.extent.cx ? emuToPx(coords.extent.cx) : 0;
+    let height = coords.extent.cy ? emuToPx(coords.extent.cy) : 0;
     const rotation = coords.rotation ? emuRotationToDegrees(Number(coords.rotation)) : 0;
     const invert=coords.flipH?-1:1;
 
 
-    if(grpcoords){
+    if(grpcoords ){
         left=emuToPx(grpcoords.offset.x)+emuToPx(coords.offset.x)-emuToPx(grpcoords.childOffset.x);
         top=emuToPx(grpcoords.offset.y)+emuToPx(coords.offset.y)-emuToPx(grpcoords.childOffset.y);
     }
+//     if(!pptxStyle["Image"]&& !pptxStyle["Media"]){
+//         const scaleX = emuToPx(grpcoords.extent.cx) / emuToPx(grpcoords.childExtent.cx);
+//   const scaleY = emuToPx(grpcoords.extent.cy) / emuToPx(grpcoords.childExtent.cy);
+
+//   width = emuToPx(coords.extent.cx) * scaleX;
+//   height = emuToPx(coords.extent.cy) * scaleY;
+//     }
     //const blurRadius = shadow?.blurRad ? emuToPx(shadow.blurRad) : 0;
     
     // Extract color properties
    // const presetColor = pptxStyle["Preset Colour"] ? JSON.parse(pptxStyle["Preset Colour"].replace(/'/g, '"')).val : 'black';
     const alpha = pptxStyle["AlphaModFix=a:alphaModFix"]?JSON.parse(pptxStyle["AlphaModFix=a:alphaModFix"].replace(/'/g, '"')).amt / 100000: 1;  
-    // Cropping (convert EMU to percentage for background positioning)
     const cropLeft = cropping?.l ? (parseFloat(cropping.l) / 100000) * 100 : 0;
     const cropTop = cropping?.t ? (parseFloat(cropping.t) / 100000) * 100 : 0;
     const cropRight = cropping?.r ? (parseFloat(cropping.r )/ 100000) * 100 : 100;
@@ -73,8 +79,8 @@ function convertPowerPointStyle(pptxStyle: PowerPointStyle): any {
         opacity: parseFloat(JSON.stringify(alpha)) ,
         zIndex:pptxStyle.zIndex,
        // backgroundImage: pptxStyle.Image ? `url(${pptxStyle.Image})` : "none",
-        backgroundSize: `${100 / ((cropRight - cropLeft) / 100)}% ${100 / ((cropBottom - cropTop) / 100)}%`,
-        backgroundPosition: `${-cropLeft}% ${-cropTop}%`,
+       // backgroundSize: `${100 / ((cropRight - cropLeft) / 100)}% ${100 / ((cropBottom - cropTop) / 100)}%`,
+        //backgroundPosition: `${-cropLeft}% ${-cropTop}%`,
         //backgroundRepeat: "no-repeat"
       },
       Image:pptxStyle["Image"]?"Yes":"No",

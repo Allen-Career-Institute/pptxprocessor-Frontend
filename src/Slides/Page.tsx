@@ -96,12 +96,17 @@ if(currSlide===12)console.log("sher")
       <Stage width={1280} height={720}>
         <Layer>
           {shapes.length > 0 ? (
-            shapes.map((item) => (
-              <Shape
+          
+            shapes.map((item) => {
+             // console.log("Inside ");
+           return   <Shape
                 key={uuidv4()}
-                style={item.style}// Default to "rect" if missing
+                style={item.style}
               />
-            ))
+           
+            
+              
+})
           ) : (
             <Text // Konva does not support direct divs, so we replace it with a Konva Text component
               text="No shapes found in this slide"
