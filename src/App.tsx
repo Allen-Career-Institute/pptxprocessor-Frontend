@@ -7,7 +7,7 @@ import Page from './Slides/Page';
 import './App.css'; // Import the CSS file
 import { Stage,Layer,Rect,Ellipse } from 'react-konva';
 const App = () => {
-  const [currSlide, setCurrSlide] = useState(2);
+  const [currSlide, setCurrSlide] = useState(8);
   const [loading, setLoading] = useState(false);
   const num_slides = Object.keys(obj).length;
 

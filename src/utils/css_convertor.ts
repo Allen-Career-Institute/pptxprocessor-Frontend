@@ -35,7 +35,7 @@ function convertPowerPointStyle(pptxStyle: PowerPointStyle): any {
     //const shadow = pptxStyle["OuterShadow=./a:outerShdw"] ? JSON.parse(pptxStyle["OuterShadow=./a:outerShdw"]) : null;
     const cropping = pptxStyle["./a:srcRect=Croppping"] ? JSON.parse(pptxStyle["./a:srcRect=Croppping"].replace(/'/g, '"')) : null;
     const prstGeom=pptxStyle["PresetGeometry=./a:prstGeom"]? JSON.parse(pptxStyle["PresetGeometry=./a:prstGeom"].replace(/'/g, '"')):"rect";
-    
+    const cnvpr=pptxStyle["cNvPr"]?JSON.parse(pptxStyle["cNvPr"].replace(/'/g, '"')):"Sher";
     let left = coords.offset.x ? emuToPx(coords.offset.x) : 0;
     let top = coords.offset.y ? emuToPx(coords.offset.y) : 0;
     let width = coords.extent.cx ? emuToPx(coords.extent.cx) : 0;
@@ -44,7 +44,7 @@ function convertPowerPointStyle(pptxStyle: PowerPointStyle): any {
     const invert=coords.flipH?-1:1;
 
 
-    if(grpcoords ){
+    if(grpcoords){
         left=emuToPx(grpcoords.offset.x)+emuToPx(coords.offset.x)-emuToPx(grpcoords.childOffset.x);
         top=emuToPx(grpcoords.offset.y)+emuToPx(coords.offset.y)-emuToPx(grpcoords.childOffset.y);
     }
@@ -67,6 +67,8 @@ function convertPowerPointStyle(pptxStyle: PowerPointStyle): any {
   
     return {
       stylecss: {
+        cnvpr:cnvpr.name,
+        id:cnvpr.id,
         position: "absolute",
         left: `${left}px`,
         top: `${top}px`,
