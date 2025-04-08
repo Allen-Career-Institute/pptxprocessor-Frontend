@@ -121,7 +121,7 @@
 
 // export default findAllImages;
 
-function findAllImages(data:any,images: { style: any; parent: any }[] ,shapes: { style: any; parent: any }[] ){
+function findAllImages(data:any,images: { style: any; parent: any }[] ,shapes: { style: any; parent: any }[],text:{ style: any; parent: any }[] ){
   
     for (const child of data.children){
     
@@ -157,7 +157,7 @@ function findAllImages(data:any,images: { style: any; parent: any }[] ,shapes: {
                 arr[1].children[0].Style.grpSpPr_coords=grpSpPr_coords;
               }
             images.push({style:arr[1].children[0].Style,parent:arr[1].Name})
-         
+            shapes.push({style:arr[1].children[0].Style,parent:arr[1].Name})
        }
 
         if(child.Type==="Picture=./p:pic"||child.Type==="Shape=./p:sp" ){
@@ -175,7 +175,11 @@ function findAllImages(data:any,images: { style: any; parent: any }[] ,shapes: {
                     child.Style.grpSpPr_coords=grpSpPr_coords;
                 }
               
-            
+            if(child.Type==="Shape=./p:sp"){
+                if(child.Style["TextContent=./a:t"]){
+                    text.push({style:child.Style,parent:child.Asset})
+                }
+            }
             
             if(child.Type==="Picture=./p:pic")
             images.push({ style: child.Style, parent: data.Type});            // images.push(child.Style,child.Parent)
@@ -192,11 +196,16 @@ function findAllImages(data:any,images: { style: any; parent: any }[] ,shapes: {
          child.children.length>0?arr=child.children:[]
          console.log("177",arr[1].children[0].Style);
          images.push({style:arr[1].children[0].Style,parent:arr[1].Name})
+         shapes.push({style:arr[1].children[0].Style,parent:arr[1].Name})
        }
 
         if(child.Type==="Picture=./p:pic"||child.Type==="Shape=./p:sp" ){
             
-            
+            if(child.Type==="Shape=./p:sp"){
+                if(child.Style["TextContent=./a:t"]){
+                    text.push({style:child.Style,parent:child.Asset})
+                }
+            }
             if(child.Type==="Picture=./p:pic")
             images.push({ style: child.Style, parent: data.Type});            // images.push(child.Style,child.Parent)
             if(child.Type==="Shape=./p:sp")
@@ -207,7 +216,7 @@ function findAllImages(data:any,images: { style: any; parent: any }[] ,shapes: {
    
         
            
-        findAllImages(child,images,shapes)
+        findAllImages(child,images,shapes,text)
     }
 
 }
@@ -215,14 +224,14 @@ function findAllImages(data:any,images: { style: any; parent: any }[] ,shapes: {
 function pics(data:any){
     let images: { style: any; parent: any }[] = []; 
     let shapes: { style: any; parent: any }[] = []; 
-    findAllImages(data,images,shapes);
-    console.log("ABCD",images);
+    let text: { style: any; parent: any }[] = []; 
+    findAllImages(data,images,shapes,text);
+    console.log("ABCD",text);
 //    if(images.length>0)convertPowerPointStyle(images[0].style);
-    return {images,shapes};
+    return {images,shapes,text};
 }
 
 
 
 
 export default pics
-

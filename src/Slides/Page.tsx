@@ -12,6 +12,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Stage, Layer, Text } from "react-konva";
 import ComponentFactory from "./ComponentFactory";
 import pics from "../utils/ImgFind";
+import Text_Comp from "./Text_Comp";
 interface PageProps {
   currSlide: number;
   currSlideData: any;
@@ -23,6 +24,8 @@ const Page: React.FC<PageProps> = ({ currSlide, currSlideData }) => {
   const [shapes, setShapes] = useState<any[]>([]);
   const [video,setvideo]=useState<any[]>([]);
   const [image, setImageList] = useState<any[]>([]);
+  const [text, setTextList] = useState<any[]>([]);
+
   useEffect(() => {
     if (!currSlideData) return;
 
@@ -38,8 +41,9 @@ const Page: React.FC<PageProps> = ({ currSlide, currSlideData }) => {
     const videoList = findAllVideos(slideData);
     const assetList = findAllAssets(slideData);
     const shapeList = pics(slideData).shapes;
+    const textlist=pics(slideData).text;
     setvideo(videoList);
-   
+   setTextList(textlist);
     // console.log("Extracted Videos:", videoList);
     // console.log("Extracted Assets:", assetList);
     // console.log("Extracted Shapes:", shapeList);
@@ -118,6 +122,26 @@ if(currSlide===12)console.log("sher")
           )}
         </Layer>
       </Stage>
+      {/* <Stage width={window.innerWidth} height={window.innerHeight}>
+        <Layer>
+          {text.length>0?(
+            text.map((item)=>
+            <Text_Comp  key={uuidv4()}  style={item.style}/>
+            )
+          ):(<Text // Konva does not support direct divs, so we replace it with a Konva Text component
+              text="No shapes found in this slide"
+              fontSize={16}
+              x={10}
+              y={10}
+              fill="black"
+            />)}
+        </Layer>
+      </Stage> */}
+      {text.length>0?(
+            text.map((item)=>
+            <Text_Comp  key={uuidv4()}  style={item.style}/>
+            )
+          ):(<p>"No text</p>)}
      
     </div>
   );

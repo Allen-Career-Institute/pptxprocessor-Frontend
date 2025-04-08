@@ -79,6 +79,7 @@ function convertPowerPointStyle(pptxStyle: PowerPointStyle): any {
         //boxShadow: `${blurRadius}px 0px 10px rgba(0,0,0,0.5)`, 
         //backgroundColor: presetColor,
         opacity: parseFloat(JSON.stringify(alpha)) ,
+        //opacity: 0.4 ,
         zIndex:pptxStyle.zIndex,
        // backgroundImage: pptxStyle.Image ? `url(${pptxStyle.Image})` : "none",
        // backgroundSize: `${100 / ((cropRight - cropLeft) / 100)}% ${100 / ((cropBottom - cropTop) / 100)}%`,
