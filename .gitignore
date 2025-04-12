@@ -23,7 +23,8 @@ media
 *.sln
 *.sw?
 *.png
-*.json
+asset copy.json
+asset.json
 *.svg
 *.mp4
 *.pptx
