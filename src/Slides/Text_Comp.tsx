@@ -15,7 +15,7 @@ const Text_Comp = ({ style }: any) => {
       overflow: "hidden",
       whiteSpace: "pre-wrap", // respects line breaks
     };
-  
+  console.log("18",text,typeof(text))
     return <div style={divStyle}>{text}</div>;
   };
   

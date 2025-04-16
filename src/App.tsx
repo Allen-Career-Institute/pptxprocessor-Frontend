@@ -7,13 +7,13 @@ import Page from './Slides/Page';
 import './App.css'; // Import the CSS file
 import { Stage,Layer,Rect,Ellipse } from 'react-konva';
 const App = () => {
-  const [currSlide, setCurrSlide] = useState(8);
+  const [currSlide, setCurrSlide] = useState(15);
   const [loading, setLoading] = useState(false);
   const num_slides = Object.keys(obj).length;
 
   const getSlideData = useCallback(() => {
     const slideKey = `slide${currSlide}.xml` as keyof typeof obj;
-    console.log(obj[slideKey]);
+    //console.log(obj[slideKey]);
     return obj[slideKey];
   }, [currSlide])
 

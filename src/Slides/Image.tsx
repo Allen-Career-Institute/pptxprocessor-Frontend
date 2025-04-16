@@ -17,6 +17,7 @@ const Image = ({ style }: any) => {
 
   const pathbuilderVid = () => {
     if (s.Video === "No") return "";
+    console.log("20",style.Media)
     return basePath + style.Media.slice(2);
   };
 

@@ -36,20 +36,20 @@ const Page: React.FC<PageProps> = ({ currSlide, currSlideData }) => {
     
     setImageList(imageList);  
 
-    console.log("Extracted Images Immediately:", imageList); // ✅ Correct way to log extracted images
+    console.log("Extracted Images Immediately:", imageList); 
     //const imageList = ;
-    const videoList = findAllVideos(slideData);
-    const assetList = findAllAssets(slideData);
+    // const videoList = findAllVideos(slideData);
+    // const assetList = findAllAssets(slideData);
     const shapeList = pics(slideData).shapes;
     const textlist=pics(slideData).text;
-    setvideo(videoList);
+    //setvideo(videoList);
    setTextList(textlist);
     // console.log("Extracted Videos:", videoList);
     // console.log("Extracted Assets:", assetList);
     // console.log("Extracted Shapes:", shapeList);
 
     setShapes(shapeList);
-    setAssets(asseter(assetList, imageList, videoList));
+   // setAssets(asseter(assetList, imageList, videoList));
     
   }, [currSlideData,currSlide]);
   useEffect(() => {
@@ -86,10 +86,10 @@ if(currSlide===12)console.log("sher")
         
         image.length>0?(image.map((val,index)=>
         {
-            console.log("Inside iamges")
+            //console.log("Inside iamges")
             
             val.style.zIndex=index;
-            console.log(val)
+           // console.log(val)
          return  <Image key={index} style={val.style}/>
         }
               
@@ -97,15 +97,18 @@ if(currSlide===12)console.log("sher")
       }
       
 
-      <Stage width={1280} height={720}>
+      <Stage width={1268} height={780}>
         <Layer>
           {shapes.length > 0 ? (
           
-            shapes.map((item) => {
+            shapes.map((item,index) => {
              // console.log("Inside ");
+             console.log(item.style["PresetGeometry=./a:prstGeom"],index)
+            
            return   <Shape
                 key={uuidv4()}
                 style={item.style}
+                parent={item.parent}
               />
            
             
