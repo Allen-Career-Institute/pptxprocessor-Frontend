@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 // import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-import obj from './assets/asset copy.json';
+import obj from './assets/asset.modified.json';
 //import obj from './assets1/asset.json'
 import Page from './Slides/Page';
 import './App.css'; // Import the CSS file
