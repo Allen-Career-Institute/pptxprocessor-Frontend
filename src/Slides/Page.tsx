@@ -49,11 +49,12 @@ const Page: React.FC<PageProps> = ({ currSlide, currSlideData }) => {
 
     setShapes(shapeList);
     // setAssets(asseter(assetList, imageList, videoList));
+
   }, [currSlideData, currSlide]);
   useEffect(() => {
     console.log("Updated State (imageList):", image);
   }, [image]);
-  if (currSlide === 12) console.log("sher");
+  if (currSlide === 12) console.log("sher")
   return (
     <div className="slide-page">
       <h1>Total Assets: {image.length}</h1>
@@ -79,28 +80,36 @@ const Page: React.FC<PageProps> = ({ currSlide, currSlideData }) => {
       ) : (
         <p>No assets found in this slide</p>
       )} */}
-      {image.length > 0 ? (
-        image.map((val, index) => {
+      {
+
+        image.length > 0 ? (image.map((val, index) => {
           //console.log("Inside iamges")
 
           val.style.zIndex = index;
           // console.log(val)
-          return <Image key={index} style={val.style} />;
-        })
-      ) : (
-        <p>No Images</p>
-      )}
+          return <Image key={index} style={val.style} />
+        }
+
+        )) : (<p>No Images</p>)
+      }
+
 
       <Stage width={1268} height={780}>
         <Layer>
           {shapes.length > 0 ? (
+
             shapes.map((item, index) => {
               // console.log("Inside ");
-              console.log(item.style["PresetGeometry=./a:prstGeom"], index);
+              console.log(item.style["PresetGeometry=./a:prstGeom"], index)
 
-              return (
-                <Shape key={uuidv4()} style={item.style} parent={item.parent} />
-              );
+              return <Shape
+                key={uuidv4()}
+                style={item.style}
+                parent={item.parent}
+              />
+
+
+
             })
           ) : (
             <Text // Konva does not support direct divs, so we replace it with a Konva Text component
@@ -129,10 +138,11 @@ const Page: React.FC<PageProps> = ({ currSlide, currSlideData }) => {
         </Layer>
       </Stage> */}
       {text.length > 0 ? (
-        text.map((item) => <Text_Comp key={uuidv4()} style={item.style} />)
-      ) : (
-        <p>"No text</p>
-      )}
+        text.map((item) =>
+          <Text_Comp key={uuidv4()} style={item.style} />
+        )
+      ) : (<p>"No text</p>)}
+
     </div>
   );
 };
