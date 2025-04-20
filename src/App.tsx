@@ -48,7 +48,7 @@ const App = () => {
       <div className="content">
       <button>Event</button>
 
-       {!loading && <Page currSlide={currSlide} currSlideData={getSlideData()}/> }
+       {!loading && <Page currSlide={currSlide} currSlideData={getSlideData()[Object.keys(getSlideData())[0]]}/> }
        {/* {obj[JSON.stringify(Object.keys(obj)[currSlide-1])]} */
        // obj[JSON.stringify(currSlideData)][Object.keys(obj[currSlideData])[0]]
        //JSON.stringify(currSlideData[Object.keys(currSlideData)[0]])
