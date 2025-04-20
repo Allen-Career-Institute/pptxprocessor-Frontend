@@ -9,7 +9,7 @@
 //     children: JsonNode[];
 // }
 
-import { styleText } from "util";
+
 
 // interface ExtractedImage {
 //     AssetType:string|null;
@@ -123,6 +123,10 @@ import { styleText } from "util";
 
 // export default findAllImages;
 
+
+ function grp_respect(){
+    console.log("128");
+ }
 function findAllImages
 (data:any,images:  { style: { [key: string]: any }; parent: any }[]  
     ,shapes: { style: { [key: string]: any }; parent: any }[],text: { style: { [key: string]: any }; parent: any }[]  ){
@@ -147,13 +151,13 @@ function findAllImages
             //             console.log("137",arr[1].children[0].Value,child.Asset)
             //         }
             //    // }
-              //  console.log("137","sher")
+            //  console.log("137","sher")
               
               const arr1=data.children;
               let grpSpPr_coords=""
               for(let i=0;i<arr1.length;i++){
                   if(arr1[i].Type==="GroupShapeProperties=./p:grpSpPr"){
-                      grpSpPr_coords=arr1[i].children[0].Value
+                      grpSpPr_coords=arr1[i].Style["Coordinates"]
                       //console.log("152",arr1[i].children[0].Value)
                   }
               }
@@ -175,7 +179,7 @@ function findAllImages
                 let grpSpPr_coords=""
                 for(let i=0;i<arr.length;i++){
                     if(arr[i].Type==="GroupShapeProperties=./p:grpSpPr"){
-                        grpSpPr_coords=arr[i].children[0].Value
+                        grpSpPr_coords=arr[i].Style["Coordinates"]
                        // console.log("sher",arr[i].children[0].Value)
                     }
                 }
@@ -231,12 +235,25 @@ function findAllImages
     }
 
 }
+function recursive(data:any,style:any[]){
+   for(const child of data.children){
+    console.log("241",child.Parent,child.Asset)
+    if(child.Type==="GroupShapeProperties=./p:grpSpPr")
+        style.push(child.Style["Coordinates"])
+    recursive(child,style)
+   }
+}
+
 
 function pics(data:any){
     let images:  { style: { [key: string]: any }; parent: any}[] = []; 
     let shapes: { style: { [key: string]: any} ; parent: any }[] = []; 
     let text:  { style: { [key: string]: any }; parent: any }[] = []; 
+    let style:any[]=[];
+    recursive(data,style)
+    console.log("254",style)
     findAllImages(data,images,shapes,text);
+    
     //console.log("Shapes 229",shapes,shapes[0].style["PresetGeometry=./a:prstGeom"])
 console.log("232",shapes)
 console.log("242",images)

@@ -12,7 +12,7 @@ export interface PowerPointStyle {
   "PresetGeometry=./a:prstGeom"?: string;
   // "alpha"?: string;
   "Preset Colour"?: string;
-  "./a:srcRect=Croppping"?: string;
+  "Croppping"?: string;
   "OuterShadow=./a:outerShdw"?: string;
   "AlphaModFix=a:alphaModFix"?: string;
   grpSpPr_coords?: string;
@@ -37,9 +37,9 @@ function convertPowerPointStyle(pptxStyle: PowerPointStyle): any {
     ? JSON.parse(pptxStyle.grpSpPr_coords.replace(/'/g, '"'))
     : null;
   //const shadow = pptxStyle["OuterShadow=./a:outerShdw"] ? JSON.parse(pptxStyle["OuterShadow=./a:outerShdw"]) : null;
-  const cropping =pptxStyle["./a:srcRect=Croppping"] &&
-    pptxStyle["./a:srcRect=Croppping"] != "True"
-      ? JSON.parse(pptxStyle["./a:srcRect=Croppping"].replace(/'/g, '"'))
+  const cropping =pptxStyle["Croppping"] &&
+    pptxStyle["Croppping"] != "True"
+      ? JSON.parse(pptxStyle["Croppping"].replace(/'/g, '"'))
       : null;
  
 
@@ -96,25 +96,25 @@ if(cropping){
    const cropRight = cropping?.r?parseInt(cropping.r)/1000:0
    const cropBottom = cropping?.b?parseInt(cropping.b)/1000:0
    console.log("98",cropBottom,cropLeft,cropRight,cropTop)
-  if (prstGeom.prst === "arc") {
-    let rot_st: string | undefined;
+  // if (prstGeom.prst === "arc") {
+  //   let rot_st: string | undefined;
 
-    const gdData = pptxStyle["gd inside gdLst"];
+  //   const gdData = pptxStyle["gd inside gdLst"];
 
-    let start = emuRotationToDegrees(
-      parseInt(JSON.parse(gdData[0].replace(/'/g, '"')).fmla.slice(4))
-    );
-    let end = emuRotationToDegrees(
-      parseInt(JSON.parse(gdData[1].replace(/'/g, '"')).fmla.slice(4))
-    );
+  //   let start = emuRotationToDegrees(
+  //     parseInt(JSON.parse(gdData[0].replace(/'/g, '"')).fmla.slice(4))
+  //   );
+  //   let end = emuRotationToDegrees(
+  //     parseInt(JSON.parse(gdData[1].replace(/'/g, '"')).fmla.slice(4))
+  //   );
     
     
-    //rotation=300-(rotation + start) % 360;
-    //rotation=end;
-    if(cropLeft!=0)console.log("121",cropLeft)
+  //   //rotation=300-(rotation + start) % 360;
+  //   //rotation=end;
+  //   if(cropLeft!=0)console.log("121",cropLeft)
 
-    console.log("83", rotation);
-  }
+  //   console.log("83", rotation);
+  // }
   return {
     stylecss: {
       cnvpr: cnvpr.name,
@@ -134,9 +134,9 @@ if(cropping){
       //opacity: 0.4 ,
       zIndex: pptxStyle.zIndex,
       clipPath: `inset(${cropTop}% ${cropRight}% ${cropBottom}% ${cropLeft}%)`,
-
+      objectFit: 'fill',
       // backgroundImage: pptxStyle.Image ? `url(${pptxStyle.Image})` : "none",
-      // backgroundSize: `${100 / ((cropRight - cropLeft) / 100)}% ${100 / ((cropBottom - cropTop) / 100)}%`,
+     //backgroundSize: `${100 / ((cropRight - cropLeft) / 100)}% ${100 / ((cropBottom - cropTop) / 100)}%`,
       //backgroundPosition: `${-cropLeft}% ${-cropTop}%`,
       //backgroundRepeat: "no-repeat"
     },
