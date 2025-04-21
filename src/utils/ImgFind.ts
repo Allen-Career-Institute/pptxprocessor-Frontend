@@ -143,16 +143,16 @@ function findAllImages(
         //    // }
         //  console.log("137","sher")
 
-        const arr1 = data.children;
-        let grpSpPr_coords = "";
-        for (let i = 0; i < arr1.length; i++) {
-          if (arr1[i].Type === "GroupShapeProperties=./p:grpSpPr") {
-            grpSpPr_coords = arr[i]["Style"]?.Coordinates;
-            //console.log("152",arr1[i].children[0].Value)
-          }
-        }
-
-        if (grpSpPr_coords !== "") {
+        //const arr1 = data.children;
+        let grpSpPr_coords = data.Style?.["Coordinates"][0];
+        // for (let i = 0; i < arr1.length; i++) {
+        //   if (arr1[i].Type === "GroupShapeProperties=./p:grpSpPr") {
+        //     grpSpPr_coords = arr[i]["Style"]?.Coordinates;
+        //     //console.log("152",arr1[i].children[0].Value)
+        //   }
+        // }
+        
+        if (grpSpPr_coords !==undefined) {
           arr[1].children[0].Style.grpSpPr_coords = grpSpPr_coords;
         }
         images.push({ style: arr[1].children[0].Style, parent: arr[1].Name });
