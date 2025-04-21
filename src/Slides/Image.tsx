@@ -1,7 +1,7 @@
-import React, { useRef, useState, useEffect } from 'react';
-import pxl from '../utils/emutopxl';
-import degree from '../utils/Todegree';
-import PowerPointStyle from '../utils/css_convertor';
+import React, { useRef, useState, useEffect } from "react";
+import pxl from "../utils/emutopxl";
+import degree from "../utils/Todegree";
+import PowerPointStyle from "../utils/css_convertor";
 
 const Image = ({ style }: any) => {
   const s = PowerPointStyle(style);
@@ -17,7 +17,7 @@ const Image = ({ style }: any) => {
 
   const pathbuilderVid = () => {
     if (s.Video === "No") return "";
-    console.log("20",style.Media)
+    console.log("20", style.Media);
     return basePath + style.Media.slice(2);
   };
 
@@ -29,14 +29,14 @@ const Image = ({ style }: any) => {
     const handlePause = () => setIsPlaying(false);
     const handleEnded = () => setIsPlaying(false);
 
-    video.addEventListener('play', handlePlay);
-    video.addEventListener('pause', handlePause);
-    video.addEventListener('ended', handleEnded);
+    video.addEventListener("play", handlePlay);
+    video.addEventListener("pause", handlePause);
+    video.addEventListener("ended", handleEnded);
 
     return () => {
-      video.removeEventListener('play', handlePlay);
-      video.removeEventListener('pause', handlePause);
-      video.removeEventListener('ended', handleEnded);
+      video.removeEventListener("play", handlePlay);
+      video.removeEventListener("pause", handlePause);
+      video.removeEventListener("ended", handleEnded);
     };
   }, []);
 
@@ -48,19 +48,16 @@ const Image = ({ style }: any) => {
 
   return (
     <div>
-      
       {s.Image === "Yes" && (
         <>
           {s.Video === "Yes" ? (
-           
-              <video
+            <video
               style={s.stylecss}
-                src={pathbuilderVid()}
-                poster={pathbuilderImg()}
-               controls autoPlay
-              />
-            
-         
+              src={pathbuilderVid()}
+              poster={pathbuilderImg()}
+              controls
+              autoPlay
+            />
           ) : (
             <img src={pathbuilderImg()} style={s.stylecss} />
           )}
