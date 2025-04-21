@@ -168,14 +168,14 @@ function findAllImages(
 
       if (child.Type === "Picture=./p:pic" || child.Type === "Shape=./p:sp") {
         const arr = data.children;
-        let grpSpPr_coords = "";
-        for (let i = 0; i < arr.length; i++) {
-          if (arr[i].Type === "GroupShapeProperties=./p:grpSpPr") {
-            grpSpPr_coords = arr[i]["Style"].Coordinates;
-            // console.log("sher",arr[i].children[0].Value)
-          }
-        }
-        if (grpSpPr_coords !== "") {
+        let grpSpPr_coords = data.Style?.["Coordinates"][0];;
+        // for (let i = 0; i < arr.length; i++) {
+        //   if (arr[i].Type === "GroupShapeProperties=./p:grpSpPr") {
+        //     grpSpPr_coords = arr[i]["Style"].Coordinates;
+        //     // console.log("sher",arr[i].children[0].Value)
+        //   }
+        // }
+        if (grpSpPr_coords !== undefined) {
           child.Style.grpSpPr_coords = grpSpPr_coords;
         }
 
