@@ -119,19 +119,20 @@ const Page: React.FC<PageProps> = ({ currSlide, currSlideData }) => {
         ? renderComponent(currSlideData, "sp")
         : currSlideData.Type === "Picture=./p:pic"
         ? renderComponent(currSlideData, "pic")
-        : currSlideData.Type === "GroupShapeProperties=./p:grpSpPr"
-        ? renderComponent(currSlideData, "grpSpPr")
-        : currSlideData.Type === "non visual group properties = ./p:nvGrpSpPr"
-        ? renderComponent(currSlideData, "nvGrpSpPr")
-        : currSlideData.Type === "cNvPr"
-        ? renderComponent(currSlideData, "cNvPr")
-        : currSlideData.Type === "cNvGrpSpPr Not in Dict"
-        ? renderComponent(currSlideData, "cNvGrpSpPr")
-        : currSlideData.Type === "nvPr Not in Dict"
-        ? renderComponent(currSlideData, "nvPr")
-        : currSlideData.Type === "Coordinates"
-        ? renderComponent(currSlideData, "Coordinates")
-        : renderComponent(currSlideData, "None")}
+        // : currSlideData.Type === "GroupShapeProperties=./p:grpSpPr"
+        // ? renderComponent(currSlideData, "grpSpPr")
+        // : currSlideData.Type === "non visual group properties = ./p:nvGrpSpPr"
+        // ? renderComponent(currSlideData, "nvGrpSpPr")
+        // : currSlideData.Type === "cNvPr"
+        // ? renderComponent(currSlideData, "cNvPr")
+        // : currSlideData.Type === "cNvGrpSpPr Not in Dict"
+        // ? renderComponent(currSlideData, "cNvGrpSpPr")
+        // : currSlideData.Type === "nvPr Not in Dict"
+        // ? renderComponent(currSlideData, "nvPr")
+        // : currSlideData.Type === "Coordinates"
+        // ? renderComponent(currSlideData, "Coordinates")
+        // : renderComponent(currSlideData, "None")
+        : <></>}
     </>
   );
 };
