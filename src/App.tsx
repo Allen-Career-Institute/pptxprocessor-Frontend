@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 // import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-import obj from './assets/asset.modified.json';
+//import obj from './assets/asset.modified.json';
+import obj from "./assets/media/asset.modified.json"
 //import obj from './assets1/asset.json'
 import Page from './Slides/Page';
 import './App.css'; // Import the CSS file
@@ -48,7 +49,7 @@ const App = () => {
       <div className="content">
       <button>Event</button>
 
-       {!loading && <Page currSlide={currSlide} currSlideData={getSlideData()}/> }
+       {!loading && <Page currSlide={currSlide} currSlideData={getSlideData()[Object.keys(getSlideData())[0]]}/> }
        {/* {obj[JSON.stringify(Object.keys(obj)[currSlide-1])]} */
        // obj[JSON.stringify(currSlideData)][Object.keys(obj[currSlideData])[0]]
        //JSON.stringify(currSlideData[Object.keys(currSlideData)[0]])

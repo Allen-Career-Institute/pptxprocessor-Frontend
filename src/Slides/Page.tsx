@@ -29,9 +29,10 @@ const Page: React.FC<PageProps> = ({ currSlide, currSlideData }) => {
   useEffect(() => {
     if (!currSlideData) return;
 
-    console.log("useEffect triggered for slide:", currSlide);
+    console.log("useEffect triggered for slide:", currSlide, currSlideData.Asset);
+    // console.log("Curr slide data:", currSlideData);
 
-    const slideData = currSlideData[Object.keys(currSlideData)[0]];
+    const slideData = currSlideData;//[Object.keys(currSlideData)[0]];
     const imageList = pics(slideData).images;
 
     setImageList(imageList);
@@ -55,97 +56,73 @@ const Page: React.FC<PageProps> = ({ currSlide, currSlideData }) => {
   useEffect(() => {
     console.log("Updated State (imageList):", image);
   }, [image]);
-  if (currSlide === 12) console.log("sher")
-  return (
-    <div className="slide-page">
 
-      <h1>Total Assets: {image.length}</h1>
-      {/* <ComponentFactory currSlide={currSlide} currSlideData={currSlideData[Object.keys(currSlideData)[0]]} /> */}
-      {/* {assets.length > 0 ? (
-        assets.map((item) => {
-          console.log("Rendering Asset:", item);
-          return item.AssetType === "Image" ? (
-            <Image
-              key={uuidv4()}
-              imagepath={item.imageRef}
-              coordinates={item.coordinates}
-              cropping={item.cropping}
-            />
-          ) : (
-            <Video
-              key={uuidv4()}
-              path={item.VideoRef}
-              coordinates={item.coordinates}
-            />
-          );
-        })
-      ) : (
-        <p>No assets found in this slide</p>
-      )} */}
-      {
+  const renderChildren = (children: any[]) => {
+    return children.map((childData: any) => (
+      <Page key={childData.Asset} currSlide={currSlide} currSlideData={childData} />
+    ));
+  };
 
-        image.length > 0 ? (image.map((val, index) => {
-          //console.log("Inside iamges")
-
+  const renderComponent = (currSlideData: any, assetType: string) => {
+    return <div key={currSlide} className={"slide-page "+assetType} id={currSlideData.Asset}>
+      {currSlideData.children && renderChildren(currSlideData.children)}
+      {image.length > 0 && (
+        image.map((val, index) => {
           val.style.zIndex = index;
-          // console.log(val)
           return <Image key={index} style={val.style} />
-        }
-
-        )) : (<p>No Images</p>)
-      }
-
-
-      <Stage width={1268} height={780}>
-        <Layer>
-          {shapes.length > 0 ? (
-
-            shapes.map((item, index) => {
-              // console.log("Inside ");
-              console.log(item.style["PresetGeometry=./a:prstGeom"], index)
-
+        })
+      )}
+      {text.length > 0 && (
+        text.map((item) =>
+          <Text_Comp key={uuidv4()} style={item.style} />
+        )
+      )}
+      {shapes.length > 0 &&
+        <Stage width={1268} height={780}>
+          <Layer>
+            {shapes.map((item, index) => {
               return <Shape
                 key={uuidv4()}
                 style={item.style}
                 parent={item.parent}
               />
-
-
-
-            })
-          ) : (
-            <Text // Konva does not support direct divs, so we replace it with a Konva Text component
-              text="No shapes found in this slide"
-              fontSize={16}
-              x={10}
-              y={10}
-              fill="black"
-            />
-          )}
-        </Layer>
-      </Stage>
-      {/* <Stage width={window.innerWidth} height={window.innerHeight}>
-        <Layer>
-          {text.length>0?(
-            text.map((item)=>
-            <Text_Comp  key={uuidv4()}  style={item.style}/>
-            )
-          ):(<Text // Konva does not support direct divs, so we replace it with a Konva Text component
-              text="No shapes found in this slide"
-              fontSize={16}
-              x={10}
-              y={10}
-              fill="black"
-            />)}
-        </Layer>
-      </Stage> */}
-      {text.length > 0 ? (
-        text.map((item) =>
-          <Text_Comp key={uuidv4()} style={item.style} />
-        )
-      ) : (<p>"No text</p>)}
-
+            })}
+          </Layer>
+        </Stage>
+      }
     </div>
+  }
+
+  if (currSlide === 12) console.log("sher")
+  
+  console.log("Rendered slide:", currSlide, currSlideData.Asset);
+
+  return (
+    <>{currSlideData.Type === "CommonSlide=./p:cSld" ? (
+      renderComponent(currSlideData, "cSld")
+    ) : currSlideData.Type === "ShapeTree=./p:spTree" ? (
+      renderComponent(currSlideData, "spTree")
+    ) : currSlideData.Type === "Group=./p:grpSp" ? (
+      renderComponent(currSlideData, "grpSp")
+    ) : currSlideData.Type === "Shape=./p:sp" ? (
+      renderComponent(currSlideData, "sp")
+    ) : currSlideData.Type === "Picture=./p:pic" ? (
+      renderComponent(currSlideData, "pic")
+    ) : currSlideData.Type === "GroupShapeProperties=./p:grpSpPr" ? (
+      renderComponent(currSlideData, "grpSpPr")
+    ) : currSlideData.Type === "non visual group properties = ./p:nvGrpSpPr" ? (
+      renderComponent(currSlideData, "nvGrpSpPr")
+    ) : currSlideData.Type === "cNvPr" ? (
+      renderComponent(currSlideData, "cNvPr")
+    ) : currSlideData.Type === "cNvGrpSpPr Not in Dict" ? (
+      renderComponent(currSlideData, "cNvGrpSpPr")
+    ) : currSlideData.Type === "nvPr Not in Dict" ? (
+      renderComponent(currSlideData, "nvPr")
+    ) : currSlideData.Type === "Coordinates" ? (
+      renderComponent(currSlideData, "Coordinates")
+    ) : (
+      renderComponent(currSlideData, "None")
+    )}</>
   );
 };
 
