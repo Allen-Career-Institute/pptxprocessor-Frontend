@@ -153,7 +153,7 @@ function findAllImages
               let grpSpPr_coords=""
               for(let i=0;i<arr1.length;i++){
                   if(arr1[i].Type==="GroupShapeProperties=./p:grpSpPr"){
-                      grpSpPr_coords=arr1[i].children[0].Value
+                    grpSpPr_coords=arr[i]["Style"]?.Coordinates
                       //console.log("152",arr1[i].children[0].Value)
                   }
               }
@@ -175,7 +175,7 @@ function findAllImages
                 let grpSpPr_coords=""
                 for(let i=0;i<arr.length;i++){
                     if(arr[i].Type==="GroupShapeProperties=./p:grpSpPr"){
-                        grpSpPr_coords=arr[i].children[0].Value
+                        grpSpPr_coords=arr[i]["Style"].Coordinates
                        // console.log("sher",arr[i].children[0].Value)
                     }
                 }
