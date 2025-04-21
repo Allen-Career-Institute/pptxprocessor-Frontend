@@ -73,7 +73,7 @@ const Page: React.FC<PageProps> = ({ currSlide, currSlideData }) => {
     return (
       <div
         key={currSlide}
-        className={"slide-page " + assetType}
+        className={assetType=="cSld"?"slide-page " + assetType: assetType}
         id={currSlideData.Asset}
       >
         {currSlideData.children && renderChildren(currSlideData.children)}
