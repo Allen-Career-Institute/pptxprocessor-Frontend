@@ -90,7 +90,7 @@
   font-size: 16px;
 }
 
-.slide-page {
+.cSld {
   position: absolute;
   width: 1268px;
   height: 780px;
@@ -100,7 +100,7 @@
   
 }
 
-.slide-page h1 {
+.cSld h1 {
   
   margin-bottom: 20px;
   color: white;
@@ -109,6 +109,6 @@
   position:absolute;
 }
 
-.slide-page img {
+.cSld img {
   position: realtive;
 }
