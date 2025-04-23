@@ -130,27 +130,8 @@ function findAllImages(
       if (child.Type === "AlternateContent=./mc:AlternateContent") {
         let arr = [];
         child.children.length > 0 ? (arr = child.children) : [];
-        // console.log("177",arr[1].children[0].Style);
-
-        //     const arr=data.children;
-        //     let grpSpPr_coords=""
-        //    // for(let i=0;i<arr.length;i++){
-        //         if(arr[1].Type==="GroupShapeProperties=./p:grpSpPr"){
-        //             grpSpPr_coords=arr[1].children[0].Value
-
-        //             console.log("137",arr[1].children[0].Value,child.Asset)
-        //         }
-        //    // }
-        //  console.log("137","sher")
-
-        //const arr1 = data.children;
+        
         let grpSpPr_coords = data.Style?.["Coordinates"][0];
-        // for (let i = 0; i < arr1.length; i++) {
-        //   if (arr1[i].Type === "GroupShapeProperties=./p:grpSpPr") {
-        //     grpSpPr_coords = arr[i]["Style"]?.Coordinates;
-        //     //console.log("152",arr1[i].children[0].Value)
-        //   }
-        // }
         
         if (grpSpPr_coords !==undefined) {
           arr[1].children[0].Style.grpSpPr_coords = grpSpPr_coords;
@@ -168,13 +149,7 @@ function findAllImages(
 
       if (child.Type === "Picture=./p:pic" || child.Type === "Shape=./p:sp") {
         const arr = data.children;
-        let grpSpPr_coords = data.Style?.["Coordinates"][0];;
-        // for (let i = 0; i < arr.length; i++) {
-        //   if (arr[i].Type === "GroupShapeProperties=./p:grpSpPr") {
-        //     grpSpPr_coords = arr[i]["Style"].Coordinates;
-        //     // console.log("sher",arr[i].children[0].Value)
-        //   }
-        // }
+        let grpSpPr_coords = data.Style?.["Coordinates"][0];
         if (grpSpPr_coords !== undefined) {
           child.Style.grpSpPr_coords = grpSpPr_coords;
         }
@@ -187,15 +162,16 @@ function findAllImages(
 
         if (child.Type === "Picture=./p:pic")
           images.push({ style: child.Style, parent: data.Type }); // images.push(child.Style,child.Parent)
-        if (child.Type === "Shape=./p:sp")
+        if (child.Type === "Shape=./p:sp") {
           shapes.push({ style: child.Style, parent: child.Name });
-        shapes.push({
-          style: {
-            Coordinates: grpSpPr_coords,
-            "PresetGeometry=./a:prstGeom": "{'prst': 'rect'}",
-          },
-          parent: "Grp_element",
-        });
+          shapes.push({
+            style: {
+              Coordinates: grpSpPr_coords,
+              "PresetGeometry=./a:prstGeom": "{'prst': 'rect'}",
+            },
+            parent: "Grp_element",
+          });
+        }
       }
     }
     if (data.Type === "ShapeTree=./p:spTree") {
@@ -220,8 +196,6 @@ function findAllImages(
           shapes.push({ style: child.Style, parent: child.Name });
       }
     }
-
-    //findAllImages(child, images, shapes, text);
   }
 }
 
