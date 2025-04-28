@@ -1,25 +1,38 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, use } from "react";
 import pxl from "../utils/emutopxl";
 import degree from "../utils/Todegree";
 import PowerPointStyle from "../utils/css_convertor";
 
-const Image = ({ style }: any) => {
-  const s = PowerPointStyle(style);
+interface ImageProps {
+  node: any;
+  zIndex: number;
+}
+
+const Image: React.FC<ImageProps> = ({ node, zIndex }: any) => {
+  const style = PowerPointStyle(node, zIndex);
   const basePath = "src/assets";
 
   const [isPlaying, setIsPlaying] = useState(false);
+  const [videoUrl, setVideoUrl] = useState<string>("");
+  const [imageUrl, setImageUrl] = useState<string>("");
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  const pathbuilderImg = () => {
-    if (s.Image === "No") return "";
-    return basePath + style.Image.slice(2);
-  };
+  console.log(node)
+  useEffect(() => {
+    if (!("children" in node)) return;
+    if (!("blipFill" in node.children)) return;
+    if (!("properties" in node.children.blipFill)) return;
+    if (!("image" in node.children.blipFill.properties)) return;
+    if (!("link" in node.children.blipFill.properties.image)) return;
+    setImageUrl(basePath + node.children.blipFill.properties.image.link.slice(2));
+  }, []);
 
-  const pathbuilderVid = () => {
-    if (s.Video === "No") return "";
-    console.log("20", style.Media);
-    return basePath + style.Media.slice(2);
-  };
+  useEffect(() => {
+    if (!("properties" in node)) return;
+    if (!("videoFile" in node["properties"])) return;
+    if (!("link" in node["properties"]["videoFile"])) return;
+    setVideoUrl(basePath + node.properties.videoFile.link.slice(2));
+  }, []);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -48,18 +61,18 @@ const Image = ({ style }: any) => {
 
   return (
     <div>
-      {s.Image === "Yes" && (
+      {imageUrl !== "" && (
         <>
-          {s.Video === "Yes" ? (
+          {videoUrl !== "" ? (
             <video
-              style={s.stylecss}
-              src={pathbuilderVid()}
-              poster={pathbuilderImg()}
+              src={videoUrl}
+              poster={imageUrl}
+              style={style}
               controls
               autoPlay
             />
           ) : (
-            <img src={pathbuilderImg()} style={s.stylecss} />
+            <img src={imageUrl} style={style} />
           )}
         </>
       )}
