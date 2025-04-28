@@ -10,9 +10,10 @@ import asseter from "../utils/finalassetmaker";
 import "../App.css";
 import { v4 as uuidv4 } from "uuid";
 import { Stage, Layer, Text } from "react-konva";
-import ComponentFactory from "./ComponentFactory";
+import ComponentFactory from "./Componen//tFactory";
 import pics from "../utils/ImgFind";
 import Text_Comp from "./Text_Comp";
+import obj from "..//assets/media/asset.modified.json"
 interface PageProps {
   currSlide: number;
   currSlideData: any;
@@ -31,42 +32,54 @@ const Page: React.FC<PageProps> = ({ currSlide, currSlideData }) => {
     console.log(
       "useEffect triggered for slide:",
       currSlide,
-      currSlideData.Asset
+      currSlideData.asset
     );
     // console.log("Curr slide data:", currSlideData);
 
     const slideData = currSlideData; //[Object.keys(currSlideData)[0]];
-    const imageList = pics(slideData).images;
+    //const imageList = pics(slideData).images;
 
-    setImageList(imageList);
+    //setImageList(imageList);
 
-    console.log("Extracted Images Immediately:", imageList);
+    //console.log("Extracted Images Immediately:", imageList);
     //const imageList = ;
     // const videoList = findAllVideos(slideData);
     // const assetList = findAllAssets(slideData);
-    const shapeList = pics(slideData).shapes;
-    const textlist = pics(slideData).text;
+    //const shapeList = pics(slideData).shapes;
+   // const textlist = pics(slideData).text;
     //setvideo(videoList);
-    setTextList(textlist);
+    //setTextList(textlist);
     // console.log("Extracted Videos:", videoList);
     // console.log("Extracted Assets:", assetList);
     // console.log("Extracted Shapes:", shapeList);
 
-    setShapes(shapeList);
+    //setShapes(shapeList);
     // setAssets(asseter(assetList, imageList, videoList));
   }, [currSlideData, currSlide]);
-  useEffect(() => {
-    console.log("Updated State (imageList):", image);
-  }, [image]);
+  // useEffect(() => {
+  //   console.log("Updated State (imageList):", image);
+  // }, [image]);
 
   const renderChildren = (children: any[]) => {
-    return children.map((childData: any) => (
-      <Page
-        key={childData.Asset}
-        currSlide={currSlide}
-        currSlideData={childData}
-      />
-    ));
+
+    for(let keys in children){
+      return  <Page
+      key={children.asset}
+      currSlide={currSlide}
+      currSlideData={children[keys]}
+    />
+    }
+
+
+
+
+    // return children.map((childData: any) => (
+    //   <Page
+    //     key={childData.asset}
+    //     currSlide={currSlide}
+    //     currSlideData={childData}
+    //   />
+    // ));
   };
 
   const renderComponent = (currSlideData: any, assetType: string) => {
@@ -105,31 +118,31 @@ const Page: React.FC<PageProps> = ({ currSlide, currSlideData }) => {
 
   if (currSlide === 12) console.log("sher");
 
-  console.log("Rendered slide:", currSlide, currSlideData.Asset);
+  console.log("Rendered slide:", currSlide, currSlideData.asset);
 
   return (
     <>
-      {currSlideData.Type === "CommonSlide=./p:cSld"
+      {currSlideData.type === "cSld"
         ? renderComponent(currSlideData, "cSld")
-        : currSlideData.Type === "ShapeTree=./p:spTree"
+        : currSlideData.type === "spTree"
         ? renderComponent(currSlideData, "spTree")
-        : currSlideData.Type === "Group=./p:grpSp"
+        : currSlideData.type === "grpSp"
         ? renderComponent(currSlideData, "grpSp")
-        : currSlideData.Type === "Shape=./p:sp"
+        : currSlideData.type === "sp"
         ? renderComponent(currSlideData, "sp")
-        : currSlideData.Type === "Picture=./p:pic"
+        : currSlideData.type === "pic"
         ? renderComponent(currSlideData, "pic")
-        // : currSlideData.Type === "GroupShapeProperties=./p:grpSpPr"
+        // : currSlideData.type === "GroupShapeProperties=./p:grpSpPr"
         // ? renderComponent(currSlideData, "grpSpPr")
-        // : currSlideData.Type === "non visual group properties = ./p:nvGrpSpPr"
+        // : currSlideData.type === "non visual group properties = ./p:nvGrpSpPr"
         // ? renderComponent(currSlideData, "nvGrpSpPr")
-        // : currSlideData.Type === "cNvPr"
+        // : currSlideData.type === "cNvPr"
         // ? renderComponent(currSlideData, "cNvPr")
-        // : currSlideData.Type === "cNvGrpSpPr Not in Dict"
+        // : currSlideData.type === "cNvGrpSpPr Not in Dict"
         // ? renderComponent(currSlideData, "cNvGrpSpPr")
-        // : currSlideData.Type === "nvPr Not in Dict"
+        // : currSlideData.type === "nvPr Not in Dict"
         // ? renderComponent(currSlideData, "nvPr")
-        // : currSlideData.Type === "Coordinates"
+        // : currSlideData.type === "Coordinates"
         // ? renderComponent(currSlideData, "Coordinates")
         // : renderComponent(currSlideData, "None")
         : <></>}
