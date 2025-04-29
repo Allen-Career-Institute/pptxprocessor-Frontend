@@ -6,11 +6,11 @@ import PowerPointStyle from "../utils/css_convertor";
 interface ImageProps {
   node: any;
   zIndex: number;
+  mediaPath: string;
 }
 
-const Image: React.FC<ImageProps> = ({ node, zIndex }: any) => {
+const Image: React.FC<ImageProps> = ({ node, zIndex, mediaPath }: any) => {
   const style = PowerPointStyle(node, zIndex);
-  const basePath = "src/assets";
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [videoUrl, setVideoUrl] = useState<string>("");
@@ -24,14 +24,15 @@ const Image: React.FC<ImageProps> = ({ node, zIndex }: any) => {
     if (!("properties" in node.children.blipFill)) return;
     if (!("image" in node.children.blipFill.properties)) return;
     if (!("link" in node.children.blipFill.properties.image)) return;
-    setImageUrl(basePath + node.children.blipFill.properties.image.link.slice(2));
+    setImageUrl(mediaPath + node.children.blipFill.properties.image.link.slice(3));
   }, []);
 
   useEffect(() => {
     if (!("properties" in node)) return;
     if (!("videoFile" in node["properties"])) return;
     if (!("link" in node["properties"]["videoFile"])) return;
-    setVideoUrl(basePath + node.properties.videoFile.link.slice(2));
+    setVideoUrl(mediaPath + node.properties.videoFile.link.slice(3));
+    console.log("videoUrl", mediaPath + node.properties.videoFile.link.slice(3));
   }, []);
 
   useEffect(() => {

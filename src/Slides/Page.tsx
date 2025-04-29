@@ -4,9 +4,10 @@ import Container from "./Container";
 interface PageProps {
   currSlide: number;
   currSlideData: any;
+  mediaPath: string;
 }
 
-const Page: React.FC<PageProps> = ({ currSlide, currSlideData }) => {
+const Page: React.FC<PageProps> = ({ currSlide, currSlideData, mediaPath }) => {
   useEffect(() => {
     if (!currSlideData) return;
 
@@ -17,9 +18,11 @@ const Page: React.FC<PageProps> = ({ currSlide, currSlideData }) => {
     );
   }, [currSlideData, currSlide]);
 
+  console.log("Page currSlideData:", currSlideData);
+
   return (
     <>
-      <Container key={currSlideData.asset} node={currSlideData} zIndex={0} />
+      <Container key={currSlideData.asset} node={currSlideData.cSld} zIndex={0} mediaPath={mediaPath}/>
     </>
   );
 };

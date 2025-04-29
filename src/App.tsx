@@ -1,24 +1,54 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
-// import obj from "./assets/media/asset.modified.json"
-import obj from "./assets/media/asset_output.json";
 import Page from "./Slides/Page";
 import "./App.css"; // Import the CSS file
 
-const App = () => {
-  const [currSlide, setCurrSlide] = useState(15);
-  const [loading, setLoading] = useState(false);
-  const num_slides = Object.keys(obj).length;
+const App = ({ slidePath, mediaPath }: { slidePath: string, mediaPath: string }) => {
+  const [numSlides, setNumSlides] = useState<any>(1);
+  const [currSlide, setCurrSlide] = useState(1);
+  const [currSlideData, setCurrSlideData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  const getSlideData = useCallback(() => {
-    const slideKey = `slide${currSlide}.xml` as keyof typeof obj;
-    return obj[slideKey];
+  const fetchSlideJSON = useCallback(
+    async (slideFile: string) => {
+      try {
+        const response = await fetch(`${slidePath}/${slideFile}.json`);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch slide data: ${response.statusText}`);
+        }
+        const data = await response.json();
+        console.log("Fetched slide data:", slideFile, data);
+        return data;
+      } catch (error) {
+        console.error("Error fetching slide data:", slideFile, error);
+        return null;
+      }
+    },
+    [slidePath]
+  );
+
+  useEffect(() => {
+    fetchSlideJSON("slide_meta").then((data) => {
+      setNumSlides(data.numSlides)
+      console.log("numSlides", numSlides);
+    });
+  }, []);
+
+  useEffect(() => {
+    fetchSlideJSON(`slide${currSlide}`).then((data) => {
+      setCurrSlideData(data)
+    });
   }, [currSlide]);
 
-  const arr = Array.from({ length: num_slides }, (_, i) => i + 1);
+  useEffect(() => {
+    if (currSlide && currSlideData) {
+      console.log("currSlideData", currSlideData);
+      setLoading(false);
+    }
+  }, [currSlideData]);
 
   const handlenext = () => {
-    if (currSlide < num_slides) {
+    if (currSlide < numSlides) {
       console.clear();
       setCurrSlide((prev) => prev + 1);
     }
@@ -38,16 +68,13 @@ const App = () => {
         <button>Event</button>
 
         {!loading && (
-          <Page
-            currSlide={currSlide}
-            currSlideData={getSlideData()[Object.keys(getSlideData())[0]]}
-          />
+          <Page currSlide={currSlide} currSlideData={currSlideData} mediaPath={mediaPath} />
         )}
       </div>
       <div className="pagination">
         <h1>{currSlide}</h1>
         <button onClick={handleprev}>Prev</button>
-        {arr.map((element) => (
+        {Array.from({ length: numSlides }, (_, i) => i + 1).map((element) => (
           <button
             key={element}
             onClick={() => {

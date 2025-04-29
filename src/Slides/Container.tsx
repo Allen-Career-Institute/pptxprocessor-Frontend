@@ -4,17 +4,18 @@ import Image from "./Image";
 interface ContainerProps {
   node: any;
   zIndex: number;
+  mediaPath: string;
 }
 
 
-const Container: React.FC<ContainerProps> = ({ node, zIndex }) => {
+const Container: React.FC<ContainerProps> = ({ node, zIndex, mediaPath }) => {
   console.log("Container node:", zIndex, node.asset);
 
   const renderComponent = (node: any, zIndex: number): JSX.Element => {
     if (node.type === "pic") {
-      return <Image key={node.asset} node={node} zIndex={zIndex} />;
+      return <Image key={node.asset} node={node} zIndex={zIndex} mediaPath={mediaPath}/>;
     } else {
-      return <Container key={node.asset} node={node} zIndex={zIndex} />;
+      return <Container key={node.asset} node={node} zIndex={zIndex} mediaPath={mediaPath}/>;
     }
   }
 
