@@ -1,8 +1,16 @@
 import { Arc, Rect } from 'react-konva';
 import PowerPointStyle from '../utils/css_convertor';
 
-const Shape = ({ style,parent }: any) => {
-  let s = PowerPointStyle(style);
+interface ShapeProps {
+  node: any;
+  zIndex: number;
+  mediaPath: string;
+  maxDim: { width: number; height: number };
+}
+
+
+const Shape: React.FC<ShapeProps> = ({ node, zIndex, mediaPath, maxDim }: any) => {
+  let style = PowerPointStyle(node, zIndex, maxDim);
   const shape = s?.stylecss?.geom || "rect";
   //console.log("7",s.stylecss)
   function border() {

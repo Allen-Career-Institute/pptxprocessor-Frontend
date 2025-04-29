@@ -1,5 +1,5 @@
-function emuToPx(emu: number): number {
-  return emu / 9525;
+function emuToPx(emu: number, maxWidth: number): number {
+  return (maxWidth * emu) / (9525 * 1280);
 }
 
 function emuRotationToDegrees(rotationEMU: number): number {
@@ -7,16 +7,16 @@ function emuRotationToDegrees(rotationEMU: number): number {
 }
 
 // Main function
-function convertPowerPointStyle(node: any, zIndex: any): any {
+function convertPowerPointStyle(node: any, zIndex: any, maxDim: { width: number; height: number }): any {
   const stylecss: any = { position: "absolute", zIndex };
 
   const offset = node.properties?.shape?.xfrm.off || null;
-  stylecss.left = `${offset ? emuToPx(offset.value.x) : 0}px`;
-  stylecss.top = `${offset ? emuToPx(offset.value.y) : 0}px`;
+  stylecss.left = `${offset ? emuToPx(offset.value.x, maxDim.width) : 0}px`;
+  stylecss.top = `${offset ? emuToPx(offset.value.y, maxDim.width) : 0}px`;
 
   const extent = node.properties?.shape?.xfrm.ext || null;
-  stylecss.width = `${extent ? emuToPx(extent.value.cx) : 0}px`;
-  stylecss.height = `${extent ? emuToPx(extent.value.cy) : 0}px`;
+  stylecss.width = `${extent ? extent.value.cx != "0"? emuToPx(extent.value.cx, maxDim.width) : maxDim.width : maxDim.width}px`;
+  stylecss.height = `${extent ? extent.value.cy != "0"? emuToPx(extent.value.cy, maxDim.width) : maxDim.height: maxDim.height}px`;
 
   if (node.properties?.stretch) {
     if (node.properties.stretch === "fillRect") {

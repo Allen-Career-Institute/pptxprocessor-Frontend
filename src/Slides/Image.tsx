@@ -7,24 +7,27 @@ interface ImageProps {
   node: any;
   zIndex: number;
   mediaPath: string;
+  maxDim: { width: number; height: number };
 }
 
-const Image: React.FC<ImageProps> = ({ node, zIndex, mediaPath }: any) => {
-  const style = PowerPointStyle(node, zIndex);
+const Image: React.FC<ImageProps> = ({ node, zIndex, mediaPath, maxDim }: any) => {
+  const style = PowerPointStyle(node, zIndex, maxDim);
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [videoUrl, setVideoUrl] = useState<string>("");
   const [imageUrl, setImageUrl] = useState<string>("");
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  console.log(node)
+  console.log(node);
   useEffect(() => {
     if (!("children" in node)) return;
     if (!("blipFill" in node.children)) return;
     if (!("properties" in node.children.blipFill)) return;
     if (!("image" in node.children.blipFill.properties)) return;
     if (!("link" in node.children.blipFill.properties.image)) return;
-    setImageUrl(mediaPath + node.children.blipFill.properties.image.link.slice(3));
+    setImageUrl(
+      mediaPath + node.children.blipFill.properties.image.link.slice(3)
+    );
   }, []);
 
   useEffect(() => {
@@ -32,7 +35,10 @@ const Image: React.FC<ImageProps> = ({ node, zIndex, mediaPath }: any) => {
     if (!("videoFile" in node["properties"])) return;
     if (!("link" in node["properties"]["videoFile"])) return;
     setVideoUrl(mediaPath + node.properties.videoFile.link.slice(3));
-    console.log("videoUrl", mediaPath + node.properties.videoFile.link.slice(3));
+    console.log(
+      "videoUrl",
+      mediaPath + node.properties.videoFile.link.slice(3)
+    );
   }, []);
 
   useEffect(() => {
@@ -61,7 +67,12 @@ const Image: React.FC<ImageProps> = ({ node, zIndex, mediaPath }: any) => {
   };
 
   return (
-    <div>
+    <div
+      key={node.asset}
+      className={node.type}
+      id={node.asset}
+      style={style}
+    >
       {imageUrl !== "" && (
         <>
           {videoUrl !== "" ? (

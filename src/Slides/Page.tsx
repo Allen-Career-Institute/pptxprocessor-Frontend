@@ -5,9 +5,10 @@ interface PageProps {
   currSlide: number;
   currSlideData: any;
   mediaPath: string;
+  maxDim: { width: number; height: number };
 }
 
-const Page: React.FC<PageProps> = ({ currSlide, currSlideData, mediaPath }) => {
+const Page: React.FC<PageProps> = ({ currSlide, currSlideData, mediaPath, maxDim }) => {
   useEffect(() => {
     if (!currSlideData) return;
 
@@ -22,7 +23,7 @@ const Page: React.FC<PageProps> = ({ currSlide, currSlideData, mediaPath }) => {
 
   return (
     <>
-      <Container key={currSlideData.asset} node={currSlideData.cSld} zIndex={0} mediaPath={mediaPath}/>
+      <Container key={currSlideData.asset} node={currSlideData.cSld} zIndex={0} mediaPath={mediaPath} maxDim={maxDim}/>
     </>
   );
 };

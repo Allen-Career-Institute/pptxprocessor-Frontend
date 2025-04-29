@@ -8,6 +8,27 @@ const App = ({ slidePath, mediaPath }: { slidePath: string, mediaPath: string })
   const [currSlide, setCurrSlide] = useState(1);
   const [currSlideData, setCurrSlideData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [maxDim, setMaxDim] = useState<{ width: number; height: number }>({ width: 1280, height: 720 });
+
+  useEffect(() => {
+    const updateMaxDim = () => {
+      const appElement = document.querySelector(".app-container");
+      if (appElement) {
+        const { clientHeight, clientWidth } = appElement;
+        const aspectRatio = 16 / 9; // Assuming a 16:9 aspect ratio for slides
+        const calculatedWidth = Math.min(clientWidth, clientHeight * aspectRatio);
+        const calculatedHeight = calculatedWidth / aspectRatio;
+        setMaxDim({ width: calculatedWidth, height: calculatedHeight });
+      }
+    };
+
+    updateMaxDim();
+    window.addEventListener("resize", updateMaxDim);
+
+    return () => {
+      window.removeEventListener("resize", updateMaxDim);
+    };
+  }, []);
 
   const fetchSlideJSON = useCallback(
     async (slideFile: string) => {
@@ -68,7 +89,7 @@ const App = ({ slidePath, mediaPath }: { slidePath: string, mediaPath: string })
         <button>Event</button>
 
         {!loading && (
-          <Page currSlide={currSlide} currSlideData={currSlideData} mediaPath={mediaPath} />
+          <Page currSlide={currSlide} currSlideData={currSlideData} mediaPath={mediaPath} maxDim={maxDim} />
         )}
       </div>
       <div className="pagination">
