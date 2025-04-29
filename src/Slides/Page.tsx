@@ -32,12 +32,13 @@ const Page: React.FC<PageProps> = ({ currSlide, currSlideData }) => {
     console.log(
       "useEffect triggered for slide:",
       currSlide,
-      currSlideData.asset
+      currSlideData.asset,
+      currSlideData.type
     );
     // console.log("Curr slide data:", currSlideData);
 
     const slideData = currSlideData; //[Object.keys(currSlideData)[0]];
-    //const imageList = pics(slideData).images;
+    const imageList = pics(slideData).images;
 
     //setImageList(imageList);
 
@@ -63,10 +64,14 @@ const Page: React.FC<PageProps> = ({ currSlide, currSlideData }) => {
   const renderChildren = (children: any[]) => {
 
     for(let keys in children){
+     
+
+
       return  <Page
       key={children.asset}
       currSlide={currSlide}
       currSlideData={children[keys]}
+
     />
     }
 
@@ -116,9 +121,9 @@ const Page: React.FC<PageProps> = ({ currSlide, currSlideData }) => {
     );
   };
 
-  if (currSlide === 12) console.log("sher");
+  
 
-  console.log("Rendered slide:", currSlide, currSlideData.asset);
+  console.log("Rendered slide:", currSlide, currSlideData.asset,currSlideData);
 
   return (
     <>
