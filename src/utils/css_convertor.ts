@@ -20,6 +20,84 @@ function extractPositionAndDimensions(node: any, maxDim: { width: number; height
   };
 }
 
+function extractFillStyles(node: any): any {
+  const solidFill = node.properties?.shape?.solidFill?.srgbClr?.value?.val || null;
+  const gradFill = node.properties?.shape?.gradFill?.gsLst?.gs || null;
+  if (solidFill) {
+    return { backgroundColor: `#${solidFill}` };
+  } else if (gradFill) {
+    const gradientColors = gradFill.map((stop: any) => `#${stop.srgbClr?.value?.val}`).join(", ");
+    return { backgroundImage: `linear-gradient(${gradientColors})` };
+  }
+  return {};
+}
+
+function adjustLuminance(color: string, lumMod: number, lumOff: number): string {
+  console.log("adjustLuminance color:", color, lumMod, lumOff);
+  // Convert hex color to RGB
+  const r = parseInt(color.slice(1, 3), 16);
+  const g = parseInt(color.slice(3, 5), 16);
+  const b = parseInt(color.slice(5, 7), 16);
+
+  // Apply luminance modifier and offset
+  const adjust = (channel: number) =>
+    Math.min(
+      255,
+      Math.max(0, (channel * lumMod) / 100000 + (lumOff * 255) / 100000)
+    );
+
+  const adjustedR = adjust(r);
+  const adjustedG = adjust(g);
+  const adjustedB = adjust(b);
+
+  // Convert back to hex
+  return `rgb(${Math.round(adjustedR)}, ${Math.round(adjustedG)}, ${Math.round(adjustedB)})`;
+}
+
+function extractPatternFillStyles(node: any): any {
+  const pattFill = node.properties?.shape?.pattFill || null;
+  if (pattFill) {
+    // Extract foreground color
+    const fgClr = pattFill.fgClr?.schemeClr;
+    let fgColor = "#000000";
+    let adjustedFgColor = fgColor;
+    console.log("fgClr:", fgClr, pattFill);
+    if (fgClr) {
+      const tx1Color = {
+        tx1: "#000000", // Default text color in PowerPoint is black
+      };
+      let fgClrVal = "#000000"
+      fgClrVal = fgClr?.value? fgClr.value.val: fgClrVal;
+      fgClrVal = fgClrVal in tx1Color ? tx1Color[fgClrVal as keyof typeof tx1Color] : fgClrVal; // Map tx1 to its corresponding color
+      fgColor = fgClrVal;
+      const fgLumMod = fgClr.lumMod?.value?.val || 100000; // Default to 100% luminance
+      const fgLumOff = fgClr.lumOff?.value?.val || 0; // Default to 0% offset
+
+      // Adjust foreground color brightness
+      console.log("Calling adjustLuminance");
+      adjustedFgColor = adjustLuminance(fgColor, fgLumMod, fgLumOff);
+      console.log("Color:", fgColor, adjustedFgColor);
+    }
+
+    // Extract background color
+    // const bgClr = pattFill.bgClr?.schemeClr?.value || {};
+    // let bgColor = "#FFFFFF"; // Default to white
+    // if (bgClr) {
+    //   bgColor = bgClr.val ? `#${bgClr.val}` : bgColor;
+    // }
+
+    // Extract pattern type
+    const pattern = pattFill.value?.prst || "none"; // Default to "none" if not specified
+
+    console.log("pattern:", pattern, adjustedFgColor);
+    // Return CSS styles for pattern fill
+    return {
+      backgroundImage: `repeating-linear-gradient(${pattern}, ${adjustedFgColor})`,
+    };
+  }
+  return {};
+}
+
 function calculateChildFrame(node: any, maxDim: { width: number; height: number }): any {
   const chOff = node.properties?.shape?.xfrm?.chOff?.value || { x: 0, y: 0 };
   const chExt = node.properties?.shape?.xfrm?.chExt?.value || { cx: 1, cy: 1 };
@@ -35,23 +113,18 @@ function calculateChildFrame(node: any, maxDim: { width: number; height: number 
   };
 }
 
-function extractFillStyles(node: any): any {
-  const solidFill = node.properties?.shape?.solidFill?.srgbClr?.value?.val || null;
-  const gradFill = node.properties?.shape?.gradFill?.gsLst?.gs || null;
-  if (solidFill) {
-    return { backgroundColor: `#${solidFill}` };
-  } else if (gradFill) {
-    const gradientColors = gradFill.map((stop: any) => `#${stop.srgbClr?.value?.val}`).join(", ");
-    return { backgroundImage: `linear-gradient(${gradientColors})` };
-  }
-  return {};
-}
-
 function extractStrokeStyles(node: any, scalingFactor: number): any {
   const line = node.properties?.shape?.ln || {};
   const lineColor = line.solidFill?.schemeClr?.value?.val || "black";
   const lineWidth = (parseInt(line.value?.w || "1") / 12700) * scalingFactor;
-  return { border: `${lineWidth}px solid #${lineColor}` };
+  const alpha = line.solidFill?.schemeClr?.alpha?.value?.val || "100000"; // Transparency
+  const opacity = parseInt(alpha) / 100000; // Convert to CSS opacity (0-1)
+  return {
+    border: `${lineWidth}px solid rgba(${parseInt(lineColor.slice(0, 2), 16)}, ${parseInt(
+      lineColor.slice(2, 4),
+      16
+    )}, ${parseInt(lineColor.slice(4, 6), 16)}, ${opacity})`,
+  };
 }
 
 function extractCornerRadius(node: any, scalingFactor: number): any {
@@ -69,16 +142,19 @@ function extractCornerRadius(node: any, scalingFactor: number): any {
   return {};
 }
 
-function extractShadowStyles(node: any, maxDim: { width: number; height: number }): any {
-  const outerShadow = node.properties?.shape?.effectLst?.outerShdw || null;
-  if (outerShadow) {
-    const shadowColor = outerShadow.prstClr?.value?.val || "000000";
-    const blur = emuToPx(parseInt(outerShadow.value?.blurRad || "0"), maxDim.width, 0);
-    const dist = emuToPx(parseInt(outerShadow.value?.dist || "0"), maxDim.width, 0);
-    const dir = parseInt(outerShadow.value?.dir || "0");
-    const offsetX = dist * Math.cos((dir * Math.PI) / 1800000);
-    const offsetY = dist * Math.sin((dir * Math.PI) / 1800000);
-    return { boxShadow: `${blur}px ${offsetX}px ${offsetY}px #${shadowColor}` };
+function extractEffectsStyles(node: any, maxDim: { width: number; height: number }): any {
+  const effects = node.properties?.shape?.effectLst || null;
+  if (effects) {
+    const outerShadow = effects.outerShdw?.value || null;
+    if (outerShadow) {
+      const shadowColor = effects.outerShdw.prstClr?.value?.val || "000000";
+      const blur = emuToPx(parseInt(outerShadow.blurRad || "0"), maxDim.width, 0);
+      const dist = emuToPx(parseInt(outerShadow.dist || "0"), maxDim.width, 0);
+      const dir = parseInt(outerShadow.dir || "0");
+      const offsetX = dist * Math.cos((dir * Math.PI) / 1800000);
+      const offsetY = dist * Math.sin((dir * Math.PI) / 1800000);
+      return { boxShadow: `${blur}px ${offsetX}px ${offsetY}px #${shadowColor}` };
+    }
   }
   return {};
 }
@@ -86,14 +162,32 @@ function extractShadowStyles(node: any, maxDim: { width: number; height: number 
 function extractTextStyles(node: any, maxDim: { width: number; height: number }): any {
   const textStyle = node.properties?.txBody?.p?.endParaRPr?.value || {};
   const fontSize = emuToPx(parseInt(textStyle.sz || (24 * EMUConst).toString()), maxDim.width, 0);
-  const fontColor = textStyle.solidFill?.prstClr?.value?.val || "000000";
+  const fontColor = textStyle.solidFill?.srgbClr?.value?.val || "000000";
   const fontFamily = textStyle.latin?.value?.typeface || "Arial";
   const textAlign = node.properties?.txBody?.p?.pPr?.value?.algn || "center";
+  const wrap = node.properties?.txBody?.bodyPr?.value?.wrap || "none";
+  const anchor = node.properties?.txBody?.bodyPr?.value?.anchor || "top";
   return {
     fontSize: `${fontSize}px`,
     color: `#${fontColor}`,
     fontFamily,
     textAlign,
+    whiteSpace: wrap === "none" ? "nowrap" : "normal",
+    verticalAlign: anchor === "ctr" ? "middle" : anchor,
+  };
+}
+
+function extractStyleReferences(node: any): any {
+  const style = node.properties?.style || {};
+  const fillRef = style.fillRef?.schemeClr?.value?.val || null;
+  const lnRef = style.lnRef?.schemeClr?.value?.val || null;
+  const effectRef = style.effectRef?.schemeClr?.value?.val || null;
+  const fontRef = style.fontRef?.schemeClr?.value?.val || null;
+  return {
+    fillColor: fillRef ? `#${fillRef}` : undefined,
+    borderColor: lnRef ? `#${lnRef}` : undefined,
+    effectColor: effectRef ? `#${effectRef}` : undefined,
+    fontColor: fontRef ? `#${fontRef}` : undefined,
   };
 }
 
@@ -108,10 +202,12 @@ function convertPowerPointStyle(
 
   Object.assign(stylecss, extractPositionAndDimensions(node, maxDim, childFrame));
   Object.assign(stylecss, extractFillStyles(node));
+  Object.assign(stylecss, extractPatternFillStyles(node));
   Object.assign(stylecss, extractStrokeStyles(node, scalingFactor));
   Object.assign(stylecss, extractCornerRadius(node, scalingFactor));
-  Object.assign(stylecss, extractShadowStyles(node, maxDim));
+  Object.assign(stylecss, extractEffectsStyles(node, maxDim));
   Object.assign(stylecss, extractTextStyles(node, maxDim));
+  Object.assign(stylecss, extractStyleReferences(node));
 
   const newChildFrame = calculateChildFrame(node, maxDim);
 
