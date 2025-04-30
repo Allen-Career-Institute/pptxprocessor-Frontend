@@ -9,83 +9,113 @@ function emuRotationToDegrees(rotationEMU: number): number {
   return rotationEMU / 60000;
 }
 
-function convertPowerPointStyle(node: any, zIndex: any, 
-  maxDim: { width: number; height: number },
-  childFrame: {off: {x: number, y: number}, ext: {x: number, y: number}}): any {
-  const stylecss: any = { position: "absolute", zIndex };
-
-  const scalingFactor = maxDim.width / 1280; // Scaling factor for all pixel-based values
-
-  // Extract position and dimensions
+function extractPositionAndDimensions(node: any, maxDim: { width: number; height: number }, childFrame: any): any {
   const offset = node.properties?.shape?.xfrm?.off?.value || {};
   const extent = node.properties?.shape?.xfrm?.ext?.value || {};
+  return {
+    left: `${offset.x ? emuToPx(offset.x, maxDim.width, childFrame.off.x) : 0}px`,
+    top: `${offset.y ? emuToPx(offset.y, maxDim.width, childFrame.off.y) : 0}px`,
+    width: `${extent.cx ? emuToPx(extent.cx, maxDim.width, childFrame.ext.x) : maxDim.width}px`,
+    height: `${extent.cy ? emuToPx(extent.cy, maxDim.width, childFrame.ext.y) : maxDim.height}px`,
+  };
+}
+
+function calculateChildFrame(node: any, maxDim: { width: number; height: number }): any {
   const chOff = node.properties?.shape?.xfrm?.chOff?.value || { x: 0, y: 0 };
   const chExt = node.properties?.shape?.xfrm?.chExt?.value || { cx: 1, cy: 1 };
-  stylecss.left = `${offset.x ? emuToPx(offset.x, maxDim.width, childFrame.off.x) : 0}px`;
-  stylecss.top = `${offset.y ? emuToPx(offset.y, maxDim.width, childFrame.off.y) : 0}px`;
-  stylecss.width = `${extent.cx ? emuToPx(extent.cx, maxDim.width, childFrame.ext.x) : maxDim.width}px`;
-  stylecss.height = `${extent.cy ? emuToPx(extent.cy, maxDim.width, childFrame.ext.y) : maxDim.height}px`;
-  console.log("ChildFrame", offset.x, childFrame.off.x, stylecss.left);
+  return {
+    off: {
+      x: chOff.x ? emuToPx(chOff.x, maxDim.width, 0) : 0,
+      y: chOff.y ? emuToPx(chOff.y, maxDim.width, 0) : 0,
+    },
+    ext: {
+      x: chExt.x ? emuToPx(chExt.x, maxDim.width, 0) : 0,
+      y: chExt.y ? emuToPx(chExt.y, maxDim.width, 0) : 0,
+    },
+  };
+}
 
-  const newChildFrame = {off: {x: 0, y: 0}, ext: {x: 0, y: 0}};
-  newChildFrame.off.x = chOff.x ? emuToPx(chOff.x, maxDim.width, 0) : 0;
-  newChildFrame.off.y = chOff.y ? emuToPx(chOff.y, maxDim.width, 0) : 0;
-  newChildFrame.ext.x = chExt.x ? emuToPx(chExt.x, maxDim.width, 0) : 0;
-  newChildFrame.ext.y = chExt.y ? emuToPx(chExt.y, maxDim.width, 0) : 0;
-
-  // Extract fill styles
+function extractFillStyles(node: any): any {
   const solidFill = node.properties?.shape?.solidFill?.srgbClr?.value?.val || null;
   const gradFill = node.properties?.shape?.gradFill?.gsLst?.gs || null;
   if (solidFill) {
-    stylecss.backgroundColor = `#${solidFill}`;
+    return { backgroundColor: `#${solidFill}` };
   } else if (gradFill) {
     const gradientColors = gradFill.map((stop: any) => `#${stop.srgbClr?.value?.val}`).join(", ");
-    stylecss.backgroundImage = `linear-gradient(${gradientColors})`;
+    return { backgroundImage: `linear-gradient(${gradientColors})` };
   }
+  return {};
+}
 
-  // Extract stroke (border) styles
+function extractStrokeStyles(node: any, scalingFactor: number): any {
   const line = node.properties?.shape?.ln || {};
   const lineColor = line.solidFill?.schemeClr?.value?.val || "black";
-  const lineWidth = (parseInt(line.value?.w || "1") / 12700) * scalingFactor; // Scale border width
-  stylecss.border = `${lineWidth}px solid #${lineColor}`;
+  const lineWidth = (parseInt(line.value?.w || "1") / 12700) * scalingFactor;
+  return { border: `${lineWidth}px solid #${lineColor}` };
+}
 
-  // Extract corner radius for rounded rectangles
+function extractCornerRadius(node: any, scalingFactor: number): any {
   const prstGeom = node.properties?.shape?.prstGeom?.value?.prst || "rect";
+  console.log("prstGeom:", prstGeom, node.properties?.shape?.prstGeom?.value?.prst);
   if (prstGeom === "roundRect") {
-    const cornerAdj = node.properties?.shape?.prstGeom?.avLst?.gd?.value?.fmla || "0";
-    stylecss.borderRadius = `${(parseInt(cornerAdj) / 1000) * scalingFactor}px`; // Scale corner radius
+    const cornerAdj = node.properties?.shape?.prstGeom?.avLst?.gd?.value?.fmla.split(" ")[1] || "0";
+    console.log("cornerAdj:", cornerAdj, scalingFactor);
+    const borderRadius = `${(parseInt(cornerAdj) / 1000) * scalingFactor}px`;
+    console.log("borderRadius:", borderRadius);
+    return { borderRadius };
   } else if (prstGeom === "ellipse") {
-    stylecss.borderRadius = "50%";
+    return { borderRadius: "50%" };
   }
+  return {};
+}
 
-  // Extract shadow effects
+function extractShadowStyles(node: any, maxDim: { width: number; height: number }): any {
   const outerShadow = node.properties?.shape?.effectLst?.outerShdw || null;
   if (outerShadow) {
     const shadowColor = outerShadow.prstClr?.value?.val || "000000";
-    const blur = emuToPx(parseInt(outerShadow.value?.blurRad || "0"), maxDim.width, 0); // Use emuToPx for blur radius
-    const dist = emuToPx(parseInt(outerShadow.value?.dist || "0"), maxDim.width, 0); // Use emuToPx for distance
-    const dir = parseInt(outerShadow.value?.dir || "0"); // Direction in EMUs (angle)
-  
-    // Calculate offsetX and offsetY based on direction and distance
-    const offsetX = dist * Math.cos((dir * Math.PI) / 1800000); // Convert EMUs to degrees
-    const offsetY = dist * Math.sin((dir * Math.PI) / 1800000); // Convert EMUs to degrees
-  
-    stylecss.boxShadow = `${blur}px ${offsetX}px ${offsetY}px #${shadowColor}`;
+    const blur = emuToPx(parseInt(outerShadow.value?.blurRad || "0"), maxDim.width, 0);
+    const dist = emuToPx(parseInt(outerShadow.value?.dist || "0"), maxDim.width, 0);
+    const dir = parseInt(outerShadow.value?.dir || "0");
+    const offsetX = dist * Math.cos((dir * Math.PI) / 1800000);
+    const offsetY = dist * Math.sin((dir * Math.PI) / 1800000);
+    return { boxShadow: `${blur}px ${offsetX}px ${offsetY}px #${shadowColor}` };
   }
+  return {};
+}
 
-  // Extract text styles
+function extractTextStyles(node: any, maxDim: { width: number; height: number }): any {
   const textStyle = node.properties?.txBody?.p?.endParaRPr?.value || {};
-  node.properties?.txBody?.p?.r && console.log("Text", node.properties?.txBody?.p?.r[0]?.t?.value?.text);
-  const fontSize = emuToPx(parseInt(textStyle.sz || (24*EMUConst).toString()), maxDim.width, 0); // Scale font size
+  const fontSize = emuToPx(parseInt(textStyle.sz || (24 * EMUConst).toString()), maxDim.width, 0);
   const fontColor = textStyle.solidFill?.prstClr?.value?.val || "000000";
   const fontFamily = textStyle.latin?.value?.typeface || "Arial";
   const textAlign = node.properties?.txBody?.p?.pPr?.value?.algn || "center";
-  stylecss.fontSize = `${fontSize}px`;
-  stylecss.color = `#${fontColor}`;
-  stylecss.fontFamily = fontFamily;
-  stylecss.textAlign = textAlign;
+  return {
+    fontSize: `${fontSize}px`,
+    color: `#${fontColor}`,
+    fontFamily,
+    textAlign,
+  };
+}
 
-  return {style: stylecss, newChildFrame};
+function convertPowerPointStyle(
+  node: any,
+  zIndex: any,
+  maxDim: { width: number; height: number },
+  childFrame: { off: { x: number; y: number }; ext: { x: number; y: number } }
+): any {
+  const stylecss: any = { position: "absolute", zIndex };
+  const scalingFactor = maxDim.width / 1280;
+
+  Object.assign(stylecss, extractPositionAndDimensions(node, maxDim, childFrame));
+  Object.assign(stylecss, extractFillStyles(node));
+  Object.assign(stylecss, extractStrokeStyles(node, scalingFactor));
+  Object.assign(stylecss, extractCornerRadius(node, scalingFactor));
+  Object.assign(stylecss, extractShadowStyles(node, maxDim));
+  Object.assign(stylecss, extractTextStyles(node, maxDim));
+
+  const newChildFrame = calculateChildFrame(node, maxDim);
+
+  return { style: stylecss, newChildFrame };
 }
 
 export default convertPowerPointStyle;
