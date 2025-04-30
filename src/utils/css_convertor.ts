@@ -1,101 +1,91 @@
-function emuToPx(emu: number, maxWidth: number): number {
-  return (maxWidth * emu) / (9525 * 1280);
+const EMUConst = 9525;
+const StandardWidth = 1280;
+
+function emuToPx(emu: number, maxWidth: number, childFrame: number): number {
+  return ((maxWidth * emu) / (EMUConst * StandardWidth)) - childFrame;
 }
 
 function emuRotationToDegrees(rotationEMU: number): number {
   return rotationEMU / 60000;
 }
 
-// Main function
-function convertPowerPointStyle(node: any, zIndex: any, maxDim: { width: number; height: number }): any {
+function convertPowerPointStyle(node: any, zIndex: any, 
+  maxDim: { width: number; height: number },
+  childFrame: {off: {x: number, y: number}, ext: {x: number, y: number}}): any {
   const stylecss: any = { position: "absolute", zIndex };
 
-  const offset = node.properties?.shape?.xfrm.off || null;
-  stylecss.left = `${offset ? emuToPx(offset.value.x, maxDim.width) : 0}px`;
-  stylecss.top = `${offset ? emuToPx(offset.value.y, maxDim.width) : 0}px`;
+  const scalingFactor = maxDim.width / 1280; // Scaling factor for all pixel-based values
 
-  const extent = node.properties?.shape?.xfrm.ext || null;
-  stylecss.width = `${extent ? extent.value.cx != "0"? emuToPx(extent.value.cx, maxDim.width) : maxDim.width : maxDim.width}px`;
-  stylecss.height = `${extent ? extent.value.cy != "0"? emuToPx(extent.value.cy, maxDim.width) : maxDim.height: maxDim.height}px`;
+  // Extract position and dimensions
+  const offset = node.properties?.shape?.xfrm?.off?.value || {};
+  const extent = node.properties?.shape?.xfrm?.ext?.value || {};
+  const chOff = node.properties?.shape?.xfrm?.chOff?.value || { x: 0, y: 0 };
+  const chExt = node.properties?.shape?.xfrm?.chExt?.value || { cx: 1, cy: 1 };
+  stylecss.left = `${offset.x ? emuToPx(offset.x, maxDim.width, childFrame.off.x) : 0}px`;
+  stylecss.top = `${offset.y ? emuToPx(offset.y, maxDim.width, childFrame.off.y) : 0}px`;
+  stylecss.width = `${extent.cx ? emuToPx(extent.cx, maxDim.width, childFrame.ext.x) : maxDim.width}px`;
+  stylecss.height = `${extent.cy ? emuToPx(extent.cy, maxDim.width, childFrame.ext.y) : maxDim.height}px`;
+  console.log("ChildFrame", offset.x, childFrame.off.x, stylecss.left);
 
-  if (node.properties?.stretch) {
-    if (node.properties.stretch === "fillRect") {
-      stylecss.objectFit = "cover";
-      stylecss.objectPosition = "center";
-    }
+  const newChildFrame = {off: {x: 0, y: 0}, ext: {x: 0, y: 0}};
+  newChildFrame.off.x = chOff.x ? emuToPx(chOff.x, maxDim.width, 0) : 0;
+  newChildFrame.off.y = chOff.y ? emuToPx(chOff.y, maxDim.width, 0) : 0;
+  newChildFrame.ext.x = chExt.x ? emuToPx(chExt.x, maxDim.width, 0) : 0;
+  newChildFrame.ext.y = chExt.y ? emuToPx(chExt.y, maxDim.width, 0) : 0;
+
+  // Extract fill styles
+  const solidFill = node.properties?.shape?.solidFill?.srgbClr?.value?.val || null;
+  const gradFill = node.properties?.shape?.gradFill?.gsLst?.gs || null;
+  if (solidFill) {
+    stylecss.backgroundColor = `#${solidFill}`;
+  } else if (gradFill) {
+    const gradientColors = gradFill.map((stop: any) => `#${stop.srgbClr?.value?.val}`).join(", ");
+    stylecss.backgroundImage = `linear-gradient(${gradientColors})`;
   }
-  // const coordRotation = node.properties?.shape?.xfrm.rot || null;
-  //const shadow = pptxStyle["OuterShadow=./a:outerShdw"] ? JSON.parse(pptxStyle["OuterShadow=./a:outerShdw"]) : null;
-  // const cropping =pptxStyle["Croppping"] &&
-  //   pptxStyle["Croppping"] != "True"
-  //     ? JSON.parse(pptxStyle["Croppping"].replace(/'/g, '"'))
-  //     : null;
 
-  // if(cropping){
-  //   console.log(cropping);
-  // }
+  // Extract stroke (border) styles
+  const line = node.properties?.shape?.ln || {};
+  const lineColor = line.solidFill?.schemeClr?.value?.val || "black";
+  const lineWidth = (parseInt(line.value?.w || "1") / 12700) * scalingFactor; // Scale border width
+  stylecss.border = `${lineWidth}px solid #${lineColor}`;
 
-  // const prstGeom = pptxStyle["PresetGeometry=./a:prstGeom"]
-  //   ? JSON.parse(pptxStyle["PresetGeometry=./a:prstGeom"].replace(/'/g, '"'))
-  //   : "";
+  // Extract corner radius for rounded rectangles
+  const prstGeom = node.properties?.shape?.prstGeom?.value?.prst || "rect";
+  if (prstGeom === "roundRect") {
+    const cornerAdj = node.properties?.shape?.prstGeom?.avLst?.gd?.value?.fmla || "0";
+    stylecss.borderRadius = `${(parseInt(cornerAdj) / 1000) * scalingFactor}px`; // Scale corner radius
+  } else if (prstGeom === "ellipse") {
+    stylecss.borderRadius = "50%";
+  }
 
-  // let rotation = coordRotation
-  //   ? emuRotationToDegrees(Number(coordRotation.value))
-  //   : 0;
-  // const invert = coords.flipH ? -1 : 1;
+  // Extract shadow effects
+  const outerShadow = node.properties?.shape?.effectLst?.outerShdw || null;
+  if (outerShadow) {
+    const shadowColor = outerShadow.prstClr?.value?.val || "000000";
+    const blur = emuToPx(parseInt(outerShadow.value?.blurRad || "0"), maxDim.width, 0); // Use emuToPx for blur radius
+    const dist = emuToPx(parseInt(outerShadow.value?.dist || "0"), maxDim.width, 0); // Use emuToPx for distance
+    const dir = parseInt(outerShadow.value?.dir || "0"); // Direction in EMUs (angle)
+  
+    // Calculate offsetX and offsetY based on direction and distance
+    const offsetX = dist * Math.cos((dir * Math.PI) / 1800000); // Convert EMUs to degrees
+    const offsetY = dist * Math.sin((dir * Math.PI) / 1800000); // Convert EMUs to degrees
+  
+    stylecss.boxShadow = `${blur}px ${offsetX}px ${offsetY}px #${shadowColor}`;
+  }
 
-  // if (grpcoords) {
-  //   left =
-  //     emuToPx(grpcoords.offset.x) +
-  //     emuToPx(coords.offset.x) -
-  //     emuToPx(grpcoords.childOffset.x);
-  //   top =
-  //     emuToPx(grpcoords.offset.y) +
-  //     emuToPx(coords.offset.y) -
-  //     emuToPx(grpcoords.childOffset.y);
-  // }
+  // Extract text styles
+  const textStyle = node.properties?.txBody?.p?.endParaRPr?.value || {};
+  node.properties?.txBody?.p?.r && console.log("Text", node.properties?.txBody?.p?.r[0]?.t?.value?.text);
+  const fontSize = emuToPx(parseInt(textStyle.sz || (24*EMUConst).toString()), maxDim.width, 0); // Scale font size
+  const fontColor = textStyle.solidFill?.prstClr?.value?.val || "000000";
+  const fontFamily = textStyle.latin?.value?.typeface || "Arial";
+  const textAlign = node.properties?.txBody?.p?.pPr?.value?.algn || "center";
+  stylecss.fontSize = `${fontSize}px`;
+  stylecss.color = `#${fontColor}`;
+  stylecss.fontFamily = fontFamily;
+  stylecss.textAlign = textAlign;
 
-  // let presetColor = "";
-  // if (pptxStyle["Preset Colour"]) {
-  //   if (Array.isArray(pptxStyle["Preset Colour"])) {
-  //     presetColor = JSON.parse(
-  //       pptxStyle["Preset Colour"][0].replace(/'/g, '"')
-  //     ).val;
-  //   } else {
-  //     presetColor = JSON.parse(
-  //       pptxStyle["Preset Colour"].replace(/'/g, '"')
-  //     ).val;
-  //   }
-  // }
-  // const alpha = pptxStyle["AlphaModFix=a:alphaModFix"]
-  //   ? JSON.parse(pptxStyle["AlphaModFix=a:alphaModFix"].replace(/'/g, '"'))
-  //       .amt / 100000
-  //   : 1;
-  //   console.log("97",cropping)
-  //  const cropLeft = cropping?.l?parseInt(cropping.l)/1000:0
-  //  const cropTop = cropping?.t?parseInt(cropping.t)/1000:0
-  //  const cropRight = cropping?.r?parseInt(cropping.r)/1000:0
-  //  const cropBottom = cropping?.b?parseInt(cropping.b)/1000:0
-  //  console.log("98",cropBottom,cropLeft,cropRight,cropTop)
-  // if (prstGeom.prst === "arc") {
-  //   let rot_st: string | undefined;
-
-  //   const gdData = pptxStyle["gd inside gdLst"];
-
-  //   let start = emuRotationToDegrees(
-  //     parseInt(JSON.parse(gdData[0].replace(/'/g, '"')).fmla.slice(4))
-  //   );
-  //   let end = emuRotationToDegrees(
-  //     parseInt(JSON.parse(gdData[1].replace(/'/g, '"')).fmla.slice(4))
-  //   );
-
-  //   //rotation=300-(rotation + start) % 360;
-  //   //rotation=end;
-  //   if(cropLeft!=0)console.log("121",cropLeft)
-
-  //   console.log("83", rotation);
-  // }
-  return stylecss;
+  return {style: stylecss, newChildFrame};
 }
 
 export default convertPowerPointStyle;

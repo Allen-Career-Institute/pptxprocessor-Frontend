@@ -8,10 +8,11 @@ interface ImageProps {
   zIndex: number;
   mediaPath: string;
   maxDim: { width: number; height: number };
+  childFrame: {off: {x: number, y: number}, ext: {x: number, y: number}};
 }
 
-const Image: React.FC<ImageProps> = ({ node, zIndex, mediaPath, maxDim }: any) => {
-  const style = PowerPointStyle(node, zIndex, maxDim);
+const Image: React.FC<ImageProps> = ({ node, zIndex, mediaPath, maxDim, childFrame }: any) => {
+  const {style, newChildFrame} = PowerPointStyle(node, zIndex, maxDim, childFrame);
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [videoUrl, setVideoUrl] = useState<string>("");
@@ -69,7 +70,7 @@ const Image: React.FC<ImageProps> = ({ node, zIndex, mediaPath, maxDim }: any) =
   return (
     <div
       key={node.asset}
-      className={node.type}
+      className={`${node.type} ${node.name? node.name : ""}`}
       id={node.asset}
       style={style}
     >

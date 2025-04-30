@@ -9,6 +9,10 @@ interface PageProps {
 }
 
 const Page: React.FC<PageProps> = ({ currSlide, currSlideData, mediaPath, maxDim }) => {
+  const childFrame = {
+    off: { x: 0, y: 0 },
+    ext: { x: 0, y: 0 }
+  };
   useEffect(() => {
     if (!currSlideData) return;
 
@@ -23,7 +27,7 @@ const Page: React.FC<PageProps> = ({ currSlide, currSlideData, mediaPath, maxDim
 
   return (
     <>
-      <Container key={currSlideData.asset} node={currSlideData.cSld} zIndex={0} mediaPath={mediaPath} maxDim={maxDim}/>
+      <Container key={currSlideData.asset} node={currSlideData.cSld} zIndex={0} mediaPath={mediaPath} maxDim={maxDim} childFrame={childFrame}/>
     </>
   );
 };
