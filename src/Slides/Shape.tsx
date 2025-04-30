@@ -1,10 +1,10 @@
-import { Arc, Rect } from 'react-konva';
+import { Arc, Line, Rect } from 'react-konva';
 import PowerPointStyle from '../utils/css_convertor';
 
 const Shape = ({ style,parent }: any) => {
   let s = PowerPointStyle(style);
   const shape = s?.stylecss?.geom || "rect";
-  //console.log("7",s.stylecss)
+  console.log("7",s.stylecss)
   function border() {
     const asset = s?.stylecss.geom;
     if (!asset) return 0;
@@ -28,7 +28,19 @@ const Shape = ({ style,parent }: any) => {
       stroke="black"
       strokeWidth={4}
     />
-  ) : (
+  ) :
+  shape==="line"?(
+    <Line
+    x={parseInt(s.stylecss.left)}
+    y={parseInt(s.stylecss.top)}
+    strokeWidth={2}
+      fill="red"
+      />
+  )
+  
+  :
+  
+  (
     <Rect
       x={parseInt(s.stylecss.left)}
       y={parseInt(s.stylecss.top)}
