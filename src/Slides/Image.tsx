@@ -1,6 +1,4 @@
 import React, { useRef, useState, useEffect, use } from "react";
-import pxl from "../utils/emutopxl";
-import degree from "../utils/Todegree";
 import PowerPointStyle from "../utils/css_convertor";
 
 interface ImageProps {

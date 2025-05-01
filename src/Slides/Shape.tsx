@@ -9,6 +9,7 @@ interface ShapeProps {
 }
 
 const Shape: React.FC<ShapeProps> = ({ node, zIndex, maxDim, childFrame }: any) => {
+  console.log("Shape node:", node.asset, node.type, node.name);
   const {style, newChildFrame} = convertPowerPointStyle(node, zIndex, maxDim, childFrame);
 
   return (

@@ -1,194 +1,217 @@
-const EMUConst = 9525;
-const StandardWidth = 1280;
 
-function emuToPx(emu: number, maxWidth: number, childFrame: number): number {
-  return ((maxWidth * emu) / (EMUConst * StandardWidth)) - childFrame;
+import { extractPx, extractColor, extractOpacity, extractRgba, extractSolidFillColor, calculateChildFrame, extractFontFamily } from './extract_utils';
+import { emuToPx } from './helper_utils';
+
+function processEffectLst(stylecss: any, effectLst: any, maxDim: { width: number; height: number }): any {
+  if (effectLst) {
+    console.log("Processing effectLst:", effectLst);
+
+    // Handle outer shadow (outerShdw)
+    const outerShdw = effectLst.outerShdw;
+    if (outerShdw) {
+      console.log("Processing outerShdw:", outerShdw);
+
+      // Extract shadow properties
+      const dir = outerShdw.value?.dir || 0; // Direction in EMUs
+      const align = outerShdw.value?.algn || "ctr"; // Alignment (default to center)
+      // const rotWithShape = outerShdw.value?.rotWithShape || "1"; // Rotate with shape (default to true). This is not supported in css
+      const colorNode = outerShdw.prstClr || outerShdw.srgbClr; // Shadow color
+
+      // Convert EMU values to pixels
+      const blurPx = extractPx(outerShdw?.value?.blurRad, 0, maxDim);
+      const distPx = extractPx(outerShdw.value?.dist, 0, maxDim);
+
+
+      // Convert direction to x and y offsets
+      const angleRad = (dir / 60000) * (Math.PI / 180); // Convert EMUs to degrees, then to radians
+      let offsetX = Math.round(distPx * Math.cos(angleRad));
+      let offsetY = Math.round(distPx * Math.sin(angleRad));
+
+      // Adjust offsets based on alignment
+      if (align === "t") offsetY = -Math.abs(offsetY); // Top alignment
+      else if (align === "b") offsetY = Math.abs(offsetY); // Bottom alignment
+      else if (align === "l") offsetX = -Math.abs(offsetX); // Left alignment
+      else if (align === "r") offsetX = Math.abs(offsetX); // Right alignment
+      else if (align === "tl") {
+        offsetX = -Math.abs(offsetX);
+        offsetY = -Math.abs(offsetY);
+      } else if (align === "tr") {
+        offsetX = Math.abs(offsetX);
+        offsetY = -Math.abs(offsetY);
+      } else if (align === "bl") {
+        offsetX = -Math.abs(offsetX);
+        offsetY = Math.abs(offsetY);
+      } else if (align === "br") {
+        offsetX = Math.abs(offsetX);
+        offsetY = Math.abs(offsetY);
+      }
+
+      // Extract shadow color
+      const shadowColor = extractColor(colorNode);
+
+      // Extract opacity
+      const opacity = extractOpacity(outerShdw);
+
+      // Combine into box-shadow
+      stylecss.boxShadow = `${offsetX}px ${offsetY}px ${blurPx}px ${extractRgba(shadowColor)}}, ${opacity})`;
+      console.log("Computed boxShadow:", stylecss.boxShadow);
+    }
+  }
 }
 
-function emuRotationToDegrees(rotationEMU: number): number {
-  return rotationEMU / 60000;
+
+function processLn(stylecss: any, ln: any, maxDim: {width: number, height: number}): any {
+  if (ln) {
+    console.log("Processing ln:", ln);
+
+    const lineColor = extractSolidFillColor(ln.solidFill);
+    console.log("Extracted lineColor:", lineColor);
+
+    const opacity = extractOpacity(ln.solidFill);
+    console.log("Computed opacity:", opacity);
+
+    const lineWidth = extractPx(ln.value?.w, 1, maxDim);
+    console.log("Computed lineWidth:", lineWidth);
+
+    stylecss.border = `${lineWidth}px solid ${extractRgba(lineColor)}, ${opacity})`;
+    console.log("Computed border style:", stylecss.border);
+  }
 }
 
-function extractPositionAndDimensions(node: any, maxDim: { width: number; height: number }, childFrame: any): any {
-  const offset = node.properties?.shape?.xfrm?.off?.value || {};
-  const extent = node.properties?.shape?.xfrm?.ext?.value || {};
-  return {
-    left: `${offset.x ? emuToPx(offset.x, maxDim.width, childFrame.off.x) : 0}px`,
-    top: `${offset.y ? emuToPx(offset.y, maxDim.width, childFrame.off.y) : 0}px`,
-    width: `${extent.cx ? emuToPx(extent.cx, maxDim.width, childFrame.ext.x) : maxDim.width}px`,
-    height: `${extent.cy ? emuToPx(extent.cy, maxDim.width, childFrame.ext.y) : maxDim.height}px`,
-  };
+function processNoFill(stylecss: any): any {
+  stylecss
 }
 
-function extractFillStyles(node: any): any {
-  const solidFill = node.properties?.shape?.solidFill?.srgbClr?.value?.val || null;
-  const gradFill = node.properties?.shape?.gradFill?.gsLst?.gs || null;
+function processSolidFill(stylecss: any, solidFill: any): any {
   if (solidFill) {
-    return { backgroundColor: `#${solidFill}` };
-  } else if (gradFill) {
-    const gradientColors = gradFill.map((stop: any) => `#${stop.srgbClr?.value?.val}`).join(", ");
-    return { backgroundImage: `linear-gradient(${gradientColors})` };
+    console
+    const color = extractSolidFillColor(solidFill);
+
+    if (color) {
+      if (stylecss.backgroundColor) {
+        console.error("stylecss.backgroundColor already exists:", stylecss.backgroundColor);
+      }
+      stylecss.backgroundColor = color;
+    }
   }
-  return {};
 }
 
-function adjustLuminance(color: string, lumMod: number, lumOff: number): string {
-  console.log("adjustLuminance color:", color, lumMod, lumOff);
-  // Convert hex color to RGB
-  const r = parseInt(color.slice(1, 3), 16);
-  const g = parseInt(color.slice(3, 5), 16);
-  const b = parseInt(color.slice(5, 7), 16);
-
-  // Apply luminance modifier and offset
-  const adjust = (channel: number) =>
-    Math.min(
-      255,
-      Math.max(0, (channel * lumMod) / 100000 + (lumOff * 255) / 100000)
-    );
-
-  const adjustedR = adjust(r);
-  const adjustedG = adjust(g);
-  const adjustedB = adjust(b);
-
-  // Convert back to hex
-  return `rgb(${Math.round(adjustedR)}, ${Math.round(adjustedG)}, ${Math.round(adjustedB)})`;
+const patterns = {
+  "none": null,
+  "ltUpDiag": "-45deg"
 }
 
-function extractPatternFillStyles(node: any): any {
-  const pattFill = node.properties?.shape?.pattFill || null;
+function processPattFill(stylecss: any, pattFill: any): any {
   if (pattFill) {
-    // Extract foreground color
-    const fgClr = pattFill.fgClr?.schemeClr;
-    let fgColor = "#000000";
-    let adjustedFgColor = fgColor;
-    console.log("fgClr:", fgClr, pattFill);
-    if (fgClr) {
-      const tx1Color = {
-        tx1: "#000000", // Default text color in PowerPoint is black
-      };
-      let fgClrVal = "#000000"
-      fgClrVal = fgClr?.value? fgClr.value.val: fgClrVal;
-      fgClrVal = fgClrVal in tx1Color ? tx1Color[fgClrVal as keyof typeof tx1Color] : fgClrVal; // Map tx1 to its corresponding color
-      fgColor = fgClrVal;
-      const fgLumMod = fgClr.lumMod?.value?.val || 100000; // Default to 100% luminance
-      const fgLumOff = fgClr.lumOff?.value?.val || 0; // Default to 0% offset
-
-      // Adjust foreground color brightness
-      console.log("Calling adjustLuminance");
-      adjustedFgColor = adjustLuminance(fgColor, fgLumMod, fgLumOff);
-      console.log("Color:", fgColor, adjustedFgColor);
-    }
-
-    // Extract background color
-    // const bgClr = pattFill.bgClr?.schemeClr?.value || {};
-    // let bgColor = "#FFFFFF"; // Default to white
-    // if (bgClr) {
-    //   bgColor = bgClr.val ? `#${bgClr.val}` : bgColor;
-    // }
-
+    console.log("Processing pattFill:", pattFill);
     // Extract pattern type
-    const pattern = pattFill.value?.prst || "none"; // Default to "none" if not specified
+    const prst = pattFill.value?.prst || "none"; // Default to "none" if not specified
+    const pattern = patterns[prst as keyof typeof patterns];
 
-    console.log("pattern:", pattern, adjustedFgColor);
-    // Return CSS styles for pattern fill
-    return {
-      backgroundImage: `repeating-linear-gradient(${pattern}, ${adjustedFgColor})`,
-    };
-  }
-  return {};
-}
+    if (pattern) {
+      // Extract foreground color
+      let fgColor = extractColor(pattFill.fgClr?.schemeClr);
+      // Extract background color
+      let bgColor = extractColor(pattFill.bgClr?.schemeClr);
 
-function calculateChildFrame(node: any, maxDim: { width: number; height: number }): any {
-  const chOff = node.properties?.shape?.xfrm?.chOff?.value || { x: 0, y: 0 };
-  const chExt = node.properties?.shape?.xfrm?.chExt?.value || { cx: 1, cy: 1 };
-  return {
-    off: {
-      x: chOff.x ? emuToPx(chOff.x, maxDim.width, 0) : 0,
-      y: chOff.y ? emuToPx(chOff.y, maxDim.width, 0) : 0,
-    },
-    ext: {
-      x: chExt.x ? emuToPx(chExt.x, maxDim.width, 0) : 0,
-      y: chExt.y ? emuToPx(chExt.y, maxDim.width, 0) : 0,
-    },
-  };
-}
-
-function extractStrokeStyles(node: any, scalingFactor: number): any {
-  const line = node.properties?.shape?.ln || {};
-  const lineColor = line.solidFill?.schemeClr?.value?.val || "black";
-  const lineWidth = (parseInt(line.value?.w || "1") / 12700) * scalingFactor;
-  const alpha = line.solidFill?.schemeClr?.alpha?.value?.val || "100000"; // Transparency
-  const opacity = parseInt(alpha) / 100000; // Convert to CSS opacity (0-1)
-  return {
-    border: `${lineWidth}px solid rgba(${parseInt(lineColor.slice(0, 2), 16)}, ${parseInt(
-      lineColor.slice(2, 4),
-      16
-    )}, ${parseInt(lineColor.slice(4, 6), 16)}, ${opacity})`,
-  };
-}
-
-function extractCornerRadius(node: any, scalingFactor: number): any {
-  const prstGeom = node.properties?.shape?.prstGeom?.value?.prst || "rect";
-  console.log("prstGeom:", prstGeom, node.properties?.shape?.prstGeom?.value?.prst);
-  if (prstGeom === "roundRect") {
-    const cornerAdj = node.properties?.shape?.prstGeom?.avLst?.gd?.value?.fmla.split(" ")[1] || "0";
-    console.log("cornerAdj:", cornerAdj, scalingFactor);
-    const borderRadius = `${(parseInt(cornerAdj) / 1000) * scalingFactor}px`;
-    console.log("borderRadius:", borderRadius);
-    return { borderRadius };
-  } else if (prstGeom === "ellipse") {
-    return { borderRadius: "50%" };
-  }
-  return {};
-}
-
-function extractEffectsStyles(node: any, maxDim: { width: number; height: number }): any {
-  const effects = node.properties?.shape?.effectLst || null;
-  if (effects) {
-    const outerShadow = effects.outerShdw?.value || null;
-    if (outerShadow) {
-      const shadowColor = effects.outerShdw.prstClr?.value?.val || "000000";
-      const blur = emuToPx(parseInt(outerShadow.blurRad || "0"), maxDim.width, 0);
-      const dist = emuToPx(parseInt(outerShadow.dist || "0"), maxDim.width, 0);
-      const dir = parseInt(outerShadow.dir || "0");
-      const offsetX = dist * Math.cos((dir * Math.PI) / 1800000);
-      const offsetY = dist * Math.sin((dir * Math.PI) / 1800000);
-      return { boxShadow: `${blur}px ${offsetX}px ${offsetY}px #${shadowColor}` };
+      console.log("pattern:", pattern, fgColor, bgColor);
+      // Return CSS styles for pattern fill
+      if (stylecss.backgroundImage) {
+        console.error("stylecss.backgroundImage already exists:", stylecss.backgroundImage);
+      }
+      stylecss.backgroundImage = `repeating-linear-gradient(${pattern}, ${fgColor}, ${bgColor} 0.5px)`;
+      console.log("Computed backgroundImage:", stylecss.backgroundImage);
     }
   }
-  return {};
 }
 
-function extractTextStyles(node: any, maxDim: { width: number; height: number }): any {
-  const textStyle = node.properties?.txBody?.p?.endParaRPr?.value || {};
-  const fontSize = emuToPx(parseInt(textStyle.sz || (24 * EMUConst).toString()), maxDim.width, 0);
-  const fontColor = textStyle.solidFill?.srgbClr?.value?.val || "000000";
-  const fontFamily = textStyle.latin?.value?.typeface || "Arial";
-  const textAlign = node.properties?.txBody?.p?.pPr?.value?.algn || "center";
-  const wrap = node.properties?.txBody?.bodyPr?.value?.wrap || "none";
-  const anchor = node.properties?.txBody?.bodyPr?.value?.anchor || "top";
-  return {
-    fontSize: `${fontSize}px`,
-    color: `#${fontColor}`,
-    fontFamily,
-    textAlign,
-    whiteSpace: wrap === "none" ? "nowrap" : "normal",
-    verticalAlign: anchor === "ctr" ? "middle" : anchor,
-  };
+function processPrstGeom(stylecss: any, prstGeom: any, maxDim: { width: number; height: number }): any {
+  if (prstGeom) {
+    console.log("Processing prstGeom:", prstGeom);
+    const scalingFactor = maxDim.width / 1280;
+    const prst = prstGeom.value?.prst;
+    if (prst) {
+      console.log("prst value:", prst);
+      if (prst === "roundRect") {
+        const cornerAdj = prstGeom.avLst?.gd?.value?.fmla.split(" ")[1];
+        if (cornerAdj) {
+          console.log("cornerAdj:", cornerAdj, "scalingFactor:", scalingFactor);
+          stylecss.borderRadius = `${(parseInt(cornerAdj) / 1000) * scalingFactor}px`;
+          console.log("Computed borderRadius:", stylecss.borderRadius);
+        }
+      } else if (prst === "ellipse") {
+        stylecss.borderRadius = "50%";
+        console.log("Set borderRadius for ellipse:", stylecss.borderRadius);
+      }
+    }
+  }
 }
 
-function extractStyleReferences(node: any): any {
-  const style = node.properties?.style || {};
-  const fillRef = style.fillRef?.schemeClr?.value?.val || null;
-  const lnRef = style.lnRef?.schemeClr?.value?.val || null;
-  const effectRef = style.effectRef?.schemeClr?.value?.val || null;
-  const fontRef = style.fontRef?.schemeClr?.value?.val || null;
-  return {
-    fillColor: fillRef ? `#${fillRef}` : undefined,
-    borderColor: lnRef ? `#${lnRef}` : undefined,
-    effectColor: effectRef ? `#${effectRef}` : undefined,
-    fontColor: fontRef ? `#${fontRef}` : undefined,
-  };
+function processXfrm(stylecss: any, xfrm: any, maxDim: { width: number; height: number }, childFrame: any): any {
+  if (xfrm) {
+    console.log("Processing xfrm:", xfrm);
+    const offset = xfrm?.off?.value;
+    if (offset) {
+      stylecss.left = `${offset.x ? emuToPx(offset.x, maxDim.width, childFrame.off.x) : 0}px`;
+      stylecss.top = `${offset.y ? emuToPx(offset.y, maxDim.width, childFrame.off.y) : 0}px`;
+      console.log("Computed xfrm offset:", { left: stylecss.left, top: stylecss.top });
+    }
+    const extent = xfrm?.ext?.value;
+    if (extent) {
+      stylecss.width = `${extent.cx ? emuToPx(extent.cx, maxDim.width, childFrame.ext.x) : maxDim.width}px`;
+      stylecss.height = `${extent.cy ? emuToPx(extent.cy, maxDim.width, childFrame.ext.y) : maxDim.height}px`;
+      console.log("Computed xfrm extent:", { width: stylecss.width, height: stylecss.height });
+    }
+  }
+}
+
+function processShape(stylecss: any, shape: any, maxDim: { width: number; height: number }, childFrame: any) {
+  if (shape) {
+    // Loop through key:val of shape
+    for (const [attrib, val] of Object.entries(shape)) {
+      if (attrib === "xfrm") {
+        processXfrm(stylecss, val, maxDim, childFrame);
+      } else if (attrib === "prstGeom") {
+        processPrstGeom(stylecss, val, maxDim);
+      } else if (attrib === "pattFill") {
+        processPattFill(stylecss, val);
+      } else if (attrib === "noFill") {
+        processNoFill(stylecss);
+      } else if (attrib === "solidFill") {
+        processSolidFill(stylecss, val);
+      } else if (attrib === "ln") {
+        processLn(stylecss, val, maxDim);
+      } else if (attrib === "effectLst") {
+        processEffectLst(stylecss, val, maxDim);
+      }
+    }
+    console.log("Final stylecss:", stylecss);
+  }
+}
+
+function processStyle(stylecss: any, style: any, maxDim: { width: number; height: number }, childFrame: any) {
+  if (style) {
+    // Loop through key:val of style
+    for (const [attrib, val] of Object.entries(style)) {
+      if (attrib === "fillRef") {
+        processSolidFill(stylecss, val);
+      } else if (attrib === "lnRef") {
+        processLn(stylecss, val, maxDim);
+      } else if (attrib === "effectRef") {
+        processEffectLst(stylecss, val, maxDim);
+      } else if (attrib === "fontRef") {
+        // Handle fontRef logic
+        console.log("Processing fontRef:", val);
+
+        // Apply font family and color to stylecss
+        stylecss.fontFamily = extractFontFamily(val);
+        stylecss.color = extractColor((val as { schemeClr?: any })?.schemeClr);
+        console.log("Computed font styles:", { fontFamily: stylecss.fontFamily, color: stylecss.color });
+      
+      }
+    }
+    console.log("Final stylecss:", stylecss);
+  }
 }
 
 function convertPowerPointStyle(
@@ -198,16 +221,9 @@ function convertPowerPointStyle(
   childFrame: { off: { x: number; y: number }; ext: { x: number; y: number } }
 ): any {
   const stylecss: any = { position: "absolute", zIndex };
-  const scalingFactor = maxDim.width / 1280;
 
-  Object.assign(stylecss, extractPositionAndDimensions(node, maxDim, childFrame));
-  Object.assign(stylecss, extractFillStyles(node));
-  Object.assign(stylecss, extractPatternFillStyles(node));
-  Object.assign(stylecss, extractStrokeStyles(node, scalingFactor));
-  Object.assign(stylecss, extractCornerRadius(node, scalingFactor));
-  Object.assign(stylecss, extractEffectsStyles(node, maxDim));
-  Object.assign(stylecss, extractTextStyles(node, maxDim));
-  Object.assign(stylecss, extractStyleReferences(node));
+  processStyle(stylecss, node.properties?.style, maxDim, childFrame);
+  processShape(stylecss, node.properties?.shape, maxDim, childFrame);
 
   const newChildFrame = calculateChildFrame(node, maxDim);
 
