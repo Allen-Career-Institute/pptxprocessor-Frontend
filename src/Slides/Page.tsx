@@ -1,4 +1,4 @@
-import React, { useEffect, useState, JSX } from "react";
+import React, { useEffect } from "react";
 import "../App.css";
 import Container from "./Container";
 interface PageProps {
@@ -26,9 +26,21 @@ const Page: React.FC<PageProps> = ({ currSlide, currSlideData, mediaPath, maxDim
   console.log("Page currSlideData:", currSlideData);
 
   return (
-    <>
+    <div 
+      style={{ 
+        width: "inherit", 
+        height: "inherit", 
+        position: "absolute",
+        top: 0,
+        left: 0, 
+        overflow: "hidden",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+      }}
+    >
       <Container key={currSlideData.asset} node={currSlideData.cSld} zIndex={0} mediaPath={mediaPath} maxDim={maxDim} childFrame={childFrame}/>
-    </>
+    </div>
   );
 };
 

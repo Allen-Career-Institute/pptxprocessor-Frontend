@@ -1,17 +1,27 @@
 const EMUConst = 9525;
 const StandardWidth = 1280;
 
-export function emuToPx(emu: number, maxWidth: number, offset: number): number {
+export function emuToPx(emu: number, maxWidth: number, offset: number = 0): number {
   return ((maxWidth * emu) / (EMUConst * StandardWidth)) - offset;
+}
+
+export function emuToFontSize(emu: number, maxWidth: number): number {
+  return emuToPx(emu, maxWidth)*125;
 }
 
 export function emuRotationToDegrees(rotationEMU: number): number {
   return rotationEMU / 60000;
 }
 
+// Check if clrVal is a valid hex color code 
+export function checkAndReturnColorCode(color: string): string | null {
+  return /^[0-9A-Fa-f]{6}$/.test(color) ? `#${color}` : 
+    /^#[0-9A-Fa-f]{6}$/.test(color)? color : null;
+}
+
 export function adjustLuminance(color: string, colorNode: any): string {
-  const lumMod = colorNode.lumMod?.value?.val || 100000; // Default to 100% luminance
-  const lumOff = colorNode.lumOff?.value?.val || 0; // Default to 0% offset
+  const lumMod = colorNode.lumMod?.val || 100000; // Default to 100% luminance
+  const lumOff = colorNode.lumOff?.val || 0; // Default to 0% offset
   console.log("adjustLuminance color:", color, lumMod, lumOff);
   // Convert hex color to RGB
   const r = parseInt(color.slice(1, 3), 16);

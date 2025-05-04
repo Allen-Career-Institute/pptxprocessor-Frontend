@@ -1,12 +1,12 @@
-import { emuToPx, adjustLuminance } from "./helper_utils";
+import { emuToPx, adjustLuminance, checkAndReturnColorCode } from "./helper_utils";
 
 export function extractPx(value: number, defaultValue: number, maxDim: any, offset: number = 0): number {
   return value ? emuToPx(value, maxDim.width, offset) : defaultValue;
 }
 
 export function calculateChildFrame(node: any, maxDim: { width: number; height: number }): any {
-  const chOff = node.properties?.shape?.xfrm?.chOff?.value || { x: 0, y: 0 };
-  const chExt = node.properties?.shape?.xfrm?.chExt?.value || { cx: 1, cy: 1 };
+  const chOff = node.properties?.xfrm?.chOff || { x: 0, y: 0 };
+  const chExt = node.properties?.xfrm?.chExt || { cx: 1, cy: 1 };
   return {
     off: {
       x: extractPx(chOff.x, 0, maxDim),
@@ -23,7 +23,7 @@ export const extractOpacity = (node: any): number => {
   const alpha = node?.srgbClr?.alpha || node?.prstClr?.alpha || node?.schemeClr?.alpha;
   
   if (alpha) {
-    const alphaVal = alpha?.value?.val || "100000"; // Transparency
+    const alphaVal = alpha?.val || "100000"; // Transparency
     console.log("Extracted alpha value:", alphaVal);
 
     const opacity = parseInt(alphaVal) / 100000; // Convert to CSS opacity (0-1)
@@ -33,7 +33,7 @@ export const extractOpacity = (node: any): number => {
   }
 }
 
-const tx1Color = {
+const ColorMap = {
   tx1: "#000000", // Default primary text color (black)
   tx2: "#666666", // Default secondary text color (gray)
   bg1: "#FFFFFF", // Default primary background color (white)
@@ -55,26 +55,30 @@ export function extractColor(colorNode: any): any {
     if (colorNode) {
       console.log("colorNode:", colorNode);
       let clrVal = "tx1";
-      clrVal = colorNode?.value? colorNode.value.val: clrVal;
-      const color = clrVal in tx1Color ? tx1Color[clrVal as keyof typeof tx1Color] : "#000000"; // Map tx1 to its corresponding color
+      clrVal = colorNode? colorNode.val: clrVal;
+      console.log("Rcolor clrVal:", clrVal, checkAndReturnColorCode(clrVal));
+      let color = checkAndReturnColorCode(clrVal);
+      color = color? color : clrVal in ColorMap 
+          ? ColorMap[clrVal as keyof typeof ColorMap] // Map clrVal to its corresponding color
+          : "#000000"; // Fallback to clrVal as is
 
       // Adjust foreground color brightness
       console.log("Calling adjustLuminance");
       adjustedColor = adjustLuminance(color, colorNode);
-      console.log("Color:", color, adjustedColor);
+      console.log("Rcolor Color:", color, adjustedColor);
     }
     return adjustedColor
 }
 
 export function extractSolidFillColor(solidFill: any): any {
   if (solidFill?.prstClr) {
-    console.log("Processing prstClr:", solidFill.prstClr);
+    console.log("Rcolor Processing prstClr:", solidFill.prstClr);
     return extractColor(solidFill.prstClr);
   } else if (solidFill?.schemeClr) {
-    console.log("Processing schemeClr:", solidFill.schemeClr);
+    console.log("Rcolor Processing schemeClr:", solidFill.schemeClr);
     return extractColor(solidFill.schemeClr);
   } else if (solidFill?.srgbClr) {
-    console.log("Processing srgbClr:", solidFill.srgbClr);
+    console.log("Rcolor Processing srgbClr:", solidFill.srgbClr);
     return extractColor(solidFill.srgbClr);
   }
   return extractColor(null);
@@ -90,7 +94,7 @@ export function extractRgba(color: string): string {
 export function extractFontFamily(fontFamilyNode: any): string {
   if (fontFamilyNode) {
     // Extract font family (major/minor)
-    let fontFamily = fontFamilyNode.value?.idx || "minor"; // Default to "minor" if not specified
+    let fontFamily = fontFamilyNode.idx || "minor"; // Default to "minor" if not specified
     fontFamily = fontFamily === "minor" ? "BodyFont" : "HeadingFont"; // Map to CSS font families
     console.log("Font family:", fontFamily);
     return fontFamily;

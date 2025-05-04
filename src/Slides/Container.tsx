@@ -14,14 +14,18 @@ interface ContainerProps {
 
 const Container: React.FC<ContainerProps> = ({ node, zIndex, mediaPath, maxDim, childFrame }) => {
   const {style, newChildFrame} = PowerPointStyle(node, zIndex, maxDim, childFrame);
+  if (node.type == "cSld") {
+    style.width = maxDim.width;
+    style.height = maxDim.height;
+  }
 
   const renderComponent = (node: any, zIndex: number): JSX.Element => {
     console.log("renderComponent node:", zIndex, node.type, node.asset);
     if (node.type === "pic") {
       return <Image key={node.asset} node={node} zIndex={zIndex} mediaPath={mediaPath} maxDim={maxDim} childFrame={newChildFrame}/>;
     } else if (node.type === "sp") {
-      return <Shape key={node.asset} node={node} zIndex={zIndex} maxDim={maxDim} childFrame={newChildFrame}/>;
-    } else {
+      return <Shape key={node.asset} node={node} zIndex={zIndex} mediaPath={mediaPath} maxDim={maxDim} childFrame={newChildFrame}/>;
+    } else {//cSld, spTree, grpSp
       return <Container key={node.asset} node={node} zIndex={zIndex} mediaPath={mediaPath} maxDim={maxDim} childFrame={newChildFrame}/>;
     }
   }
