@@ -4,15 +4,15 @@ import Page from "./Slides/Page";
 import "./App.css"; // Import the CSS file
 
 const App = ({ slidePath, mediaPath }: { slidePath: string, mediaPath: string }) => {
-  const [numSlides, setNumSlides] = useState<any>(2);
-  const [currSlide, setCurrSlide] = useState(2);
+  const [numSlides, setNumSlides] = useState<any>(6);
+  const [currSlide, setCurrSlide] = useState(6);
   const [currSlideData, setCurrSlideData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [maxDim, setMaxDim] = useState<{ width: number; height: number }>({ width: 1280, height: 720 });
 
   useEffect(() => {
     const updateMaxDim = () => {
-      const appElement = document.querySelector(".app-container");
+      const appElement = document.querySelector(".content");
       if (appElement) {
         const { clientHeight, clientWidth } = appElement;
         const aspectRatio = 16 / 9; // Assuming a 16:9 aspect ratio for slides
@@ -86,11 +86,10 @@ const App = ({ slidePath, mediaPath }: { slidePath: string, mediaPath: string })
   return (
     <div className="app-container">
       <div className="content">
-        <button>Event</button>
-
         {!loading && (
           <Page currSlide={currSlide} currSlideData={currSlideData} mediaPath={mediaPath} maxDim={maxDim} />
         )}
+        <button>Event</button>
       </div>
       <div className="pagination">
         <h1>{currSlide}</h1>

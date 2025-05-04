@@ -1,4 +1,4 @@
-import React, { JSX } from "react";
+import React, { JSX, useState, useEffect } from "react";
 import Image from "./Image";
 import Text from "./Text";
 import convertPowerPointStyle from "../utils/css_convertor";
@@ -18,6 +18,8 @@ const Shape: React.FC<ShapeProps> = ({
   maxDim,
   childFrame,
 }: any) => {
+  const [imageUrl, setImageUrl] = useState<string>();
+
   console.log("Shape node:", node.asset, node.type, node.name);
   const { style, newChildFrame } = convertPowerPointStyle(
     node,
@@ -25,6 +27,13 @@ const Shape: React.FC<ShapeProps> = ({
     maxDim,
     childFrame
   );
+
+  useEffect(() => {
+    if (!("properties" in node)) return;
+    if (!("blipFill" in node.properties)) return;
+    if (!("link" in node.properties.blipFill)) return;
+    setImageUrl(mediaPath + node.properties.blipFill.link.slice(3));
+  }, []);
 
   const renderComponent = (node: any, zIndex: number): JSX.Element => {
     console.log("renderComponent node:", zIndex, node.type, node.asset);
@@ -66,6 +75,9 @@ const Shape: React.FC<ShapeProps> = ({
         justifyContent: "center",
       }}
     >
+      {imageUrl && (
+        <img src={imageUrl} style={{ ...style, left: "0px", top: "0px" }} />
+      )}
       {node.children &&
         Object.values(node.children)
           .flatMap((childData: any) =>

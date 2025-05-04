@@ -6,11 +6,21 @@ interface ImageProps {
   zIndex: number;
   mediaPath: string;
   maxDim: { width: number; height: number };
-  childFrame: {off: {x: number, y: number}, ext: {x: number, y: number}};
+  childFrame: { off: { x: number; y: number }; ext: { x: number; y: number } };
 }
 
-const Image: React.FC<ImageProps> = ({ node, zIndex, mediaPath, maxDim, childFrame }: any) => {
-  const {style} = PowerPointStyle(node, zIndex, maxDim, childFrame);
+const Image: React.FC<ImageProps> = ({
+  node,
+  zIndex,
+  mediaPath,
+  maxDim,
+  childFrame,
+}: any) => {
+  const { style } = PowerPointStyle(node, zIndex, maxDim, childFrame);
+  console.log(`Style width ${node.asset} Before:`, style.width);
+  !style.width && (style.width = "inherit");
+  !style.height && (style.height = "inherit");
+  console.log(`Style width ${node.asset} After:`, style.width);
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [videoUrl, setVideoUrl] = useState<string>("");
@@ -22,20 +32,26 @@ const Image: React.FC<ImageProps> = ({ node, zIndex, mediaPath, maxDim, childFra
     if (!("properties" in node)) return;
     if (!("blipFill" in node.properties)) return;
     if (!("link" in node.properties.blipFill)) return;
-    setImageUrl(
-      mediaPath + node.properties.blipFill.link.slice(3)
-    );
+    setImageUrl(mediaPath + node.properties.blipFill.link.slice(3));
   }, []);
 
   useEffect(() => {
     if (!("properties" in node)) return;
-    if (!("videoFile" in node.properties)) return;
-    if (!("link" in node.properties.videoFile)) return;
-    setVideoUrl(mediaPath + node.properties.videoFile.link.slice(3));
-    console.log(
-      "videoUrl",
-      mediaPath + node.properties.videoFile.link.slice(3)
-    );
+    if (
+      "videoFile" in node.properties &&
+      "link" in node.properties.videoFile &&
+      node.properties.videoFile.link !== "NULL"
+    ) {
+      setVideoUrl(mediaPath + node.properties.videoFile.link.slice(3));
+
+      console.log(
+        "videoUrl",
+        mediaPath + node.properties.videoFile.link.slice(3)
+      );
+    } else if ("media" in node.properties && "link" in node.properties.media) {
+      setVideoUrl(mediaPath + node.properties.media.link.slice(3));
+      console.log("mediaUrl", mediaPath + node.properties.media.link.slice(3));
+    }
   }, []);
 
   useEffect(() => {
@@ -57,11 +73,10 @@ const Image: React.FC<ImageProps> = ({ node, zIndex, mediaPath, maxDim, childFra
     };
   }, []);
 
-
   return (
     <div
       key={node.asset}
-      className={`${node.type} ${node.name? node.name : ""}`}
+      className={`${node.type} ${node.name ? node.name : ""}`}
       id={node.asset}
       style={style}
     >
@@ -71,12 +86,12 @@ const Image: React.FC<ImageProps> = ({ node, zIndex, mediaPath, maxDim, childFra
             <video
               src={videoUrl}
               poster={imageUrl}
-              style={style}
+              style={{ ...style, left: "0px", top: "0px" }}
               controls
               autoPlay
             />
           ) : (
-            <img src={imageUrl} style={style} />
+            <img src={imageUrl} style={{ ...style, left: "0px", top: "0px" }} />
           )}
         </>
       )}

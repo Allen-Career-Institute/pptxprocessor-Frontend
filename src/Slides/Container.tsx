@@ -17,6 +17,9 @@ const Container: React.FC<ContainerProps> = ({ node, zIndex, mediaPath, maxDim, 
   if (node.type == "cSld") {
     style.width = maxDim.width;
     style.height = maxDim.height;
+  } else {
+    !style.width && (style.width = "inherit");
+    !style.height && (style.height = "inherit");
   }
 
   const renderComponent = (node: any, zIndex: number): JSX.Element => {
