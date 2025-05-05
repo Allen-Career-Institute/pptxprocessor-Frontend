@@ -29,10 +29,10 @@ const Image: React.FC<ImageProps> = ({
 
   console.log(node);
   useEffect(() => {
-    if (!("properties" in node)) return;
-    if (!("blipFill" in node.properties)) return;
-    if (!("link" in node.properties.blipFill)) return;
-    setImageUrl(mediaPath + node.properties.blipFill.link.slice(3));
+    if (!("children" in node)) return;
+    if (!("blipFill" in node.children)) return;
+    if (!("link" in node.children.blipFill.properties)) return;
+    setImageUrl(mediaPath + node.children.blipFill.properties.link.slice(3));
   }, []);
 
   useEffect(() => {
@@ -72,6 +72,7 @@ const Image: React.FC<ImageProps> = ({
       video.removeEventListener("ended", handleEnded);
     };
   }, []);
+  console.log("75",imageUrl)
 
   return (
     <div
