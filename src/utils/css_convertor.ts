@@ -95,14 +95,16 @@ function processSolidFill(stylecss: any, solidFill: any): any {
 
 function processGradFill(stylecss: any, gradFill: any): any {
   if (gradFill) {
-    // Handle gradient fill
-    const gradientStops = (gradFill as { gsLst: { gs: any[] } }).gsLst.gs.map((stop: any) => {
-      const color = `#${stop.srgbClr.val}`;
-      const position = `${parseInt(stop.pos) / 1000}%`;
+    const gradientStops = gradFill?.gsLst?.gs?.map((stop: any) => {
+      const color = stop?.srgbClr?.val ? `#${stop.srgbClr.val}` : "#000000";
+      const position = stop?.pos ? `${parseInt(stop.pos) / 1000}%` : "0%";
       return `${color} ${position}`;
-    });
-    const angle = `${parseInt((gradFill as { lin: { ang: string } }).lin?.ang || "0") / 60000}deg`;
-    stylecss.color = `linear-gradient(${angle}, ${gradientStops.join(", ")})`;
+    }) || [];
+
+    const angle = `${parseInt(gradFill?.lin?.ang || "0") / 60000}deg`;
+
+    stylecss.backgroundImage = `linear-gradient(${angle}, ${gradientStops.join(", ")})`;
+
     console.log("Computed gradient fill:", stylecss.backgroundImage);
   }
 }
