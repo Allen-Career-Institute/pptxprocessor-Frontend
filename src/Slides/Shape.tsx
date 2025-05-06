@@ -1,6 +1,7 @@
 import React, { JSX, useState, useEffect } from "react";
 import Image from "./Image";
 import Text from "./Text";
+import CustGeom from "./CustGeom";
 import convertPowerPointStyle from "../utils/css_convertor";
 
 interface ShapeProps {
@@ -19,6 +20,8 @@ const Shape: React.FC<ShapeProps> = ({
   childFrame,
 }: any) => {
   const [imageUrl, setImageUrl] = useState<string>();
+  const [custGeom, setCustGeom] = useState<any>();
+  const [ln, setLn] = useState<any>();
 
   console.log("Shape node:", node.asset, node.type, node.name);
   const { style, newChildFrame } = convertPowerPointStyle(
@@ -33,6 +36,18 @@ const Shape: React.FC<ShapeProps> = ({
     if (!("blipFill" in node.properties)) return;
     if (!("link" in node.properties.blipFill)) return;
     setImageUrl(mediaPath + node.properties.blipFill.link.slice(3));
+  }, []);
+
+  useEffect(() => {
+    if (!("properties" in node)) return;
+    if (!("custGeom" in node.properties)) return;
+    setCustGeom(node.properties.custGeom);
+  }, []);
+
+  useEffect(() => {
+    if (!("properties" in node)) return;
+    if (!("ln" in node.properties)) return;
+    setLn(node.properties.ln);
   }, []);
 
   const renderComponent = (node: any, zIndex: number): JSX.Element => {
@@ -87,6 +102,12 @@ const Shape: React.FC<ShapeProps> = ({
           .map((childData: any, index: number) =>
             renderComponent(childData, zIndex + index + 1)
           )}
+      {custGeom && (
+        <CustGeom
+          key={node.asset}
+          custGeom={custGeom}
+          ln={ln}
+          maxDim={maxDim}/>)}
     </div>
   );
 };
