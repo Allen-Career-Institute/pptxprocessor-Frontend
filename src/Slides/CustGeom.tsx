@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { extractSolidFillColor } from "../utils/extract_utils";
-
+import { randomUUID, UUID } from "node:crypto";
+import { v4 } from "uuid";
 interface CustomGeometryProps {
   custGeom: {
     gdLst: { gd: { name: string; fmla: string }[] };
@@ -112,9 +113,16 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
 
   // Resolve positions
   const resolvePosition = (pos: string, w: number, h: number): number => {
-    return pos in guides
-      ? (evaluateFormula(guides[pos], w, h) * width) / w
-      : (parseFloat(pos) * width) / w;
+    if (pos in guides) {
+      let posi = w == 0 ? 0 : (evaluateFormula(guides[pos], w, h) * width) / w;
+     // console.log("117", posi, guides[pos], pos, width, w, h);
+      // if(isNaN(posi))return 0;
+      return posi;
+    }
+    // // return pos in guides
+    // //   ? (evaluateFormula(guides[pos], w, h) * width) / w
+    //   :(parseFloat(pos) * width) / w;
+    return w==0?0:(parseFloat(pos) * width) / w;
   };
 
   // Compute path data
@@ -122,27 +130,51 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
   const pathW = pathLst.path.w ? parseFloat(pathLst.path.w) : width;
   const pathH = pathLst.path.h ? parseFloat(pathLst.path.h) : height;
 
-  const lnTo = pathLst.path.lnTo.pt;
-  const pathData = `M ${resolvePosition(moveTo.x, pathW, pathH)
-  } ${resolvePosition(moveTo.y, pathW, pathH)} L ${resolvePosition(
-    lnTo.x,
-    pathW,
-    pathH
-  )} ${resolvePosition(lnTo.y, pathW, pathH)}`;
-
+  const lnTo = pathLst.path.lnTo;
+  let pathData = [];
+  if (Array.isArray(lnTo)) {
+    for (let i = 0; i < lnTo.length; i++) {
+      pathData.push(
+        `M ${resolvePosition(moveTo.x, pathW, pathH)} ${resolvePosition(
+          moveTo.y,
+          pathW,
+          pathH
+        )} L ${resolvePosition(lnTo[i].pt.x, pathW, pathH)} ${resolvePosition(
+          lnTo[i].pt.y,
+          pathW,
+          pathH
+        )}`
+      );
+    }
+  } else {
+    pathData.push(
+      `M ${resolvePosition(moveTo.x, pathW, pathH)} ${resolvePosition(
+        moveTo.y,
+        pathW,
+        pathH
+      )} L ${resolvePosition(lnTo.pt.x, pathW, pathH)} ${resolvePosition(
+        lnTo.pt.y,
+        pathW,
+        pathH
+      )}`
+    );
+  }
+  // const pathData = `M ${resolvePosition(moveTo.x, pathW, pathH)
+  // } ${resolvePosition(moveTo.y, pathW, pathH)} L ${resolvePosition(
+  //   lnTo.x,
+  //   pathW,
+  //   pathH
+  // )} ${resolvePosition(lnTo.y, pathW, pathH)}`;
+  console.log("151", pathData);
   // Compute rect dimensions
   const rectWidth =
     rect.r && rect.r != "r" ? resolvePosition(rect.r, width, height) : width;
   const rectHeight =
     rect.b && rect.b != "b" ? resolvePosition(rect.b, width, height) : height;
   const rectX =
-    rect.l && rect.l != "l"
-      ? resolvePosition(rect.l, width, height)
-      : 0;
+    rect.l && rect.l != "l" ? resolvePosition(rect.l, width, height) : 0;
   const rectY =
-    rect.t && rect.t != "t"
-      ? resolvePosition(rect.t, width, height)
-      : 0;
+    rect.t && rect.t != "t" ? resolvePosition(rect.t, width, height) : 0;
 
   const baseVal = 2;
   const arrowHeadW =
@@ -170,9 +202,7 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
       ? baseVal * 2 * 2
       : baseVal * 2;
 
-  const lnColor = ln.solidFill? extractSolidFillColor(ln.solidFill): "black";
-  
-
+  const lnColor = ln.solidFill ? extractSolidFillColor(ln.solidFill) : "black";
 
   return (
     <div
@@ -185,17 +215,21 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
         width: "inherit",
         height: "inherit",
       }}
+     
     >
       <svg
-        width={rectWidth*2}
-        height={rectHeight*4}
-        viewBox={`${-rectWidth} ${-rectHeight/2} ${rectWidth*2} ${rectHeight*4}`}
+        width={rectWidth * 2}
+        height={rectHeight * 4}
+        viewBox={`${-rectWidth} ${-rectHeight / 2} ${rectWidth * 2} ${
+          rectHeight * 4
+        }`}
         style={{
           position: "relative",
           left: `${-rectWidth + rectX}px`,
-          top: `${-rectHeight/2 + rectY}px`,
+          top: `${-rectHeight / 2 + rectY}px`,
         }}
         xmlns="http://www.w3.org/2000/svg"
+      
       >
         <defs>
           <marker
@@ -228,14 +262,27 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
           </marker>
         </defs>
         {/* Render the path */}
-        <path
+        {pathData.map(function (data,index) {
+          return (
+            <path
+            key={index}
+              d={data}
+              fill="none"
+              stroke={lnColor}
+              strokeWidth="2"
+              {...(ln.headEnd && { markerStart: `url(#arrowhead)` })}
+              {...(ln.tailEnd && { markerEnd: "url(#tailarrow)" })}
+            />
+          );
+        })}
+        {/* <path
           d={pathData}
           fill="none"
           stroke={lnColor}
           strokeWidth="2"
           {...(ln.headEnd && { markerStart: `url(#arrowhead)` })}
           {...(ln.tailEnd && { markerEnd: "url(#tailarrow)" })}
-        />
+        /> */}
 
         {/* Render connection points */}
         {cxnLst.cxn.map((cxn, index) => (
