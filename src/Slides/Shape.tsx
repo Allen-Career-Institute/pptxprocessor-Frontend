@@ -100,12 +100,12 @@ const Shape: React.FC<ShapeProps> = ({
           .map((childData: any, index: number) =>
             renderComponent(childData, zIndex + index + 1)
           )}
-      {/* {custGeom && (
+      {custGeom && (
         <CustGeom
           key={node.asset}
           custGeom={custGeom}
           ln={ln}
-          maxDim={maxDim}/>)} */}
+          maxDim={maxDim}/>)}
     </div>
   );
 };

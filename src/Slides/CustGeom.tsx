@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import { extractSolidFillColor } from "../utils/extract_utils";
-import { emuToPx } from "../utils/helper_utils";
 
 interface CustomGeometryProps {
   custGeom: {
@@ -171,6 +170,9 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
       ? baseVal * 2 * 2
       : baseVal * 2;
 
+  const lnColor = ln.solidFill? extractSolidFillColor(ln.solidFill): "black";
+  
+
 
   return (
     <div
@@ -229,7 +231,7 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
         <path
           d={pathData}
           fill="none"
-          stroke="red"
+          stroke={lnColor}
           strokeWidth="2"
           {...(ln.headEnd && { markerStart: `url(#arrowhead)` })}
           {...(ln.tailEnd && { markerEnd: "url(#tailarrow)" })}
@@ -242,7 +244,7 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
             cx={resolvePosition(cxn.pos.x, width, height)}
             cy={resolvePosition(cxn.pos.y, width, height)}
             r="1"
-            fill="red"
+            fill={lnColor}
           />
         ))}
       </svg>
