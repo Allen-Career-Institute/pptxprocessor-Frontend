@@ -24,7 +24,6 @@ export const extractOpacity = (node: any): number => {
   
   if (alpha) {
     const alphaVal = alpha?.val || "100000"; // Transparency
-    console.log("Extracted alpha value:", alphaVal);
 
     const opacity = parseInt(alphaVal) / 100000; // Convert to CSS opacity (0-1)
     return opacity;
@@ -53,32 +52,25 @@ const ColorMap = {
 export function extractColor(colorNode: any): any {
     let adjustedColor = "#000000";
     if (colorNode) {
-      console.log("colorNode:", colorNode);
       let clrVal = "tx1";
       clrVal = colorNode? colorNode.val: clrVal;
-      console.log("Rcolor clrVal:", clrVal, checkAndReturnColorCode(clrVal));
       let color = checkAndReturnColorCode(clrVal);
       color = color? color : clrVal in ColorMap 
           ? ColorMap[clrVal as keyof typeof ColorMap] // Map clrVal to its corresponding color
           : "#000000"; // Fallback to clrVal as is
 
       // Adjust foreground color brightness
-      console.log("Calling adjustLuminance");
       adjustedColor = adjustLuminance(color, colorNode);
-      console.log("Rcolor Color:", color, adjustedColor);
     }
     return adjustedColor
 }
 
 export function extractSolidFillColor(solidFill: any): any {
   if (solidFill?.prstClr) {
-    console.log("Rcolor Processing prstClr:", solidFill.prstClr);
     return extractColor(solidFill.prstClr);
   } else if (solidFill?.schemeClr) {
-    console.log("Rcolor Processing schemeClr:", solidFill.schemeClr);
     return extractColor(solidFill.schemeClr);
   } else if (solidFill?.srgbClr) {
-    console.log("Rcolor Processing srgbClr:", solidFill.srgbClr);
     return extractColor(solidFill.srgbClr);
   }
   return extractColor(null);
@@ -96,7 +88,6 @@ export function extractFontFamily(fontFamilyNode: any): string {
     // Extract font family (major/minor)
     let fontFamily = fontFamilyNode.idx || "minor"; // Default to "minor" if not specified
     fontFamily = fontFamily === "minor" ? "BodyFont" : "HeadingFont"; // Map to CSS font families
-    console.log("Font family:", fontFamily);
     return fontFamily;
   }
   return "Arial"; // Default font

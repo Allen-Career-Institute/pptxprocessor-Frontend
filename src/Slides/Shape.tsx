@@ -23,7 +23,6 @@ const Shape: React.FC<ShapeProps> = ({
   const [custGeom, setCustGeom] = useState<any>();
   const [ln, setLn] = useState<any>();
 
-  console.log("Shape node:", node.asset, node.type, node.name);
   const { style, newChildFrame } = convertPowerPointStyle(
     node,
     zIndex,
@@ -51,7 +50,6 @@ const Shape: React.FC<ShapeProps> = ({
   }, []);
 
   const renderComponent = (node: any, zIndex: number): JSX.Element => {
-    console.log("renderComponent node:", zIndex, node.type, node.asset);
     if (node.type === "pic") {
       return (
         <Image
@@ -102,12 +100,12 @@ const Shape: React.FC<ShapeProps> = ({
           .map((childData: any, index: number) =>
             renderComponent(childData, zIndex + index + 1)
           )}
-      {custGeom && (
+      {/* {custGeom && (
         <CustGeom
           key={node.asset}
           custGeom={custGeom}
           ln={ln}
-          maxDim={maxDim}/>)}
+          maxDim={maxDim}/>)} */}
     </div>
   );
 };

@@ -10,9 +10,7 @@ interface TextRProps {
 }
 
 const TextR: React.FC<TextRProps> = ({ node, zIndex, maxDim, childFrame }: any) => {
-  console.log("Text node:", node.asset, node.type, node.name);
   const {style} = convertPowerPointStyle(node, zIndex, maxDim, childFrame);
-  console.log(`Rcolor : ${style.color} ${node.properties?.solidFill?.srgbClr?.val} ${node.properties?.solidFill?.prstClr?.val}`);
 
   return (
     <span

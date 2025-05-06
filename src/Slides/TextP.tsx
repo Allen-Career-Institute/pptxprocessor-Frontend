@@ -10,11 +10,9 @@ interface TextPProps {
 }
 
 const TextP: React.FC<TextPProps> = ({ node, zIndex, maxDim, childFrame }: any) => {
-  console.log("Text node:", node.asset, node.type, node.name);
   const {style, newChildFrame} = convertPowerPointStyle(node, zIndex, maxDim, childFrame);
 
   const renderComponent = (node: any, zIndex: number): JSX.Element => {
-    console.log("renderComponent node:", zIndex, node.type, node.asset);
     if (node.type === "r") {
       return <TextR key={node.asset} node={node} zIndex={zIndex} maxDim={maxDim} childFrame={newChildFrame}/>;
     } else {//cSld, spTree, grpSp

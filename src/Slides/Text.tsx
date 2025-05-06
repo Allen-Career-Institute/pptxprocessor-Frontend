@@ -10,13 +10,11 @@ interface TextProps {
 }
 
 const Text: React.FC<TextProps> = ({ node, zIndex, maxDim, childFrame }: any) => {
-  console.log("Text node:", node.asset, node.type, node.name);
   const {style, newChildFrame} = convertPowerPointStyle(node, zIndex, maxDim, childFrame);
   !style.width && (style.width = "inherit");
   !style.height && (style.height = "inherit");
 
   const renderComponent = (node: any, zIndex: number): JSX.Element => {
-    console.log("renderComponent node:", zIndex, node.type, node.asset);
     if (node.type === "p") {
       return <TextP key={node.asset} node={node} zIndex={zIndex} maxDim={maxDim} childFrame={newChildFrame}/>;
     } else {

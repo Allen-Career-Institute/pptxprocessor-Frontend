@@ -56,7 +56,6 @@ const evaluateFormula = (
         break;
       case "/":
         if (operands[i + 1] === 0) {
-          console.warn("Division by zero in formula. Ignoring.");
           result = 0;
         } else {
           result = result / operands[i + 1];
@@ -69,7 +68,6 @@ const evaluateFormula = (
         result = result - operands[i + 1];
         break;
       default:
-        console.warn(`Unsupported operation: ${operation}`);
         break;
     }
   }
@@ -133,13 +131,6 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
     pathH
   )} ${resolvePosition(lnTo.y, pathW, pathH)}`;
 
-  console.log(
-    "Path data:",
-    height,
-    width,
-    pathData
-  );
-
   // Compute rect dimensions
   const rectWidth =
     rect.r && rect.r != "r" ? resolvePosition(rect.r, width, height) : width;
@@ -180,7 +171,6 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
       ? baseVal * 2 * 2
       : baseVal * 2;
 
-  console.log("Arrow head size:", arrowHeadW, arrowHeadL);
 
   return (
     <div
