@@ -4,8 +4,8 @@ import Page from "./Slides/Page";
 import "./App.css"; // Import the CSS file
 
 const App = ({ slidePath, mediaPath }: { slidePath: string, mediaPath: string }) => {
-  const [numSlides, setNumSlides] = useState<any>(6);
-  const [currSlide, setCurrSlide] = useState(6);
+  const [numSlides, setNumSlides] = useState<any>(7);
+  const [currSlide, setCurrSlide] = useState(7);
   const [currSlideData, setCurrSlideData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [maxDim, setMaxDim] = useState<{ width: number; height: number }>({ width: 1280, height: 720 });

@@ -1,6 +1,10 @@
 import React, { JSX } from "react";
 import Image from "./Image";
 import Shape from "./Shape";
+import Text from "./Text";
+import TextP from "./TextP";
+import TextR from "./TextR";
+import EmptyContainer from "./EmptyContainer";
 import PowerPointStyle from "../utils/css_convertor";
 
 interface ContainerProps {
@@ -22,15 +26,30 @@ const Container: React.FC<ContainerProps> = ({ node, zIndex, mediaPath, maxDim, 
     !style.height && (style.height = "inherit");
   }
 
-  const renderComponent = (node: any, zIndex: number): JSX.Element => {
-    console.log("renderComponent node:", zIndex, node.type, node.asset);
-    if (node.type === "pic") {
-      return <Image key={node.asset} node={node} zIndex={zIndex} mediaPath={mediaPath} maxDim={maxDim} childFrame={newChildFrame}/>;
-    } else if (node.type === "sp") {
-      return <Shape key={node.asset} node={node} zIndex={zIndex} mediaPath={mediaPath} maxDim={maxDim} childFrame={newChildFrame}/>;
-    } else {//cSld, spTree, grpSp
-      return <Container key={node.asset} node={node} zIndex={zIndex} mediaPath={mediaPath} maxDim={maxDim} childFrame={newChildFrame}/>;
-    }
+  const renderChildren = (node: any, zIndex: number, childFrameParam: any): JSX.Element => {
+    return node.children &&
+    Object.values(node.children)
+    .flatMap((childData: any) => Array.isArray(childData) ? childData : [childData])
+    .filter((childData: any) => childData.asset)
+    .map((childData: any, index: number) => {
+      console.log("renderComponent node:", zIndex, childData.type, childData.asset);
+      const newZIndex = zIndex + index + 1;
+      if (childData.type === "pic") {
+        return <Image key={childData.asset} node={childData} zIndex={newZIndex} mediaPath={mediaPath} maxDim={maxDim} childFrame={childFrameParam}/>;
+      } else if (childData.type === "txBody") {
+        return <Text key={childData.asset} node={childData} zIndex={newZIndex} maxDim={maxDim} childFrame={childFrameParam} renderChildren={renderChildren}/>;
+      } else if (childData.type === "p") {
+          return <TextP key={childData.asset} node={childData} zIndex={zIndex} maxDim={maxDim} childFrame={newChildFrame} renderChildren={renderChildren}/>;
+      } else if (childData.type === "r") {
+        return <TextR key={childData.asset} node={childData} zIndex={zIndex} maxDim={maxDim} childFrame={newChildFrame}/>;
+      } else if (childData.type === "sp" || childData.type === "grpSp") {
+        return <Shape key={childData.asset} node={childData} zIndex={newZIndex} mediaPath={mediaPath} maxDim={maxDim} childFrame={childFrameParam} renderChildren={renderChildren}/>;
+      } else if (childData.type === "AlternateContent" || childData.type === "Fallback") {
+        return <EmptyContainer key={childData.asset} node={childData} zIndex={newZIndex} childFrame={childFrameParam} renderChildren={renderChildren}/>;
+      } else {//cSld, spTree, grpSp
+        return <Container key={childData.asset} node={childData} zIndex={newZIndex} mediaPath={mediaPath} maxDim={maxDim} childFrame={childFrameParam}/>;
+      }
+    })
   }
 
   return (
@@ -40,13 +59,7 @@ const Container: React.FC<ContainerProps> = ({ node, zIndex, mediaPath, maxDim, 
       id={node.asset}
       style={style}
     >
-     {node.children &&
-        Object.values(node.children)
-        .flatMap((childData: any) => Array.isArray(childData) ? childData : [childData])
-        .filter((childData: any) => childData.asset)
-        .map((childData: any, index: number) =>
-          renderComponent(childData, (zIndex + index + 1))
-        )}
+     {renderChildren(node, zIndex, newChildFrame)}
     </div>
   );
 };

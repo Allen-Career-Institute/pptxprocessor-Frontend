@@ -1,6 +1,4 @@
 import React, { JSX, useState, useEffect } from "react";
-import Image from "./Image";
-import Text from "./Text";
 import CustGeom from "./CustGeom";
 import convertPowerPointStyle from "../utils/css_convertor";
 
@@ -10,6 +8,7 @@ interface ShapeProps {
   mediaPath: string;
   maxDim: { width: number; height: number };
   childFrame: { off: { x: number; y: number }; ext: { x: number; y: number } };
+  renderChildren: (node: any, zIndex: number, childFrame: any) => JSX.Element;
 }
 
 const Shape: React.FC<ShapeProps> = ({
@@ -18,6 +17,7 @@ const Shape: React.FC<ShapeProps> = ({
   mediaPath,
   maxDim,
   childFrame,
+  renderChildren,
 }: any) => {
   const [imageUrl, setImageUrl] = useState<string>();
   const [custGeom, setCustGeom] = useState<any>();
@@ -49,32 +49,6 @@ const Shape: React.FC<ShapeProps> = ({
     setLn(node.properties.ln);
   }, []);
 
-  const renderComponent = (node: any, zIndex: number): JSX.Element => {
-    if (node.type === "pic") {
-      return (
-        <Image
-          key={node.asset}
-          node={node}
-          zIndex={zIndex}
-          mediaPath={mediaPath}
-          maxDim={maxDim}
-          childFrame={newChildFrame}
-        />
-      );
-    } else if (node.type === "txBody") {
-      return (
-        <Text
-          key={node.asset}
-          node={node}
-          zIndex={zIndex}
-          maxDim={maxDim}
-          childFrame={newChildFrame}
-        />
-      );
-    } else {
-      return <></>;
-    }
-  };
 
   return (
     <div
@@ -90,22 +64,15 @@ const Shape: React.FC<ShapeProps> = ({
     >
       {imageUrl && (
         <img src={imageUrl} style={{ ...style, left: "0px", top: "0px" }} />
-      )}
-      {node.children &&
-        Object.values(node.children)
-          .flatMap((childData: any) =>
-            Array.isArray(childData) ? childData : [childData]
-          )
-          .filter((childData: any) => childData.asset)
-          .map((childData: any, index: number) =>
-            renderComponent(childData, zIndex + index + 1)
-          )}
+      )} 
       {custGeom && (
         <CustGeom
           key={node.asset}
           custGeom={custGeom}
           ln={ln}
           maxDim={maxDim}/>)}
+      
+      {renderChildren(node, zIndex, newChildFrame)}
     </div>
   );
 };
