@@ -222,10 +222,9 @@ function processProperties(
     for (const [attrib, val] of Object.entries(properties)) {
       if (attrib === "xfrm") {
         processXfrm(stylecss, val, maxDim, childFrame);
-      }else if(attrib==="blipFill"){
+      } else if(attrib==="blipFill"){
         processCropping(stylecss,val,maxDim,childFrame)
-      } 
-      else if (attrib === "prstGeom") {
+      } else if (attrib === "prstGeom") {
          processPrstGeom(stylecss, val, maxDim);
       } else if (attrib === "pattFill") {
         processPattFill(stylecss, val);
