@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef, JSX } from "react";
-import { extractSolidFillColor } from "../utils/extract_utils";
+import React, { useState, useEffect, useRef, JSX, use } from "react";
+import { extractSolidFillColor, extractPx } from "../utils/extract_utils";
 interface CustomGeometryProps {
   node: any;
   zIndex: number;
@@ -67,6 +67,14 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
   const containerRef = useRef<HTMLDivElement>(null); // Reference to the container
   const [width, setWidth] = useState(0); // State for width
   const [height, setHeight] = useState(0); // State for height
+  const [strokeWidth, setStrokeWidth] = useState(0); // State for stroke width
+
+  useEffect(() => {
+    const lnw = extractPx(ln.w, 1, maxDim);
+    setStrokeWidth(lnw? lnw : 1);
+    if (width == 0) setWidth(lnw);
+    if (height == 0) setHeight(lnw);
+  }, [ln]);
 
   useEffect(() => {
     if (!("properties" in node)) return;
@@ -84,8 +92,8 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
     const resizeObserver = new ResizeObserver((entries) => {
       for (let entry of entries) {
         const { width, height } = entry.contentRect;
-        setWidth(width); // Update width state
-        setHeight(height); // Update height state
+        width == 0? setWidth(strokeWidth) : setWidth(width); // Update width state
+        height == 0? setHeight(strokeWidth): setHeight(height); // Update height state
       }
     });
 
@@ -103,19 +111,21 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
   });
 
   // Resolve positions
-  const resolvePosition = (pos: string, w: number, h: number): number => {
+  const resolvePosition = (pos: string, w: number, h: number, xOrY: string = "x"): number => {
     if (pos in guides) {
       console.log("Pathdata with guide")
-      let posi = w == 0 ? 0 : (evaluateFormula(guides[pos], w, h) * width) / w;
-      // console.log("117", posi, guides[pos], pos, width, w, h);
-      // if(isNaN(posi))return 0;
-      return posi;
+      if (xOrY == "x") {
+        return w == 0 ? 0 : (evaluateFormula(guides[pos], w, h) * width) / w;
+      } else {
+        return h == 0 ? 0 : (evaluateFormula(guides[pos], w, h) * height) / h;
+      }
     }
     console.log("Pathdata without guide", pos, w, width)
-    // // return pos in guides
-    // //   ? (evaluateFormula(guides[pos], w, h) * width) / w
-    //   :(parseFloat(pos) * width) / w;
-    return w == 0 ? 0 : (parseFloat(pos) * width) / w;
+    if (xOrY == "x") {
+      return w == 0 ? 0 : (parseFloat(pos) * width) / w; 
+    } else {
+      return h == 0 ? 0 : (parseFloat(pos) * height) / h; 
+    }
   };
 
   // Compute path data
@@ -128,30 +138,34 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
   if (Array.isArray(lnTo)) {
     for (let i = 0; i < lnTo.length; i++) {
       pathData.push(
-        `M ${resolvePosition(moveTo.x, pathW, pathH)} ${resolvePosition(
+        `M ${resolvePosition(moveTo.x, pathW, pathH, "x")} ${resolvePosition(
           moveTo.y,
           pathW,
-          pathH
-        )} L ${resolvePosition(lnTo[i].pt.x, pathW, pathH)} ${resolvePosition(
+          pathH,
+          "y"
+        )} L ${resolvePosition(lnTo[i].pt.x, pathW, pathH, "x")} ${resolvePosition(
           lnTo[i].pt.y,
           pathW,
-          pathH
+          pathH,
+          "y"
         )}`
       );
     }
   } else {
     pathData.push(
-      `M ${resolvePosition(moveTo.x, pathW, pathH)} ${resolvePosition(
+      `M ${resolvePosition(moveTo.x, pathW, pathH, "x")} ${resolvePosition(
         moveTo.y,
         pathW,
-        pathH
-      )} L ${resolvePosition(lnTo.pt.x, pathW, pathH)} ${resolvePosition(
+        pathH,
+        "y"
+      )} L ${resolvePosition(lnTo.pt.x, pathW, pathH, "x")} ${resolvePosition(
         lnTo.pt.y,
         pathW,
-        pathH
+        pathH,
+        "y"
       )}`
     );
-    console.log(`Pathdata ${node.name}`, pathData, moveTo.x, pathW, pathH, resolvePosition(moveTo.x, pathW, pathH)); 
+    console.log(`Pathdata ${node.name}`, pathData, moveTo.x, pathW, pathH); 
   }
   // const pathData = `M ${resolvePosition(moveTo.x, pathW, pathH)
   // } ${resolvePosition(moveTo.y, pathW, pathH)} L ${resolvePosition(
@@ -202,18 +216,18 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
     <div
       ref={containerRef} // Attach the ref to the container
       className={`${node.type} custGeom ${node.name ? node.name : ""}`}
-      style={style}
+      style={{...style, border: ""}}
     >
       <svg
-        width={rectWidth * 2}
+        width={rectWidth * 4}
         height={rectHeight * 4}
-        viewBox={`${-rectWidth} ${-rectHeight / 2} ${rectWidth * 2} ${
+        viewBox={`${-rectWidth * 2} ${-rectHeight * 2} ${rectWidth * 4} ${
           rectHeight * 4
         }`}
         style={{
           position: "relative",
-          left: `${-rectWidth + rectX}px`,
-          top: `${-rectHeight / 2 + rectY}px`,
+          left: `${-rectWidth * 2 + rectX}px`,
+          top: `${-rectHeight * 2 + rectY}px`,
         }}
         xmlns="http://www.w3.org/2000/svg"
       >
@@ -255,7 +269,7 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
               d={data}
               fill="none"
               stroke={lnColor}
-              strokeWidth="2"
+              strokeWidth={strokeWidth}
               {...(ln.headEnd && { markerStart: `url(#arrowhead)` })}
               {...(ln.tailEnd && { markerEnd: "url(#tailarrow)" })}
             />
