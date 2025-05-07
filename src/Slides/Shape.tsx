@@ -1,5 +1,6 @@
-import React, { JSX, useState, useEffect } from "react";
+import React, { JSX, useState, useEffect, use } from "react";
 import CustGeom from "./CustGeom";
+import PrstGeom from "./PrstGeom";
 import convertPowerPointStyle from "../utils/css_convertor";
 
 interface ShapeProps {
@@ -21,6 +22,8 @@ const Shape: React.FC<ShapeProps> = ({
 }: any) => {
   const [imageUrl, setImageUrl] = useState<string>();
   const [custGeom, setCustGeom] = useState<any>();
+  const [prstGeom, setPrstGeom] = useState<any>();
+  const [genericWrapper, setGenericWrapper] = useState<any>();
   const [ln, setLn] = useState<any>();
 
   const { style, newChildFrame } = convertPowerPointStyle(
@@ -45,15 +48,32 @@ const Shape: React.FC<ShapeProps> = ({
 
   useEffect(() => {
     if (!("properties" in node)) return;
+    if (!("prstGeom" in node.properties)) return;
+    setPrstGeom(node.properties.prstGeom);
+  }, []);
+
+  useEffect(() => {
+    if (node.properties?.prstGeom || node.properties?.custGeom) {
+      console.log("genericWrapper false", node.asset);
+      setGenericWrapper(false);
+    } else {
+      console.log("genericWrapper true", node.asset);
+      setGenericWrapper(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!("properties" in node)) return;
     if (!("ln" in node.properties)) return;
     setLn(node.properties.ln);
   }, []);
 
 
-  return (
+  const renderGenericWrapper = () => {
+    return (
     <div
       key={node.asset}
-      className={`${node.type} ${node.name ? node.name : ""}`}
+      className={`${node.type} Generic ${node.name ? node.name : ""}`}
       id={node.asset}
       style={{
         ...style,
@@ -63,17 +83,43 @@ const Shape: React.FC<ShapeProps> = ({
       }}
     >
       {imageUrl && (
-        <img src={imageUrl} style={{ ...style, left: "0px", top: "0px" }} />
-      )} 
+      <img src={imageUrl} style={{ ...style, left: "0px", top: "0px" }} />
+      )}
+      {renderChildren(node, zIndex, newChildFrame)}
+    </div>
+  )};
+  console.log("renderGenericWrapper", node.asset, genericWrapper, prstGeom);
+
+  return (
+    <>
+      {genericWrapper && renderGenericWrapper()}
       {custGeom && (
         <CustGeom
           key={node.asset}
+          node={node}
+          zIndex={zIndex}
+          mediaPath={mediaPath}
           custGeom={custGeom}
           ln={ln}
-          maxDim={maxDim}/>)}
-      
-      {renderChildren(node, zIndex, newChildFrame)}
-    </div>
+          maxDim={maxDim}
+          childFrame={newChildFrame}
+          renderChildren={renderChildren}
+        />
+      )}
+      {prstGeom && (
+        <PrstGeom
+          key={node.asset}
+          node={node}
+          zIndex={zIndex}
+          mediaPath={mediaPath}
+          prstGeom={prstGeom}
+          style={style}
+          maxDim={maxDim}
+          childFrame={newChildFrame}
+          renderChildren={renderChildren}
+        />
+      )}
+    </>
   );
 };
 

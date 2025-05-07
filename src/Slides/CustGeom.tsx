@@ -1,38 +1,14 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, JSX } from "react";
 import { extractSolidFillColor } from "../utils/extract_utils";
-import { randomUUID, UUID } from "node:crypto";
-import { v4 } from "uuid";
 interface CustomGeometryProps {
-  custGeom: {
-    gdLst: { gd: { name: string; fmla: string }[] };
-    cxnLst: { cxn: { pos: { x: string; y: string }; ang: string }[] };
-    rect: { l: string; t: string; r: string; b: string };
-    pathLst: {
-      path: {
-        moveTo: { pt: { x: string; y: string } };
-        lnTo: { pt: { x: string; y: string } };
-        w?: string;
-        h?: string;
-      };
-    };
-  };
-  ln: {
-    solidFill: {
-      schemeClr: {
-        val: string;
-      };
-    };
-    headEnd: {
-      w: string;
-      len: string;
-    };
-    tailEnd: {
-      w: string;
-      len: string;
-    };
-    w: string;
-  };
+  node: any;
+  zIndex: number;
+  mediaPath: string;
+  custGeom: any;
+  ln: any;
   maxDim: { width: number; height: number };
+  childFrame: { off: { x: number; y: number }; ext: { x: number; y: number } };
+  renderChildren: (node: any, zIndex: number, childFrame: any) => JSX.Element;
 }
 
 const evaluateFormula = (
@@ -75,14 +51,27 @@ const evaluateFormula = (
 };
 
 const CustomGeometry: React.FC<CustomGeometryProps> = ({
+  node,
+  zIndex,
+  mediaPath,
   custGeom,
   ln,
   maxDim,
+  childFrame,
+  renderChildren,
 }) => {
+  const [imageUrl, setImageUrl] = useState<string>();
   const { gdLst, cxnLst, rect, pathLst } = custGeom;
   const containerRef = useRef<HTMLDivElement>(null); // Reference to the container
   const [width, setWidth] = useState(0); // State for width
   const [height, setHeight] = useState(0); // State for height
+
+  useEffect(() => {
+    if (!("properties" in node)) return;
+    if (!("blipFill" in node.properties)) return;
+    if (!("link" in node.properties.blipFill)) return;
+    setImageUrl(mediaPath + node.properties.blipFill.link.slice(3));
+  }, []);
 
   useEffect(() => {
     const element = containerRef.current;
@@ -107,7 +96,7 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
 
   // Evaluate guides
   const guides: Record<string, string> = {};
-  gdLst.gd.forEach((guide) => {
+  gdLst.gd.forEach((guide: { name: string; fmla: string }) => {
     guides[guide.name] = guide.fmla;
   });
 
@@ -115,14 +104,14 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
   const resolvePosition = (pos: string, w: number, h: number): number => {
     if (pos in guides) {
       let posi = w == 0 ? 0 : (evaluateFormula(guides[pos], w, h) * width) / w;
-     // console.log("117", posi, guides[pos], pos, width, w, h);
+      // console.log("117", posi, guides[pos], pos, width, w, h);
       // if(isNaN(posi))return 0;
       return posi;
     }
     // // return pos in guides
     // //   ? (evaluateFormula(guides[pos], w, h) * width) / w
     //   :(parseFloat(pos) * width) / w;
-    return w==0?0:(parseFloat(pos) * width) / w;
+    return w == 0 ? 0 : (parseFloat(pos) * width) / w;
   };
 
   // Compute path data
@@ -207,7 +196,7 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
   return (
     <div
       ref={containerRef} // Attach the ref to the container
-      className="custGeom"
+      className={`${node.type} custGeom ${node.name ? node.name : ""}`}
       style={{
         position: "absolute",
         left: `0px`,
@@ -215,7 +204,6 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
         width: "inherit",
         height: "inherit",
       }}
-     
     >
       <svg
         width={rectWidth * 2}
@@ -229,7 +217,6 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
           top: `${-rectHeight / 2 + rectY}px`,
         }}
         xmlns="http://www.w3.org/2000/svg"
-      
       >
         <defs>
           <marker
@@ -262,10 +249,10 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
           </marker>
         </defs>
         {/* Render the path */}
-        {pathData.map(function (data,index) {
+        {pathData.map(function (data, index) {
           return (
             <path
-            key={index}
+              key={index}
               d={data}
               fill="none"
               stroke={lnColor}
@@ -285,7 +272,7 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
         /> */}
 
         {/* Render connection points */}
-        {cxnLst.cxn.map((cxn, index) => (
+        {cxnLst.cxn.map((cxn: any, index: number) => (
           <circle
             key={index}
             cx={resolvePosition(cxn.pos.x, width, height)}
@@ -295,6 +282,7 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
           />
         ))}
       </svg>
+      {renderChildren(node, zIndex, childFrame)}
     </div>
   );
 };

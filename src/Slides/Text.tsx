@@ -19,7 +19,7 @@ const Text: React.FC<TextProps> = ({ node, zIndex, maxDim, childFrame, renderChi
   return (
     <div
       key={node.asset}
-      className={`${node.type} ${node.name? node.name : ""}`}
+      className={`${node.type} Text ${node.name? node.name : ""}`}
       id={node.asset}
       style={{
         ...style,

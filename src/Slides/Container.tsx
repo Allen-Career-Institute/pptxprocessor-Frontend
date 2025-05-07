@@ -42,7 +42,7 @@ const Container: React.FC<ContainerProps> = ({ node, zIndex, mediaPath, maxDim, 
           return <TextP key={childData.asset} node={childData} zIndex={zIndex} maxDim={maxDim} childFrame={newChildFrame} renderChildren={renderChildren}/>;
       } else if (childData.type === "r") {
         return <TextR key={childData.asset} node={childData} zIndex={zIndex} maxDim={maxDim} childFrame={newChildFrame}/>;
-      } else if (childData.type === "sp" || childData.type === "grpSp") {
+      } else if (childData.type === "sp" || childData.type === "cxnSp" || childData.type === "grpSp") {
         return <Shape key={childData.asset} node={childData} zIndex={newZIndex} mediaPath={mediaPath} maxDim={maxDim} childFrame={childFrameParam} renderChildren={renderChildren}/>;
       } else if (childData.type === "AlternateContent" || childData.type === "Fallback") {
         return <EmptyContainer key={childData.asset} node={childData} zIndex={newZIndex} childFrame={childFrameParam} renderChildren={renderChildren}/>;

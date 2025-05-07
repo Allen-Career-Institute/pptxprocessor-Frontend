@@ -1,14 +1,23 @@
+import {
+  extractPx,
+  extractColor,
+  extractOpacity,
+  extractRgba,
+  extractSolidFillColor,
+  calculateChildFrame,
+  extractFontFamily,
+} from "./extract_utils";
+import { emuToPx, emuToFontSize } from "./helper_utils";
 
-import { extractPx, extractColor, extractOpacity, extractRgba, extractSolidFillColor, calculateChildFrame, extractFontFamily } from './extract_utils';
-import { emuToPx, emuToFontSize } from './helper_utils';
-
-function processEffectLst(stylecss: any, effectLst: any, maxDim: { width: number; height: number }): any {
+function processEffectLst(
+  stylecss: any,
+  effectLst: any,
+  maxDim: { width: number; height: number }
+): any {
   if (effectLst) {
-
     // Handle outer shadow (outerShdw)
     const outerShdw = effectLst.outerShdw;
     if (outerShdw) {
-
       // Extract shadow properties
       const dir = outerShdw.dir || 0; // Direction in EMUs
       const align = outerShdw.algn || "ctr"; // Alignment (default to center)
@@ -18,7 +27,6 @@ function processEffectLst(stylecss: any, effectLst: any, maxDim: { width: number
       // Convert EMU values to pixels
       const blurPx = extractPx(outerShdw?.blurRad, 0, maxDim);
       const distPx = extractPx(outerShdw.dist, 0, maxDim);
-
 
       // Convert direction to x and y offsets
       const angleRad = (dir / 60000) * (Math.PI / 180); // Convert EMUs to degrees, then to radians
@@ -51,27 +59,33 @@ function processEffectLst(stylecss: any, effectLst: any, maxDim: { width: number
       const opacity = extractOpacity(outerShdw);
 
       // Combine into box-shadow
-      stylecss.boxShadow = `${offsetX}px ${offsetY}px ${blurPx}px ${extractRgba(shadowColor)}}, ${opacity})`;
+      stylecss.boxShadow = `${offsetX}px ${offsetY}px ${blurPx}px ${extractRgba(
+        shadowColor
+      )}}, ${opacity})`;
     }
   }
 }
 
-
-function processLn(stylecss: any, ln: any, maxDim: {width: number, height: number}): any {
+function processLn(
+  stylecss: any,
+  ln: any,
+  maxDim: { width: number; height: number }
+): any {
   if (ln) {
-
     const lineColor = extractSolidFillColor(ln.solidFill);
 
     const opacity = extractOpacity(ln.solidFill);
 
     const lineWidth = extractPx(ln.w, 1, maxDim);
 
-    stylecss.border = `${lineWidth}px solid ${extractRgba(lineColor)}, ${opacity})`;
+    stylecss.border = `${lineWidth}px solid ${extractRgba(
+      lineColor
+    )}, ${opacity})`;
   }
 }
 
 function processNoFill(stylecss: any): any {
-  stylecss
+  stylecss;
 }
 
 function processSolidFill(stylecss: any, solidFill: any): any {
@@ -86,23 +100,25 @@ function processSolidFill(stylecss: any, solidFill: any): any {
 
 function processGradFill(stylecss: any, gradFill: any): any {
   if (gradFill) {
-    const gradientStops = gradFill?.gsLst?.gs?.map((stop: any) => {
-      const color = stop?.srgbClr?.val ? `#${stop.srgbClr.val}` : "#000000";
-      const position = stop?.pos ? `${parseInt(stop.pos) / 1000}%` : "0%";
-      return `${color} ${position}`;
-    }) || [];
+    const gradientStops =
+      gradFill?.gsLst?.gs?.map((stop: any) => {
+        const color = stop?.srgbClr?.val ? `#${stop.srgbClr.val}` : "#000000";
+        const position = stop?.pos ? `${parseInt(stop.pos) / 1000}%` : "0%";
+        return `${color} ${position}`;
+      }) || [];
 
     const angle = `${parseInt(gradFill?.lin?.ang || "0") / 60000}deg`;
 
-    stylecss.backgroundImage = `linear-gradient(${angle}, ${gradientStops.join(", ")})`;
-
+    stylecss.backgroundImage = `linear-gradient(${angle}, ${gradientStops.join(
+      ", "
+    )})`;
   }
 }
 
 const patterns = {
-  "none": null,
-  "ltUpDiag": "-45deg"
-}
+  none: null,
+  ltUpDiag: "-45deg",
+};
 
 function processPattFill(stylecss: any, pattFill: any): any {
   if (pattFill) {
@@ -121,7 +137,11 @@ function processPattFill(stylecss: any, pattFill: any): any {
   }
 }
 
-function processPrstGeom(stylecss: any, prstGeom: any, maxDim: { width: number; height: number }): any {
+function processPrstGeom(
+  stylecss: any,
+  prstGeom: any,
+  maxDim: { width: number; height: number }
+): any {
   if (prstGeom) {
     const scalingFactor = maxDim.width / 1280;
     const prst = prstGeom.prst;
@@ -129,7 +149,9 @@ function processPrstGeom(stylecss: any, prstGeom: any, maxDim: { width: number; 
       if (prst === "roundRect") {
         const cornerAdj = prstGeom.avLst?.gd?.fmla.split(" ")[1];
         if (cornerAdj) {
-          stylecss.borderRadius = `${(parseInt(cornerAdj) / 1000) * scalingFactor}px`;
+          stylecss.borderRadius = `${
+            (parseInt(cornerAdj) / 1000) * scalingFactor
+          }px`;
         }
       } else if (prst === "ellipse") {
         stylecss.borderRadius = "50%";
@@ -138,54 +160,70 @@ function processPrstGeom(stylecss: any, prstGeom: any, maxDim: { width: number; 
   }
 }
 
-function processXfrm(stylecss: any, xfrm: any, maxDim: { width: number; height: number }, childFrame: any): any {
+function processXfrm(
+  stylecss: any,
+  xfrm: any,
+  maxDim: { width: number; height: number },
+  childFrame: any
+): any {
   if (xfrm) {
     const offset = xfrm?.off;
     if (offset) {
-      stylecss.left = `${offset.x ? emuToPx(offset.x, maxDim.width, childFrame.off.x) : 0}px`;
-      stylecss.top = `${offset.y ? emuToPx(offset.y, maxDim.width, childFrame.off.y) : 0}px`;
+      stylecss.left = `${
+        offset.x ? emuToPx(offset.x, maxDim.width, childFrame.off.x) : 0
+      }px`;
+      stylecss.top = `${
+        offset.y ? emuToPx(offset.y, maxDim.width, childFrame.off.y) : 0
+      }px`;
       stylecss.position = "absolute";
     }
     const extent = xfrm?.ext;
     if (extent) {
-      stylecss.width = `${extent.cx ? emuToPx(extent.cx, maxDim.width, childFrame.ext.x) : maxDim.width}px`;
-      stylecss.height = `${extent.cy ? emuToPx(extent.cy, maxDim.width, childFrame.ext.y) : maxDim.height}px`;
+      stylecss.width = `${
+        extent.cx
+          ? emuToPx(extent.cx, maxDim.width, childFrame.ext.x)
+          : maxDim.width
+      }px`;
+      stylecss.height = `${
+        extent.cy
+          ? emuToPx(extent.cy, maxDim.width, childFrame.ext.y)
+          : maxDim.height
+      }px`;
     }
   }
-  
 }
-function processCropping(stylecss: any, cropping: any, maxDim: { width: number; height: number }, childFrame: any): any {
- let vals=cropping?.srcRect;
- if(vals){
-  const cropLeft = vals?.l ? (parseInt(vals.l) / 100000) * 100 : 0;
-  const cropTop = vals?.t ? (parseInt(vals.t) / 100000) * 100 : 0;
-  const cropRight = vals?.r ? (parseInt(vals.r) / 100000) * 100 : 0;
-  const cropBottom = vals?.b ? (parseInt(vals.b) / 100000) * 100 : 0;
-  if(cropLeft || cropTop || cropRight || cropBottom){
-    stylecss.clipPath=`inset(${cropTop}% ${cropRight}% ${cropBottom}% ${cropLeft}%)`
+
+function processCropping(
+  stylecss: any,
+  cropping: any,
+  maxDim: { width: number; height: number },
+  childFrame: any
+): any {
+  let vals = cropping?.srcRect;
+  if (vals) {
+    const cropLeft = vals?.l ? (parseInt(vals.l) / 100000) * 100 : 0;
+    const cropTop = vals?.t ? (parseInt(vals.t) / 100000) * 100 : 0;
+    const cropRight = vals?.r ? (parseInt(vals.r) / 100000) * 100 : 0;
+    const cropBottom = vals?.b ? (parseInt(vals.b) / 100000) * 100 : 0;
+    if (cropLeft || cropTop || cropRight || cropBottom) {
+      stylecss.clipPath = `inset(${cropTop}% ${cropRight}% ${cropBottom}% ${cropLeft}%)`;
+    }
   }
- 
-
-// stylecss.backgroundRepeat = "no-repeat";
-// stylecss.backgroundSize = "cover";
-// stylecss.backgroundPosition = "center";
- }
-//  console.log(vals)
-// console.log(stylecss);
-
 }
 
-function processProperties(stylecss: any, properties: any, maxDim: { width: number; height: number }, childFrame: any) {
+function processProperties(
+  stylecss: any,
+  properties: any,
+  maxDim: { width: number; height: number },
+  childFrame: any
+) {
   if (properties) {
     // Loop through key:val of properties
     for (const [attrib, val] of Object.entries(properties)) {
       if (attrib === "xfrm") {
         processXfrm(stylecss, val, maxDim, childFrame);
-      }else if(attrib==="blipFill"){
-        processCropping(stylecss,val,maxDim,childFrame);
-      }
-       else if (attrib === "prstGeom") {
-        processPrstGeom(stylecss, val, maxDim);
+      } else if (attrib === "prstGeom") {
+        // processPrstGeom(stylecss, val, maxDim);
       } else if (attrib === "pattFill") {
         processPattFill(stylecss, val);
       } else if (attrib === "noFill") {
@@ -210,7 +248,8 @@ function processProperties(stylecss: any, properties: any, maxDim: { width: numb
         stylecss.verticalAlign = val === "ctr" ? "middle" : val;
       } else if (attrib === "algn") {
         // Map algn to text alignment
-        stylecss.textAlign = val === "l" ? "left" : val === "r" ? "right" : "center";
+        stylecss.textAlign =
+          val === "l" ? "left" : val === "r" ? "right" : "center";
       } else if (attrib === "sz") {
         // Convert font size from EMUs to points
         stylecss.fontSize = `${emuToFontSize(val as number, maxDim.width)}px`;
@@ -233,7 +272,12 @@ function processProperties(stylecss: any, properties: any, maxDim: { width: numb
         // Map capitalization
         if (val != "none") {
           if (!stylecss.textDecoration) stylecss.textDecoration = "";
-          stylecss.textDecoration += val === "allCaps" ? "uppercase" : val === "smallCaps" ? "capitalize" : "";
+          stylecss.textDecoration +=
+            val === "allCaps"
+              ? "uppercase"
+              : val === "smallCaps"
+              ? "capitalize"
+              : "";
         }
       } else if (attrib === "latin") {
         // Map font properties
@@ -243,12 +287,17 @@ function processProperties(stylecss: any, properties: any, maxDim: { width: numb
             stylecss.fontFamily = typeface;
           }
         }
-      } 
+      }
     }
   }
 }
 
-function processStyle(stylecss: any, style: any, maxDim: { width: number; height: number }, childFrame: any) {
+function processStyle(
+  stylecss: any,
+  style: any,
+  maxDim: { width: number; height: number },
+  childFrame: any
+) {
   if (style) {
     // Loop through key:val of style
     for (const [attrib, val] of Object.entries(style)) {
@@ -264,7 +313,6 @@ function processStyle(stylecss: any, style: any, maxDim: { width: number; height
         // Apply font family and color to stylecss
         stylecss.fontFamily = extractFontFamily(val);
         stylecss.color = extractColor((val as { schemeClr?: any })?.schemeClr);
-      
       }
     }
   }
@@ -282,7 +330,7 @@ function convertPowerPointStyle(
   processProperties(stylecss, node.properties, maxDim, childFrame);
 
   const newChildFrame = calculateChildFrame(node, maxDim);
-  console.log(stylecss.clipPath)
+  console.log(stylecss.clipPath);
   return { style: stylecss, newChildFrame };
 }
 
