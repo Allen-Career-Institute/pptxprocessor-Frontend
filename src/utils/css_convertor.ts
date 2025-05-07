@@ -137,29 +137,6 @@ function processPattFill(stylecss: any, pattFill: any): any {
   }
 }
 
-function processPrstGeom(
-  stylecss: any,
-  prstGeom: any,
-  maxDim: { width: number; height: number }
-): any {
-  if (prstGeom) {
-    const scalingFactor = maxDim.width / 1280;
-    const prst = prstGeom.prst;
-    if (prst) {
-      if (prst === "roundRect") {
-        const cornerAdj = prstGeom.avLst?.gd?.fmla.split(" ")[1];
-        if (cornerAdj) {
-          stylecss.borderRadius = `${
-            (parseInt(cornerAdj) / 1000) * scalingFactor
-          }px`;
-        }
-      } else if (prst === "ellipse") {
-        stylecss.borderRadius = "50%";
-      }
-    }
-  }
-}
-
 function processXfrm(
   stylecss: any,
   xfrm: any,
@@ -224,8 +201,6 @@ function processProperties(
         processXfrm(stylecss, val, maxDim, childFrame);
       } else if(attrib==="blipFill"){
         processCropping(stylecss,val,maxDim,childFrame)
-      } else if (attrib === "prstGeom") {
-         processPrstGeom(stylecss, val, maxDim);
       } else if (attrib === "pattFill") {
         processPattFill(stylecss, val);
       } else if (attrib === "noFill") {
