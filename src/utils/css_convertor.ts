@@ -7,7 +7,7 @@ import {
   calculateChildFrame,
   extractFontFamily,
 } from "./extract_utils";
-import { emuToPx, emuToFontSize } from "./helper_utils";
+import { emuToPx, emuToFontSize,emuRotationToDegrees } from "./helper_utils";
 
 function processEffectLst(
   stylecss: any,
@@ -167,6 +167,12 @@ function processXfrm(
           : maxDim.height
       }px`;
     }
+    const invert = xfrm?.flipH ? -1 : 1;
+    const rotation=
+    emuRotationToDegrees(parseInt(xfrm?.rot))
+    stylecss.transform= `rotate(${rotation}deg) scaleX(${invert})`,
+
+    console.log(stylecss.transform)
   }
 }
 
