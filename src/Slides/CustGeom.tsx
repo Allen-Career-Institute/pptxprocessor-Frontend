@@ -6,6 +6,7 @@ interface CustomGeometryProps {
   mediaPath: string;
   custGeom: any;
   ln: any;
+  style: any;
   maxDim: { width: number; height: number };
   childFrame: { off: { x: number; y: number }; ext: { x: number; y: number } };
   renderChildren: (node: any, zIndex: number, childFrame: any) => JSX.Element;
@@ -56,6 +57,7 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
   mediaPath,
   custGeom,
   ln,
+  style,
   maxDim,
   childFrame,
   renderChildren,
@@ -103,11 +105,13 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
   // Resolve positions
   const resolvePosition = (pos: string, w: number, h: number): number => {
     if (pos in guides) {
+      console.log("Pathdata with guide")
       let posi = w == 0 ? 0 : (evaluateFormula(guides[pos], w, h) * width) / w;
       // console.log("117", posi, guides[pos], pos, width, w, h);
       // if(isNaN(posi))return 0;
       return posi;
     }
+    console.log("Pathdata without guide", pos, w, width)
     // // return pos in guides
     // //   ? (evaluateFormula(guides[pos], w, h) * width) / w
     //   :(parseFloat(pos) * width) / w;
@@ -147,6 +151,7 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
         pathH
       )}`
     );
+    console.log(`Pathdata ${node.name}`, pathData, moveTo.x, pathW, pathH, resolvePosition(moveTo.x, pathW, pathH)); 
   }
   // const pathData = `M ${resolvePosition(moveTo.x, pathW, pathH)
   // } ${resolvePosition(moveTo.y, pathW, pathH)} L ${resolvePosition(
@@ -197,13 +202,7 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
     <div
       ref={containerRef} // Attach the ref to the container
       className={`${node.type} custGeom ${node.name ? node.name : ""}`}
-      style={{
-        position: "absolute",
-        left: `0px`,
-        top: `0px`,
-        width: "inherit",
-        height: "inherit",
-      }}
+      style={style}
     >
       <svg
         width={rectWidth * 2}

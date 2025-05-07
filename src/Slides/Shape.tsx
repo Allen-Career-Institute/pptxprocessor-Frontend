@@ -101,6 +101,7 @@ const Shape: React.FC<ShapeProps> = ({
           mediaPath={mediaPath}
           custGeom={custGeom}
           ln={ln}
+          style={style}
           maxDim={maxDim}
           childFrame={newChildFrame}
           renderChildren={renderChildren}

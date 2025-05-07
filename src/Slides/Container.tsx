@@ -22,6 +22,9 @@ const Container: React.FC<ContainerProps> = ({ node, zIndex, mediaPath, maxDim, 
     style.width = maxDim.width;
     style.height = maxDim.height;
   } else {
+    if (node.type == "spTree") {
+      console.log("spTree", node.asset, style.width, style.height);
+    }
     !style.width && (style.width = "inherit");
     !style.height && (style.height = "inherit");
   }
