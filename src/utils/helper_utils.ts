@@ -2,7 +2,7 @@ const EMUConst = 9525;
 const StandardWidth = 1280;
 
 export function emuToPx(emu: number, maxWidth: number, offset: number = 0): number {
-  return ((maxWidth * emu) / (EMUConst * StandardWidth)) - offset;
+  return parseFloat((((maxWidth * emu) / (EMUConst * StandardWidth)) - offset).toFixed(2));
 }
 
 export function emuToFontSize(emu: number, maxWidth: number): number {

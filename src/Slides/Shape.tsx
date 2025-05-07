@@ -88,7 +88,6 @@ const Shape: React.FC<ShapeProps> = ({
       {renderChildren(node, zIndex, newChildFrame)}
     </div>
   )};
-  console.log("renderGenericWrapper", node.asset, genericWrapper, prstGeom);
 
   return (
     <>
