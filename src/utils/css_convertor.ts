@@ -152,6 +152,27 @@ function processXfrm(stylecss: any, xfrm: any, maxDim: { width: number; height: 
       stylecss.height = `${extent.cy ? emuToPx(extent.cy, maxDim.width, childFrame.ext.y) : maxDim.height}px`;
     }
   }
+  
+}
+function processCropping(stylecss: any, cropping: any, maxDim: { width: number; height: number }, childFrame: any): any {
+ let vals=cropping?.srcRect;
+ if(vals){
+  const cropLeft = vals?.l ? (parseInt(vals.l) / 100000) * 100 : 0;
+  const cropTop = vals?.t ? (parseInt(vals.t) / 100000) * 100 : 0;
+  const cropRight = vals?.r ? (parseInt(vals.r) / 100000) * 100 : 0;
+  const cropBottom = vals?.b ? (parseInt(vals.b) / 100000) * 100 : 0;
+  if(cropLeft || cropTop || cropRight || cropBottom){
+    stylecss.clipPath=`inset(${cropTop}% ${cropRight}% ${cropBottom}% ${cropLeft}%)`
+  }
+ 
+
+// stylecss.backgroundRepeat = "no-repeat";
+// stylecss.backgroundSize = "cover";
+// stylecss.backgroundPosition = "center";
+ }
+//  console.log(vals)
+// console.log(stylecss);
+
 }
 
 function processProperties(stylecss: any, properties: any, maxDim: { width: number; height: number }, childFrame: any) {
@@ -160,7 +181,10 @@ function processProperties(stylecss: any, properties: any, maxDim: { width: numb
     for (const [attrib, val] of Object.entries(properties)) {
       if (attrib === "xfrm") {
         processXfrm(stylecss, val, maxDim, childFrame);
-      } else if (attrib === "prstGeom") {
+      }else if(attrib==="blipFill"){
+        processCropping(stylecss,val,maxDim,childFrame);
+      }
+       else if (attrib === "prstGeom") {
         processPrstGeom(stylecss, val, maxDim);
       } else if (attrib === "pattFill") {
         processPattFill(stylecss, val);
@@ -258,7 +282,7 @@ function convertPowerPointStyle(
   processProperties(stylecss, node.properties, maxDim, childFrame);
 
   const newChildFrame = calculateChildFrame(node, maxDim);
-
+  console.log(stylecss.clipPath)
   return { style: stylecss, newChildFrame };
 }
 
