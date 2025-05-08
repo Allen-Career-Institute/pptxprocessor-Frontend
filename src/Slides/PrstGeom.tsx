@@ -14,26 +14,28 @@ interface PresetGeometryProps {
 }
 
 interface LineStyle {
-  x: number;
-  y: number;
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
   flipH: boolean;
   flipV: boolean;
   lineWidth: number;
   color: string;
   viewWidth: number;
   viewHeight: number;
-  head:string;
-  tail:string;
+  head: boolean;
+  tail: boolean;
 }
-interface EndStyle{
+interface EndStyle {
   x: number;
   y: number;
   flipH: boolean;
   flipV: boolean;
   lineWidth: number;
   color: string;
-  head:string;
-  tail:string;
+  head: string;
+  tail: string;
 }
 
 const PresetGeometry: React.FC<PresetGeometryProps> = ({
@@ -60,7 +62,7 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
   }, []);
 
   useEffect(() => {
-    let {border, borderRadius} = style;
+    let { border, borderRadius } = style;
     if (prstGeom && style) {
       border = style.border;
       console.log(
@@ -87,113 +89,81 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
           borderRadius = "50%";
         } else if (prst === "line") {
           border = "";
-          const flipH = node.properties.xfrm.flipH ? node.properties.xfrm.flipH == "1" ? true : false : false;
-          const flipV = node.properties.xfrm.flipV ? node.properties.xfrm.flipV == "1" ? true : false : false;
+          const flipH = node.properties.xfrm.flipH
+            ? node.properties.xfrm.flipH == "1"
+              ? false
+              : true
+            : true;
+          const flipV = node.properties.xfrm.flipV
+            ? node.properties.xfrm.flipV == "1"
+              ? true
+              : false
+            : false;
           const color = extractSolidFillColor(node.properties.ln.solidFill);
           const lineWidth = emuToPx(node.properties.ln.w, maxDim.width, 0);
           const x = parseFloat(style.width.replace("px", ""));
           const y = parseFloat(style.height.replace("px", ""));
-          const viewWidth = 4*x || 100;
-          const viewHeight = 4*y || 100;
-          const head=node.properties?.ln?.headEnd?.type
-          const tail=node.properties?.ln?.tailEnd?.type
-          setLineStyle({ x, y, flipH, flipV, lineWidth, color, viewWidth, viewHeight,
-            head,tail});
+          const viewWidth = 4 * x || 100;
+          const viewHeight = 4 * y || 100;
+          const head =
+            node.properties?.ln?.headEnd?.type === "arrow" ? true : false;
+          const tail =
+            node.properties?.ln?.tailEnd?.type === "arrow" ? true : false;
+
+          const x1 = flipH ? x : 0;
+          const y1 = flipV ? 0 : y;
+          const x2 = flipH ? 0 : x;
+          const y2 = flipV ? y : 0;
+          setLineStyle({
+            x1,
+            y1,
+            x2,
+            y2,
+            flipH,
+            flipV,
+            lineWidth,
+            color,
+            viewWidth,
+            viewHeight,
+            head,
+            tail,
+          });
         }
       }
     }
     // if (borderRadius) {
-      setStyleCss({
-        ...style,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        borderRadius,
-        border,
-        overflow: "visible",
-      });
-    // } else {
-    //   setStyleCss({
-    //     ...style,
-    //     display: "flex",
-    //     alignItems: "center",
-    //     justifyContent: "center",
-    //     borderRadius: "",
-    //     border
-    //   });
-    // }
+    setStyleCss({
+      ...style,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      borderRadius,
+      border,
+      overflow: "visible",
+    });
   }, [prstGeom, style]);
-// const renderEnds=({
-//   x,
-//   y,
-//   flipH,
-//   flipV,
-//   lineWidth,
-//   color,
-//   tail,
-//   head
-// }:EndStyle):JSX.Element=>{
-  
-//           if(tail==="arrow" && head==="arrow")
-//             return <line
-//           x1={`${flipV ? 0 : x}px`}
-//           y1={`${flipH ? 0 : y}px`}
-//           x2={`${flipV ? x : 0}px`}
-//           y2={`${flipH ? y : 0}px`}
-//           stroke={color}
-//           stroke-width={`${lineWidth}px`}
-//           marker-end="url(#arrowhead)"
-//           marker-start="url(#arrowtail)"
-//           /> 
-//           else if(tail==="none" && head==="arrow")
-//             return <line
-//           x1={`${flipV ? x : 0}px`}
-//           y1={`${flipH ? y : 0}px`}
-//           x2={`${flipV ? 0 : x}px`}
-//           y2={`${flipH ? 0 : y}px`}
-//           stroke={color}
-//           stroke-width={`${lineWidth}px`}
-//           marker-end="url(#arrowhead)"
-//         />
-//         else if(tail==="arrow" && head==="none")
-//           return <line
-//         x1={`${flipV ? x : 0}px`}
-//         y1={`${flipH ? y : 0}px`}
-//         x2={`${flipV ? 0 : x}px`}
-//         y2={`${flipH ? 0 : y}px`}
-//         stroke={color}
-//         stroke-width={`${lineWidth}px`}
-//         marker-start="url(#arrowtail)"
-//         />
-//         return <line
-//           x1={`${flipV ? x : 0}px`}
-//           y1={`${flipH ? y : 0}px`}
-//           x2={`${flipV ? 0 : x}px`}
-//           y2={`${flipH ? 0 : y}px`}
-//           stroke={color}
-//           stroke-width={`${lineWidth}px`}
-//         />
 
-// }
-console.log(node.properties?.ln?.headEnd?.type)
   const renderArrow = ({
-      x,
-      y,
-      flipH,
-      flipV,
-      lineWidth,
-      color,
-      viewWidth,
-      viewHeight,
-      head,
-      tail
-    }: LineStyle): JSX.Element => {
+    x1,
+    y1,
+    x2,
+    y2,
+    flipH,
+    flipV,
+    lineWidth,
+    color,
+    viewWidth,
+    viewHeight,
+    head,
+    tail,
+  }: LineStyle): JSX.Element => {
+    if (node._type === "cxnSp") console.table({ node, x1, y1, flipH, flipV });
     return (
-      <svg 
-      width="2000"
-      height="2000"
-      viewBox={`-1000 -1000 2000 2000`} 
-      style={{ position: "absolute", left: "-1000px", top: "-1000px" }}
+      <svg
+        width="2000"
+        height="2000"
+        viewBox={`-1000 -1000 2000 2000`}
+        style={{ position: "absolute", left: "-1000px", top: "-1000px" }}
       >
         <defs>
           <marker
@@ -217,49 +187,47 @@ console.log(node.properties?.ln?.headEnd?.type)
             <polygon points="10 0, 0 3.5, 10 7" fill="context-stroke" />
           </marker>
         </defs>
-        {
-  head === "arrow" && tail === "arrow" ? (
-    <line
-      x1={`${flipV ? x : 0}px`}
-      y1={`${flipH ? y : 0}px`}
-      x2={`${flipV ? 0 : x}px`}
-      y2={`${flipH ? 0 : y}px`}
-      stroke={color}
-      strokeWidth={`${lineWidth}px`}
-      markerStart="url(#arrowhead)"
-      markerEnd="url(#arrowhead)"
-    />
-  ) : head === "arrow" && tail === "none" ? (
-    <line
-      x1={`${flipV ? x : 0}px`}
-      y1={`${flipH ? y : 0}px`}
-      x2={`${flipV ? 0 : x}px`}
-      y2={`${flipH ? 0 : y}px`}
-      stroke={color}
-      strokeWidth={`${lineWidth}px`}
-      markerEnd="url(#arrowhead)"
-    />
-  ) : head === "none" && tail === "arrow" ? (
-    <line
-      x1={`${flipV ? x : 0}px`}
-      y1={`${flipH ? y : 0}px`}
-      x2={`${flipV ? 0 : x}px`}
-      y2={`${flipH ? 0 : y}px`}
-      stroke={color}
-      strokeWidth={`${lineWidth}px`}
-      markerEnd="url(#arrowhead)"
-    />
-  ) : (
-    <line
-      x1={`${flipV ? x : 0}px`}
-      y1={`${flipH ? y : 0}px`}
-      x2={`${flipV ? 0 : x}px`}
-      y2={`${flipH ? 0 : y}px`}
-      stroke={color}
-      strokeWidth={`${lineWidth}px`}
-    />
-  )
-}
+        {head && tail ? (
+          <line
+            x1={`${x1}px`}
+            y1={`${y1}px`}
+            x2={`${x2}px`}
+            y2={`${y2}px`}
+            stroke={color}
+            strokeWidth={`${lineWidth}px`}
+            markerStart="url(#arrowtail)"
+            markerEnd="url(#arrowhead)"
+          />
+        ) : head ? (
+          <line
+            x1={`${x1}px`}
+            y1={`${y1}px`}
+            x2={`${x2}px`}
+            y2={`${y2}px`}
+            stroke={color}
+            strokeWidth={`${lineWidth}px`}
+            markerEnd="url(#arrowhead)"
+          />
+        ) : tail ? (
+          <line
+            x1={`${x1}px`}
+            y1={`${y1}px`}
+            x2={`${x2}px`}
+            y2={`${y2}px`}
+            stroke={color}
+            strokeWidth={`${lineWidth}px`}
+            markerStart="url(#arrowtail)"
+          />
+        ) : (
+          <line
+            x1={`${x1}px`}
+            y1={`${y1}px`}
+            x2={`${x2}px`}
+            y2={`${y2}px`}
+            stroke={color}
+            strokeWidth={`${lineWidth}px`}
+          />
+        )}
       </svg>
     );
   };
@@ -270,7 +238,7 @@ console.log(node.properties?.ln?.headEnd?.type)
       className={`${node._type} prstGeom ${node.name ? node.name : ""}`}
       id={node.asset}
       style={styleCss}
-    > 
+    >
       {lineStyle && renderArrow(lineStyle)}
       {imageUrl && (
         <img src={imageUrl} style={{ ...style, left: "0px", top: "0px" }} />
