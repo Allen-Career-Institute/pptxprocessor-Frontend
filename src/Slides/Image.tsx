@@ -44,7 +44,7 @@ const Image: React.FC<ImageProps> = ({
       setVideoUrl(mediaPath + node.properties.media.link.slice(3));
     }
   }, []);
-
+console.log(imageUrl,style.zIndex,style.transform)
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -67,7 +67,7 @@ const Image: React.FC<ImageProps> = ({
   return (
     <div
       key={node.asset}
-      className={`${node.type} ${node.name ? node.name : ""}`}
+      className={`${node._type} ${node.name ? node.name : ""}`}
       id={node.asset}
       style={style}
     >

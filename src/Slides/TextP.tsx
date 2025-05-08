@@ -15,7 +15,7 @@ const TextP: React.FC<TextPProps> = ({ node, zIndex, maxDim, childFrame, renderC
   return (
     <div
       key={node.asset}
-      className={`${node.type} TextP ${node.name? node.name : ""}`}
+      className={`${node._type} TextP ${node.name? node.name : ""}`}
       id={node.asset}
       style={{
         ...style,

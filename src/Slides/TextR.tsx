@@ -15,7 +15,7 @@ const TextR: React.FC<TextRProps> = ({ node, zIndex, maxDim, childFrame }: any) 
   return (
     <span
       key={node.asset}
-      className={`${node.type} TextR ${node.name ? node.name : ""}`}
+      className={`${node._type} TextR ${node.name ? node.name : ""}`}
       id={node.asset}
       style={{
       ...style,

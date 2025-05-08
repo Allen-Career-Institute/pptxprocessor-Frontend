@@ -215,7 +215,7 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
   return (
     <div
       ref={containerRef} // Attach the ref to the container
-      className={`${node.type} custGeom ${node.name ? node.name : ""}`}
+      className={`${node._type} custGeom ${node.name ? node.name : ""}`}
       style={{...style, border: ""}}
     >
       <svg

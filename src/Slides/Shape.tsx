@@ -73,7 +73,7 @@ const Shape: React.FC<ShapeProps> = ({
     return (
     <div
       key={node.asset}
-      className={`${node.type} Generic ${node.name ? node.name : ""}`}
+      className={`${node._type} Generic ${node.name ? node.name : ""}`}
       id={node.asset}
       style={{
         ...style,
