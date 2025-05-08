@@ -122,7 +122,7 @@ const patterns = {
 
 function processPattFill(stylecss: any, pattFill: any): any {
   if (pattFill) {
-    // Extract pattern type
+    // Extract pattern _type
     const prst = pattFill.prst || "none"; // Default to "none" if not specified
     const pattern = patterns[prst as keyof typeof patterns];
 

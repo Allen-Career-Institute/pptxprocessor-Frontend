@@ -22,6 +22,18 @@ interface LineStyle {
   color: string;
   viewWidth: number;
   viewHeight: number;
+  head:string;
+  tail:string;
+}
+interface EndStyle{
+  x: number;
+  y: number;
+  flipH: boolean;
+  flipV: boolean;
+  lineWidth: number;
+  color: string;
+  head:string;
+  tail:string;
 }
 
 const PresetGeometry: React.FC<PresetGeometryProps> = ({
@@ -38,7 +50,7 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
   const [styleCss, setStyleCss] = useState<any>({});
   const [lineStyle, setLineStyle] = useState<LineStyle>();
 
-  console.log("PresetGeometry node:", node.name, node.asset, node.type);
+  console.log("PresetGeometry node:", node.name, node.asset, node._type);
 
   useEffect(() => {
     if (!("properties" in node)) return;
@@ -83,7 +95,10 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
           const y = parseFloat(style.height.replace("px", ""));
           const viewWidth = 4*x || 100;
           const viewHeight = 4*y || 100;
-          setLineStyle({ x, y, flipH, flipV, lineWidth, color, viewWidth, viewHeight });
+          const head=node.properties?.ln?.headEnd?.type
+          const tail=node.properties?.ln?.tailEnd?.type
+          setLineStyle({ x, y, flipH, flipV, lineWidth, color, viewWidth, viewHeight,
+            head,tail});
         }
       }
     }
@@ -108,7 +123,59 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
     //   });
     // }
   }, [prstGeom, style]);
+// const renderEnds=({
+//   x,
+//   y,
+//   flipH,
+//   flipV,
+//   lineWidth,
+//   color,
+//   tail,
+//   head
+// }:EndStyle):JSX.Element=>{
+  
+//           if(tail==="arrow" && head==="arrow")
+//             return <line
+//           x1={`${flipV ? 0 : x}px`}
+//           y1={`${flipH ? 0 : y}px`}
+//           x2={`${flipV ? x : 0}px`}
+//           y2={`${flipH ? y : 0}px`}
+//           stroke={color}
+//           stroke-width={`${lineWidth}px`}
+//           marker-end="url(#arrowhead)"
+//           marker-start="url(#arrowtail)"
+//           /> 
+//           else if(tail==="none" && head==="arrow")
+//             return <line
+//           x1={`${flipV ? x : 0}px`}
+//           y1={`${flipH ? y : 0}px`}
+//           x2={`${flipV ? 0 : x}px`}
+//           y2={`${flipH ? 0 : y}px`}
+//           stroke={color}
+//           stroke-width={`${lineWidth}px`}
+//           marker-end="url(#arrowhead)"
+//         />
+//         else if(tail==="arrow" && head==="none")
+//           return <line
+//         x1={`${flipV ? x : 0}px`}
+//         y1={`${flipH ? y : 0}px`}
+//         x2={`${flipV ? 0 : x}px`}
+//         y2={`${flipH ? 0 : y}px`}
+//         stroke={color}
+//         stroke-width={`${lineWidth}px`}
+//         marker-start="url(#arrowtail)"
+//         />
+//         return <line
+//           x1={`${flipV ? x : 0}px`}
+//           y1={`${flipH ? y : 0}px`}
+//           x2={`${flipV ? 0 : x}px`}
+//           y2={`${flipH ? 0 : y}px`}
+//           stroke={color}
+//           stroke-width={`${lineWidth}px`}
+//         />
 
+// }
+console.log(node.properties?.ln?.headEnd?.type)
   const renderArrow = ({
       x,
       y,
@@ -117,7 +184,9 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
       lineWidth,
       color,
       viewWidth,
-      viewHeight
+      viewHeight,
+      head,
+      tail
     }: LineStyle): JSX.Element => {
     return (
       <svg 
@@ -148,43 +217,49 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
             <polygon points="10 0, 0 3.5, 10 7" fill="context-stroke" />
           </marker>
         </defs>
-        {node.properties.ln?.headEnd? node.properties.ln?.tailEnd? 
-        <line
-          x1={`${flipV ? 0 : x}px`}
-          y1={`${flipH ? 0 : y}px`}
-          x2={`${flipV ? x : 0}px`}
-          y2={`${flipH ? y : 0}px`}
-          stroke={color}
-          stroke-width={`${lineWidth}px`}
-          marker-end="url(#arrowhead)"
-          marker-start="url(#arrowtail)"
-          /> : 
-        <line
-          x1={`${flipV ? x : 0}px`}
-          y1={`${flipH ? y : 0}px`}
-          x2={`${flipV ? 0 : x}px`}
-          y2={`${flipH ? 0 : y}px`}
-          stroke={color}
-          stroke-width={`${lineWidth}px`}
-          marker-end="url(#arrowhead)"
-        /> : node.properties.ln?.tailEnd? 
-        <line
-          x1={`${flipV ? x : 0}px`}
-          y1={`${flipH ? y : 0}px`}
-          x2={`${flipV ? 0 : x}px`}
-          y2={`${flipH ? 0 : y}px`}
-          stroke={color}
-          stroke-width={`${lineWidth}px`}
-          marker-start="url(#arrowtail)"
-          /> : 
-        <line
-          x1={`${flipV ? x : 0}px`}
-          y1={`${flipH ? y : 0}px`}
-          x2={`${flipV ? 0 : x}px`}
-          y2={`${flipH ? 0 : y}px`}
-          stroke={color}
-          stroke-width={`${lineWidth}px`}
-        /> }
+        {
+  head === "arrow" && tail === "arrow" ? (
+    <line
+      x1={`${flipV ? x : 0}px`}
+      y1={`${flipH ? y : 0}px`}
+      x2={`${flipV ? 0 : x}px`}
+      y2={`${flipH ? 0 : y}px`}
+      stroke={color}
+      strokeWidth={`${lineWidth}px`}
+      markerStart="url(#arrowhead)"
+      markerEnd="url(#arrowhead)"
+    />
+  ) : head === "arrow" && tail === "none" ? (
+    <line
+      x1={`${flipV ? x : 0}px`}
+      y1={`${flipH ? y : 0}px`}
+      x2={`${flipV ? 0 : x}px`}
+      y2={`${flipH ? 0 : y}px`}
+      stroke={color}
+      strokeWidth={`${lineWidth}px`}
+      markerEnd="url(#arrowhead)"
+    />
+  ) : head === "none" && tail === "arrow" ? (
+    <line
+      x1={`${flipV ? x : 0}px`}
+      y1={`${flipH ? y : 0}px`}
+      x2={`${flipV ? 0 : x}px`}
+      y2={`${flipH ? 0 : y}px`}
+      stroke={color}
+      strokeWidth={`${lineWidth}px`}
+      markerEnd="url(#arrowhead)"
+    />
+  ) : (
+    <line
+      x1={`${flipV ? x : 0}px`}
+      y1={`${flipH ? y : 0}px`}
+      x2={`${flipV ? 0 : x}px`}
+      y2={`${flipH ? 0 : y}px`}
+      stroke={color}
+      strokeWidth={`${lineWidth}px`}
+    />
+  )
+}
       </svg>
     );
   };
@@ -192,7 +267,7 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
   return (
     <div
       key={node.asset}
-      className={`${node.type} prstGeom ${node.name ? node.name : ""}`}
+      className={`${node._type} prstGeom ${node.name ? node.name : ""}`}
       id={node.asset}
       style={styleCss}
     > 
