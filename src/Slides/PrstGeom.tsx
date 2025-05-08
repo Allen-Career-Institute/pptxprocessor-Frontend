@@ -137,8 +137,28 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
           >
             <polygon points="0 0, 10 3.5, 0 7" fill="context-stroke" />
           </marker>
+          <marker
+            id="arrowtail"
+            markerWidth="10"
+            markerHeight="7"
+            refX="0"
+            refY="3.5"
+            orient="auto"
+          >
+            <polygon points="10 0, 0 3.5, 10 7" fill="context-stroke" />
+          </marker>
         </defs>
-        {node.properties.ln?.headEnd? 
+        {node.properties.ln?.headEnd? node.properties.ln?.tailEnd? 
+        <line
+          x1={`${flipV ? 0 : x}px`}
+          y1={`${flipH ? 0 : y}px`}
+          x2={`${flipV ? x : 0}px`}
+          y2={`${flipH ? y : 0}px`}
+          stroke={color}
+          stroke-width={`${lineWidth}px`}
+          marker-end="url(#arrowhead)"
+          marker-start="url(#arrowtail)"
+          /> : 
         <line
           x1={`${flipV ? x : 0}px`}
           y1={`${flipH ? y : 0}px`}
@@ -147,7 +167,16 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
           stroke={color}
           stroke-width={`${lineWidth}px`}
           marker-end="url(#arrowhead)"
-        /> : 
+        /> : node.properties.ln?.tailEnd? 
+        <line
+          x1={`${flipV ? x : 0}px`}
+          y1={`${flipH ? y : 0}px`}
+          x2={`${flipV ? 0 : x}px`}
+          y2={`${flipH ? 0 : y}px`}
+          stroke={color}
+          stroke-width={`${lineWidth}px`}
+          marker-start="url(#arrowtail)"
+          /> : 
         <line
           x1={`${flipV ? x : 0}px`}
           y1={`${flipH ? y : 0}px`}
