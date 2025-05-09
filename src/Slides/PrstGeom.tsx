@@ -53,7 +53,6 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
   const [styleCss, setStyleCss] = useState<any>({});
   const [lineStyle, setLineStyle] = useState<LineStyle>();
 
-  console.log("PresetGeometry node:", node.name, node[NodeAttribs.ASSET], node[NodeAttribs.TYPE]);
 
   useEffect(() => {
     if (!(NodeAttribs.PROPERTIES in node)) return;
@@ -66,16 +65,7 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
     let { border, borderRadius } = style;
     if (prstGeom && style) {
       border = style.border;
-      console.log(
-        "Style",
-        node.name,
-        node[NodeAttribs.ASSET],
-        style.left,
-        style.top,
-        style.width,
-        style.height,
-        node[NodeAttribs.PROPERTIES].xfrm.flipH
-      );
+      
       const scalingFactor = maxDim.width / 1280;
       const prst = prstGeom.prst;
 
@@ -86,7 +76,6 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
             borderRadius = `${(parseInt(cornerAdj) / 1000) * scalingFactor}px`;
           }
         } else if (prst === "ellipse") {
-          console.log("Got ellipse", node[NodeAttribs.ASSET]);
           borderRadius = "50%";
         } else if (prst === "line") {
           border = "";

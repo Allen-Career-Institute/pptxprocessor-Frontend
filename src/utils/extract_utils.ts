@@ -4,9 +4,9 @@ export function extractPx(value: number, defaultValue: number, maxDim: any, offs
   return value ? emuToPx(value, maxDim.width, offset) : defaultValue;
 }
 
-export function calculateChildFrame(node: any, maxDim: { width: number; height: number }): any {
-  const chOff = node.properties?.xfrm?.chOff || { x: 0, y: 0 };
-  const chExt = node.properties?.xfrm?.chExt || { cx: 1, cy: 1 };
+export function calculateChildFrame(properties: any, maxDim: { width: number; height: number }): any {
+  const chOff = properties?.xfrm?.chOff || { x: 0, y: 0 };
+  const chExt = properties?.xfrm?.chExt || { cx: 1, cy: 1 };
   return {
     off: {
       x: extractPx(chOff.x, 0, maxDim),
