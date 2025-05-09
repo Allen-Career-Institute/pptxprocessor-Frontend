@@ -1,6 +1,6 @@
 import React, { JSX } from "react";
-import TextP from "./TextP";
 import convertPowerPointStyle from "../utils/css_convertor";
+import { NodeAttribs, StyleConstants } from "../utils/constants";
 
 interface TextProps {
   node: any;
@@ -12,14 +12,14 @@ interface TextProps {
 
 const Text: React.FC<TextProps> = ({ node, zIndex, maxDim, childFrame, renderChildren }: any) => {
   const {style, newChildFrame} = convertPowerPointStyle(node, zIndex, maxDim, childFrame);
-  !style.width && (style.width = "inherit");
-  !style.height && (style.height = "inherit");
+  !style.width && (style.width = StyleConstants.INHERIT);
+  !style.height && (style.height = StyleConstants.INHERIT);
 
 
   return (
     <div
       key={node.asset}
-      className={`${node._type} Text ${node.name? node.name : ""}`}
+      className={`${node[NodeAttribs.TYPE]} Text ${node.name? node.name : ""}`}
       id={node.asset}
       style={{
         ...style,

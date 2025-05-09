@@ -2,6 +2,7 @@ import React, { JSX, useState, useEffect, use } from "react";
 import CustGeom from "./CustGeom";
 import PrstGeom from "./PrstGeom";
 import convertPowerPointStyle from "../utils/css_convertor";
+import { NodeAttribs } from "../utils/constants";
 
 interface ShapeProps {
   node: any;
@@ -34,47 +35,47 @@ const Shape: React.FC<ShapeProps> = ({
   );
 
   useEffect(() => {
-    if (!("properties" in node)) return;
-    if (!("blipFill" in node.properties)) return;
-    if (!("link" in node.properties.blipFill)) return;
-    setImageUrl(mediaPath + node.properties.blipFill.link.slice(3));
+    if (!(NodeAttribs.PROPERTIES in node)) return;
+    if (!("blipFill" in node[NodeAttribs.PROPERTIES])) return;
+    if (!("link" in node[NodeAttribs.PROPERTIES].blipFill)) return;
+    setImageUrl(mediaPath + node[NodeAttribs.PROPERTIES].blipFill.link.slice(3));
   }, []);
 
   useEffect(() => {
-    if (!("properties" in node)) return;
-    if (!("custGeom" in node.properties)) return;
-    setCustGeom(node.properties.custGeom);
+    if (!(NodeAttribs.PROPERTIES in node)) return;
+    if (!("custGeom" in node[NodeAttribs.PROPERTIES])) return;
+    setCustGeom(node[NodeAttribs.PROPERTIES].custGeom);
   }, []);
 
   useEffect(() => {
-    if (!("properties" in node)) return;
-    if (!("prstGeom" in node.properties)) return;
-    setPrstGeom(node.properties.prstGeom);
+    if (!(NodeAttribs.PROPERTIES in node)) return;
+    if (!("prstGeom" in node[NodeAttribs.PROPERTIES])) return;
+    setPrstGeom(node[NodeAttribs.PROPERTIES].prstGeom);
   }, []);
 
   useEffect(() => {
-    if (node.properties?.prstGeom || node.properties?.custGeom) {
-      console.log("genericWrapper false", node.asset);
+    if (node[NodeAttribs.PROPERTIES]?.prstGeom || node[NodeAttribs.PROPERTIES]?.custGeom) {
+      console.log("genericWrapper false", node[NodeAttribs.ASSET]);
       setGenericWrapper(false);
     } else {
-      console.log("genericWrapper true", node.asset);
+      console.log("genericWrapper true", node[NodeAttribs.ASSET]);
       setGenericWrapper(true);
     }
   }, []);
 
   useEffect(() => {
-    if (!("properties" in node)) return;
-    if (!("ln" in node.properties)) return;
-    setLn(node.properties.ln);
+    if (!(NodeAttribs.PROPERTIES in node)) return;
+    if (!("ln" in node[NodeAttribs.PROPERTIES])) return;
+    setLn(node[NodeAttribs.PROPERTIES].ln);
   }, []);
 
 
   const renderGenericWrapper = () => {
     return (
     <div
-      key={node.asset}
-      className={`${node._type} Generic ${node.name ? node.name : ""}`}
-      id={node.asset}
+      key={node[NodeAttribs.ASSET]}
+      className={`${node[NodeAttribs.TYPE]} Generic ${node.name ? node.name : ""}`}
+      id={node[NodeAttribs.ASSET]}
       style={{
         ...style,
         display: "flex",
@@ -94,7 +95,7 @@ const Shape: React.FC<ShapeProps> = ({
       {genericWrapper && renderGenericWrapper()}
       {custGeom && (
         <CustGeom
-          key={node.asset}
+          key={node[NodeAttribs.ASSET]}
           node={node}
           zIndex={zIndex}
           mediaPath={mediaPath}
@@ -108,7 +109,7 @@ const Shape: React.FC<ShapeProps> = ({
       )}
       {prstGeom && (
         <PrstGeom
-          key={node.asset}
+          key={node[NodeAttribs.ASSET]}
           node={node}
           zIndex={zIndex}
           mediaPath={mediaPath}

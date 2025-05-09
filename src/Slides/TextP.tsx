@@ -1,5 +1,6 @@
 import React, { JSX } from "react";
 import convertPowerPointStyle from "../utils/css_convertor";
+import { NodeAttribs } from "../utils/constants";
 
 interface TextPProps {
   node: any;
@@ -15,7 +16,7 @@ const TextP: React.FC<TextPProps> = ({ node, zIndex, maxDim, childFrame, renderC
   return (
     <div
       key={node.asset}
-      className={`${node._type} TextP ${node.name? node.name : ""}`}
+      className={`${node[NodeAttribs.TYPE]} TextP ${node.name? node.name : ""}`}
       id={node.asset}
       style={{
         ...style,
