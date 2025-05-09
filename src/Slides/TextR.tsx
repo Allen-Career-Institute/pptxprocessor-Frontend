@@ -17,6 +17,9 @@ const TextR: React.FC<TextRProps> = ({
   childFrame,
 }: any) => {
   const { style } = convertPowerPointStyle(node, zIndex, maxDim, childFrame);
+  if (!style.fontSize) {
+    style.fontSize = emuToPx(220000, maxDim.width);
+  }
 
   return (
     <span
