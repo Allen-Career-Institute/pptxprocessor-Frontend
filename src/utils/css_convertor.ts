@@ -7,7 +7,8 @@ import {
   calculateChildFrame,
   extractFontFamily,
 } from "./extract_utils";
-import { emuToPx, emuToFontSize, emuRotationToDegrees } from "./helper_utils";
+import { emuToPx, emuToFontSize,emuRotationToDegrees } from "./helper_utils";
+import { NodeAttribs } from "./constants";
 
 function processEffectLst(
   stylecss: any,
@@ -143,9 +144,13 @@ function processXfrm(
   maxDim: { width: number; height: number },
   childFrame: any
 ): any {
+  console.log("xfrm", xfrm);
   if (xfrm) {
+    console.log("xfrm 1", xfrm);
+
     const offset = xfrm?.off;
     if (offset) {
+      console.log("xfrm offset", offset);
       stylecss.left = `${
         offset.x ? emuToPx(offset.x, maxDim.width, childFrame.off.x) : 0
       }px`;
@@ -153,9 +158,11 @@ function processXfrm(
         offset.y ? emuToPx(offset.y, maxDim.width, childFrame.off.y) : 0
       }px`;
       stylecss.position = "absolute";
+      console.log("xfrm top left", stylecss.left, stylecss.top);
     }
     const extent = xfrm?.ext;
     if (extent) {
+      console.log("xfrm extent", extent);
       stylecss.width = `${
         extent.cx
           ? emuToPx(extent.cx, maxDim.width, childFrame.ext.x)
@@ -166,6 +173,7 @@ function processXfrm(
           ? emuToPx(extent.cy, maxDim.width, childFrame.ext.y)
           : maxDim.height
       }px`;
+      console.log("xfrm width height", stylecss.width, stylecss.height);
     }
     const invert = xfrm?.flipH ? -1 : 1;
     const rotation = emuRotationToDegrees(parseInt(xfrm?.rot));
@@ -307,8 +315,8 @@ function convertPowerPointStyle(
 ): any {
   const stylecss: any = { zIndex };
 
-  processStyle(stylecss, node._properties?.style, maxDim, childFrame);
-  processProperties(stylecss, node._properties, maxDim, childFrame);
+  processStyle(stylecss, node[NodeAttribs.PROPERTIES]?.style, maxDim, childFrame);
+  processProperties(stylecss, node[NodeAttribs.PROPERTIES], maxDim, childFrame);
 
   const newChildFrame = calculateChildFrame(node, maxDim);
   console.log(stylecss.clipPath);

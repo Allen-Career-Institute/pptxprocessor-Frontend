@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, JSX, use } from "react";
 import { extractSolidFillColor, extractPx } from "../utils/extract_utils";
+import { NodeAttribs } from "../utils/constants";
 interface CustomGeometryProps {
   node: any;
   zIndex: number;
@@ -77,10 +78,12 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
   }, [ln]);
 
   useEffect(() => {
-    if (!("_properties" in node)) return;
-    if (!("blipFill" in node._properties)) return;
-    if (!("link" in node._properties.blipFill)) return;
-    setImageUrl(mediaPath + node._properties.blipFill.link.slice(3));
+    if (!(NodeAttribs.PROPERTIES in node)) return;
+    if (!("blipFill" in node[NodeAttribs.PROPERTIES])) return;
+    if (!("link" in node[NodeAttribs.PROPERTIES].blipFill)) return;
+    setImageUrl(
+      mediaPath + node[NodeAttribs.PROPERTIES].blipFill.link.slice(3)
+    );
   }, []);
 
   useEffect(() => {
@@ -220,7 +223,9 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
   return (
     <div
       ref={containerRef} // Attach the ref to the container
-      className={`${node._type} custGeom ${node.name ? node.name : ""}`}
+      className={`${node[NodeAttribs.TYPE]} custGeom ${
+        node.name ? node.name : ""
+      }`}
       style={{ ...style, border: "" }}
     >
       <svg

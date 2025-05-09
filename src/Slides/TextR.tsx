@@ -1,6 +1,7 @@
 import React from "react";
 import convertPowerPointStyle from "../utils/css_convertor";
 import { emuToPx } from "../utils/helper_utils";
+import { NodeAttribs } from "../utils/constants";
 
 interface TextRProps {
   node: any;
@@ -19,9 +20,9 @@ const TextR: React.FC<TextRProps> = ({
 
   return (
     <span
-      key={node._asset}
-      className={`${node._type} TextR ${node.name ? node.name : ""}`}
-      id={node._asset}
+      key={node.asset}
+      className={`${node[NodeAttribs.TYPE]} TextR ${node.name ? node.name : ""}`}
+      id={node.asset}
       style={{
         ...style,
         display: "flex",
@@ -30,7 +31,7 @@ const TextR: React.FC<TextRProps> = ({
         margin: `${emuToPx(50000, maxDim.width)}px`, // Add default gap
       }}
     >
-      {node._properties?.t?.text || ""}
+      {node[NodeAttribs.PROPERTIES]?.t?.text || ""}
     </span>
   );
 };

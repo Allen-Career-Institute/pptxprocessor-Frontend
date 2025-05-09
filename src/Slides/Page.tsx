@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import "../App.css";
 import Container from "./Container";
+import { NodeAttribs, SlideTypes, StyleConstants } from "../utils/constants";
 interface PageProps {
   currSlide: number;
   currSlideData: any;
@@ -24,18 +25,18 @@ const Page: React.FC<PageProps> = ({
     console.log(
       "useEffect triggered for slide:",
       currSlide,
-      currSlideData._asset
+      currSlideData[NodeAttribs.ASSET],
     );
   }, [currSlideData, currSlide]);
 
   console.log("Page currSlideData:", currSlideData);
 
   return (
-    <div
-      style={{
-        width: "inherit",
-        height: "inherit",
-        position: "absolute",
+    <div 
+      style={{ 
+        width: StyleConstants.INHERIT, 
+        height: StyleConstants.INHERIT, 
+        position: StyleConstants.ABSOLUTE,
         top: 0,
         left: 0,
         overflow: "hidden",
@@ -44,14 +45,7 @@ const Page: React.FC<PageProps> = ({
         justifyContent: "center",
       }}
     >
-      <Container
-        key={currSlideData._asset}
-        node={currSlideData.cSld}
-        zIndex={0}
-        mediaPath={mediaPath}
-        maxDim={maxDim}
-        childFrame={childFrame}
-      />
+      <Container key={currSlideData[NodeAttribs.ASSET]} node={currSlideData[SlideTypes.SLIDE]} zIndex={0} mediaPath={mediaPath} maxDim={maxDim} childFrame={childFrame}/>
     </div>
   );
 };

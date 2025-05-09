@@ -6,6 +6,7 @@ import TextP from "./TextP";
 import TextR from "./TextR";
 import EmptyContainer from "./EmptyContainer";
 import PowerPointStyle from "../utils/css_convertor";
+import { SlideTypes, StyleConstants, NodeAttribs } from "../utils/constants";
 
 interface ContainerProps {
   node: any;
@@ -28,15 +29,15 @@ const Container: React.FC<ContainerProps> = ({
     maxDim,
     childFrame
   );
-  if (node._type == "cSld") {
+  if (node[NodeAttribs.TYPE] == SlideTypes.SLIDE) {
     style.width = maxDim.width;
     style.height = maxDim.height;
   } else {
-    if (node._type == "spTree") {
-      console.log("spTree", node._asset, style.width, style.height);
+    if (node[NodeAttribs.TYPE] == SlideTypes.SHAPE_TREE) {
+      console.log("spTree", node[NodeAttribs.ASSET], style.width, style.height);
     }
-    !style.width && (style.width = "inherit");
-    !style.height && (style.height = "inherit");
+    !style.width && (style.width = StyleConstants.INHERIT);
+    !style.height && (style.height = StyleConstants.INHERIT);
   }
 
   const renderChildren = (
@@ -45,24 +46,24 @@ const Container: React.FC<ContainerProps> = ({
     childFrameParam: any
   ): JSX.Element => {
     return (
-      node._children &&
-      Object.values(node._children)
+      node[NodeAttribs.CHILDREN] &&
+      Object.values(node[NodeAttribs.CHILDREN])
         .flatMap((childData: any) =>
           Array.isArray(childData) ? childData : [childData]
         )
-        .filter((childData: any) => childData._asset)
+        .filter((childData: any) => childData[NodeAttribs.ASSET])
         .map((childData: any, index: number) => {
           console.log(
             "renderComponent node:",
             zIndex,
-            childData._type,
-            childData._asset
+            childData[NodeAttribs.TYPE],
+            childData[NodeAttribs.ASSET]
           );
           const newZIndex = zIndex + index + 1;
-          if (childData._type === "pic") {
+          if (childData[NodeAttribs.TYPE] === SlideTypes.PICTURE) {
             return (
               <Image
-                key={childData._asset}
+                key={childData[NodeAttribs.ASSET]}
                 node={childData}
                 zIndex={newZIndex}
                 mediaPath={mediaPath}
@@ -70,10 +71,10 @@ const Container: React.FC<ContainerProps> = ({
                 childFrame={childFrameParam}
               />
             );
-          } else if (childData._type === "txBody") {
+          } else if (childData[NodeAttribs.TYPE] === SlideTypes.TEXT_BODY) {
             return (
               <Text
-                key={childData._asset}
+                key={childData[NodeAttribs.ASSET]}
                 node={childData}
                 zIndex={newZIndex}
                 maxDim={maxDim}
@@ -81,10 +82,12 @@ const Container: React.FC<ContainerProps> = ({
                 renderChildren={renderChildren}
               />
             );
-          } else if (childData._type === "p") {
+          } else if (
+            childData[NodeAttribs.TYPE] === SlideTypes.TEXT_PARAGRAPH
+          ) {
             return (
               <TextP
-                key={childData._asset}
+                key={childData[NodeAttribs.ASSET]}
                 node={childData}
                 zIndex={zIndex}
                 maxDim={maxDim}
@@ -92,10 +95,10 @@ const Container: React.FC<ContainerProps> = ({
                 renderChildren={renderChildren}
               />
             );
-          } else if (childData._type === "r") {
+          } else if (childData[NodeAttribs.TYPE] === SlideTypes.TEXT_RUN) {
             return (
               <TextR
-                key={childData._asset}
+                key={childData[NodeAttribs.ASSET]}
                 node={childData}
                 zIndex={zIndex}
                 maxDim={maxDim}
@@ -103,13 +106,13 @@ const Container: React.FC<ContainerProps> = ({
               />
             );
           } else if (
-            childData._type === "sp" ||
-            childData._type === "cxnSp" ||
-            childData._type === "grpSp"
+            childData[NodeAttribs.TYPE] === SlideTypes.SHAPE ||
+            childData[NodeAttribs.TYPE] === SlideTypes.CONNECTION_SHAPE ||
+            childData[NodeAttribs.TYPE] === SlideTypes.GROUP_SHAPE
           ) {
             return (
               <Shape
-                key={childData._asset}
+                key={childData[NodeAttribs.ASSET]}
                 node={childData}
                 zIndex={newZIndex}
                 mediaPath={mediaPath}
@@ -119,12 +122,12 @@ const Container: React.FC<ContainerProps> = ({
               />
             );
           } else if (
-            childData._type === "AlternateContent" ||
-            childData._type === "Fallback"
+            childData[NodeAttribs.TYPE] === SlideTypes.ALTERNATE_CONTENT ||
+            childData[NodeAttribs.TYPE] === SlideTypes.FALLBACK
           ) {
             return (
               <EmptyContainer
-                key={childData._asset}
+                key={childData[NodeAttribs.ASSET]}
                 node={childData}
                 zIndex={newZIndex}
                 childFrame={childFrameParam}
@@ -135,7 +138,7 @@ const Container: React.FC<ContainerProps> = ({
             //cSld, spTree, grpSp
             return (
               <Container
-                key={childData._asset}
+                key={childData[NodeAttribs.ASSET]}
                 node={childData}
                 zIndex={newZIndex}
                 mediaPath={mediaPath}
@@ -150,9 +153,9 @@ const Container: React.FC<ContainerProps> = ({
 
   return (
     <div
-      key={node._asset}
-      className={`${node._type} ${node.name ? node.name : ""}`}
-      id={node._asset}
+      key={node[NodeAttribs.ASSET]}
+      className={`${node[NodeAttribs.TYPE]} ${node.name ? node.name : ""}`}
+      id={node[NodeAttribs.ASSET]}
       style={style}
     >
       {renderChildren(node, zIndex, newChildFrame)}
