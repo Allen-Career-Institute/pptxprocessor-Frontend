@@ -7,7 +7,7 @@ import {
   calculateChildFrame,
   extractFontFamily,
 } from "./extract_utils";
-import { emuToPx, emuToFontSize,emuRotationToDegrees } from "./helper_utils";
+import { emuToPx, emuToFontSize, emuRotationToDegrees } from "./helper_utils";
 
 function processEffectLst(
   stylecss: any,
@@ -18,7 +18,7 @@ function processEffectLst(
     // Handle outer shadow (outerShdw)
     const outerShdw = effectLst.outerShdw;
     if (outerShdw) {
-      // Extract shadow properties
+      // Extract shadow _properties
       const dir = outerShdw.dir || 0; // Direction in EMUs
       const align = outerShdw.algn || "ctr"; // Alignment (default to center)
       // const rotWithShape = outerShdw.rotWithShape || "1"; // Rotate with shape (default to true). This is not supported in css
@@ -168,11 +168,9 @@ function processXfrm(
       }px`;
     }
     const invert = xfrm?.flipH ? -1 : 1;
-    const rotation=
-    emuRotationToDegrees(parseInt(xfrm?.rot))
-    stylecss.transform= `rotate(${rotation}deg) scaleX(${invert})`,
-
-    console.log(stylecss.transform)
+    const rotation = emuRotationToDegrees(parseInt(xfrm?.rot));
+    (stylecss.transform = `rotate(${rotation}deg) scaleX(${invert})`),
+      console.log(stylecss.transform);
   }
 }
 
@@ -196,17 +194,17 @@ function processCropping(
 
 function processProperties(
   stylecss: any,
-  properties: any,
+  _properties: any,
   maxDim: { width: number; height: number },
   childFrame: any
 ) {
-  if (properties) {
-    // Loop through key:val of properties
-    for (const [attrib, val] of Object.entries(properties)) {
+  if (_properties) {
+    // Loop through key:val of _properties
+    for (const [attrib, val] of Object.entries(_properties)) {
       if (attrib === "xfrm") {
         processXfrm(stylecss, val, maxDim, childFrame);
-      } else if(attrib==="blipFill"){
-        processCropping(stylecss,val,maxDim,childFrame)
+      } else if (attrib === "blipFill") {
+        processCropping(stylecss, val, maxDim, childFrame);
       } else if (attrib === "pattFill") {
         processPattFill(stylecss, val);
       } else if (attrib === "noFill") {
@@ -263,7 +261,7 @@ function processProperties(
               : "";
         }
       } else if (attrib === "latin") {
-        // Map font properties
+        // Map font _properties
         if (val && typeof val === "object") {
           const { typeface } = val as { typeface: string };
           if (typeface) {
@@ -309,8 +307,8 @@ function convertPowerPointStyle(
 ): any {
   const stylecss: any = { zIndex };
 
-  processStyle(stylecss, node.properties?.style, maxDim, childFrame);
-  processProperties(stylecss, node.properties, maxDim, childFrame);
+  processStyle(stylecss, node._properties?.style, maxDim, childFrame);
+  processProperties(stylecss, node._properties, maxDim, childFrame);
 
   const newChildFrame = calculateChildFrame(node, maxDim);
   console.log(stylecss.clipPath);

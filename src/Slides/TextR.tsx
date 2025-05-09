@@ -6,26 +6,31 @@ interface TextRProps {
   node: any;
   zIndex: number;
   maxDim: { width: number; height: number };
-  childFrame: {off: {x: number, y: number}, ext: {x: number, y: number}}
+  childFrame: { off: { x: number; y: number }; ext: { x: number; y: number } };
 }
 
-const TextR: React.FC<TextRProps> = ({ node, zIndex, maxDim, childFrame }: any) => {
-  const {style} = convertPowerPointStyle(node, zIndex, maxDim, childFrame);
+const TextR: React.FC<TextRProps> = ({
+  node,
+  zIndex,
+  maxDim,
+  childFrame,
+}: any) => {
+  const { style } = convertPowerPointStyle(node, zIndex, maxDim, childFrame);
 
   return (
     <span
-      key={node.asset}
+      key={node._asset}
       className={`${node._type} TextR ${node.name ? node.name : ""}`}
-      id={node.asset}
+      id={node._asset}
       style={{
-      ...style,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      margin: `${emuToPx(50000, maxDim.width)}px`, // Add default gap
+        ...style,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        margin: `${emuToPx(50000, maxDim.width)}px`, // Add default gap
       }}
     >
-      {node.properties?.t?.text || ""}
+      {node._properties?.t?.text || ""}
     </span>
   );
 };

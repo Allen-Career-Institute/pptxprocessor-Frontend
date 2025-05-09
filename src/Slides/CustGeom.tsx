@@ -71,16 +71,16 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
 
   useEffect(() => {
     const lnw = extractPx(ln.w, 1, maxDim);
-    setStrokeWidth(lnw? lnw : 1);
+    setStrokeWidth(lnw ? lnw : 1);
     if (width == 0) setWidth(lnw);
     if (height == 0) setHeight(lnw);
   }, [ln]);
 
   useEffect(() => {
-    if (!("properties" in node)) return;
-    if (!("blipFill" in node.properties)) return;
-    if (!("link" in node.properties.blipFill)) return;
-    setImageUrl(mediaPath + node.properties.blipFill.link.slice(3));
+    if (!("_properties" in node)) return;
+    if (!("blipFill" in node._properties)) return;
+    if (!("link" in node._properties.blipFill)) return;
+    setImageUrl(mediaPath + node._properties.blipFill.link.slice(3));
   }, []);
 
   useEffect(() => {
@@ -92,8 +92,8 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
     const resizeObserver = new ResizeObserver((entries) => {
       for (let entry of entries) {
         const { width, height } = entry.contentRect;
-        width == 0? setWidth(strokeWidth) : setWidth(width); // Update width state
-        height == 0? setHeight(strokeWidth): setHeight(height); // Update height state
+        width == 0 ? setWidth(strokeWidth) : setWidth(width); // Update width state
+        height == 0 ? setHeight(strokeWidth) : setHeight(height); // Update height state
       }
     });
 
@@ -111,20 +111,25 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
   });
 
   // Resolve positions
-  const resolvePosition = (pos: string, w: number, h: number, xOrY: string = "x"): number => {
+  const resolvePosition = (
+    pos: string,
+    w: number,
+    h: number,
+    xOrY: string = "x"
+  ): number => {
     if (pos in guides) {
-      console.log("Pathdata with guide")
+      console.log("Pathdata with guide");
       if (xOrY == "x") {
         return w == 0 ? 0 : (evaluateFormula(guides[pos], w, h) * width) / w;
       } else {
         return h == 0 ? 0 : (evaluateFormula(guides[pos], w, h) * height) / h;
       }
     }
-    console.log("Pathdata without guide", pos, w, width)
+    console.log("Pathdata without guide", pos, w, width);
     if (xOrY == "x") {
-      return w == 0 ? 0 : (parseFloat(pos) * width) / w; 
+      return w == 0 ? 0 : (parseFloat(pos) * width) / w;
     } else {
-      return h == 0 ? 0 : (parseFloat(pos) * height) / h; 
+      return h == 0 ? 0 : (parseFloat(pos) * height) / h;
     }
   };
 
@@ -143,12 +148,12 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
           pathW,
           pathH,
           "y"
-        )} L ${resolvePosition(lnTo[i].pt.x, pathW, pathH, "x")} ${resolvePosition(
-          lnTo[i].pt.y,
+        )} L ${resolvePosition(
+          lnTo[i].pt.x,
           pathW,
           pathH,
-          "y"
-        )}`
+          "x"
+        )} ${resolvePosition(lnTo[i].pt.y, pathW, pathH, "y")}`
       );
     }
   } else {
@@ -165,7 +170,7 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
         "y"
       )}`
     );
-    console.log(`Pathdata ${node.name}`, pathData, moveTo.x, pathW, pathH); 
+    console.log(`Pathdata ${node.name}`, pathData, moveTo.x, pathW, pathH);
   }
   // const pathData = `M ${resolvePosition(moveTo.x, pathW, pathH)
   // } ${resolvePosition(moveTo.y, pathW, pathH)} L ${resolvePosition(
@@ -216,7 +221,7 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
     <div
       ref={containerRef} // Attach the ref to the container
       className={`${node._type} custGeom ${node.name ? node.name : ""}`}
-      style={{...style, border: ""}}
+      style={{ ...style, border: "" }}
     >
       <svg
         width={rectWidth * 4}

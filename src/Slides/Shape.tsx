@@ -34,67 +34,67 @@ const Shape: React.FC<ShapeProps> = ({
   );
 
   useEffect(() => {
-    if (!("properties" in node)) return;
-    if (!("blipFill" in node.properties)) return;
-    if (!("link" in node.properties.blipFill)) return;
-    setImageUrl(mediaPath + node.properties.blipFill.link.slice(3));
+    if (!("_properties" in node)) return;
+    if (!("blipFill" in node._properties)) return;
+    if (!("link" in node._properties.blipFill)) return;
+    setImageUrl(mediaPath + node._properties.blipFill.link.slice(3));
   }, []);
 
   useEffect(() => {
-    if (!("properties" in node)) return;
-    if (!("custGeom" in node.properties)) return;
-    setCustGeom(node.properties.custGeom);
+    if (!("_properties" in node)) return;
+    if (!("custGeom" in node._properties)) return;
+    setCustGeom(node._properties.custGeom);
   }, []);
 
   useEffect(() => {
-    if (!("properties" in node)) return;
-    if (!("prstGeom" in node.properties)) return;
-    setPrstGeom(node.properties.prstGeom);
+    if (!("_properties" in node)) return;
+    if (!("prstGeom" in node._properties)) return;
+    setPrstGeom(node._properties.prstGeom);
   }, []);
 
   useEffect(() => {
-    if (node.properties?.prstGeom || node.properties?.custGeom) {
-      console.log("genericWrapper false", node.asset);
+    if (node._properties?.prstGeom || node._properties?.custGeom) {
+      console.log("genericWrapper false", node._asset);
       setGenericWrapper(false);
     } else {
-      console.log("genericWrapper true", node.asset);
+      console.log("genericWrapper true", node._asset);
       setGenericWrapper(true);
     }
   }, []);
 
   useEffect(() => {
-    if (!("properties" in node)) return;
-    if (!("ln" in node.properties)) return;
-    setLn(node.properties.ln);
+    if (!("_properties" in node)) return;
+    if (!("ln" in node._properties)) return;
+    setLn(node._properties.ln);
   }, []);
-
 
   const renderGenericWrapper = () => {
     return (
-    <div
-      key={node.asset}
-      className={`${node._type} Generic ${node.name ? node.name : ""}`}
-      id={node.asset}
-      style={{
-        ...style,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      {imageUrl && (
-      <img src={imageUrl} style={{ ...style, left: "0px", top: "0px" }} />
-      )}
-      {renderChildren(node, zIndex, newChildFrame)}
-    </div>
-  )};
+      <div
+        key={node._asset}
+        className={`${node._type} Generic ${node.name ? node.name : ""}`}
+        id={node._asset}
+        style={{
+          ...style,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        {imageUrl && (
+          <img src={imageUrl} style={{ ...style, left: "0px", top: "0px" }} />
+        )}
+        {renderChildren(node, zIndex, newChildFrame)}
+      </div>
+    );
+  };
 
   return (
     <>
       {genericWrapper && renderGenericWrapper()}
       {custGeom && (
         <CustGeom
-          key={node.asset}
+          key={node._asset}
           node={node}
           zIndex={zIndex}
           mediaPath={mediaPath}
@@ -108,7 +108,7 @@ const Shape: React.FC<ShapeProps> = ({
       )}
       {prstGeom && (
         <PrstGeom
-          key={node.asset}
+          key={node._asset}
           node={node}
           zIndex={zIndex}
           mediaPath={mediaPath}

@@ -52,13 +52,13 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
   const [styleCss, setStyleCss] = useState<any>({});
   const [lineStyle, setLineStyle] = useState<LineStyle>();
 
-  console.log("PresetGeometry node:", node.name, node.asset, node._type);
+  console.log("PresetGeometry node:", node.name, node._asset, node._type);
 
   useEffect(() => {
-    if (!("properties" in node)) return;
-    if (!("blipFill" in node.properties)) return;
-    if (!("link" in node.properties.blipFill)) return;
-    setImageUrl(mediaPath + node.properties.blipFill.link.slice(3));
+    if (!("_properties" in node)) return;
+    if (!("blipFill" in node._properties)) return;
+    if (!("link" in node._properties.blipFill)) return;
+    setImageUrl(mediaPath + node._properties.blipFill.link.slice(3));
   }, []);
 
   useEffect(() => {
@@ -68,12 +68,12 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
       console.log(
         "Style",
         node.name,
-        node.asset,
+        node._asset,
         style.left,
         style.top,
         style.width,
         style.height,
-        node.properties.xfrm.flipH
+        node._properties.xfrm.flipH
       );
       const scalingFactor = maxDim.width / 1280;
       const prst = prstGeom.prst;
@@ -85,30 +85,30 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
             borderRadius = `${(parseInt(cornerAdj) / 1000) * scalingFactor}px`;
           }
         } else if (prst === "ellipse") {
-          console.log("Got ellipse", node.asset);
+          console.log("Got ellipse", node._asset);
           borderRadius = "50%";
         } else if (prst === "line") {
           border = "";
-          const flipH = node.properties.xfrm.flipH
-            ? node.properties.xfrm.flipH == "1"
+          const flipH = node._properties.xfrm.flipH
+            ? node._properties.xfrm.flipH == "1"
               ? false
               : true
             : true;
-          const flipV = node.properties.xfrm.flipV
-            ? node.properties.xfrm.flipV == "1"
+          const flipV = node._properties.xfrm.flipV
+            ? node._properties.xfrm.flipV == "1"
               ? true
               : false
             : false;
-          const color = extractSolidFillColor(node.properties.ln.solidFill);
-          const lineWidth = emuToPx(node.properties.ln.w, maxDim.width, 0);
+          const color = extractSolidFillColor(node._properties.ln.solidFill);
+          const lineWidth = emuToPx(node._properties.ln.w, maxDim.width, 0);
           const x = parseFloat(style.width.replace("px", ""));
           const y = parseFloat(style.height.replace("px", ""));
           const viewWidth = 4 * x || 100;
           const viewHeight = 4 * y || 100;
           const head =
-            node.properties?.ln?.headEnd?.type === "arrow" ? true : false;
+            node._properties?.ln?.headEnd?.type === "arrow" ? true : false;
           const tail =
-            node.properties?.ln?.tailEnd?.type === "arrow" ? true : false;
+            node._properties?.ln?.tailEnd?.type === "arrow" ? true : false;
 
           const x1 = flipH ? x : 0;
           const y1 = flipV ? 0 : y;
@@ -234,9 +234,9 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
 
   return (
     <div
-      key={node.asset}
+      key={node._asset}
       className={`${node._type} prstGeom ${node.name ? node.name : ""}`}
-      id={node.asset}
+      id={node._asset}
       style={styleCss}
     >
       {lineStyle && renderArrow(lineStyle)}

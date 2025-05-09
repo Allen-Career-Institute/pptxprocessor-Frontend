@@ -8,10 +8,15 @@ interface PageProps {
   maxDim: { width: number; height: number };
 }
 
-const Page: React.FC<PageProps> = ({ currSlide, currSlideData, mediaPath, maxDim }) => {
+const Page: React.FC<PageProps> = ({
+  currSlide,
+  currSlideData,
+  mediaPath,
+  maxDim,
+}) => {
   const childFrame = {
     off: { x: 0, y: 0 },
-    ext: { x: 0, y: 0 }
+    ext: { x: 0, y: 0 },
   };
   useEffect(() => {
     if (!currSlideData) return;
@@ -19,27 +24,34 @@ const Page: React.FC<PageProps> = ({ currSlide, currSlideData, mediaPath, maxDim
     console.log(
       "useEffect triggered for slide:",
       currSlide,
-      currSlideData.Asset
+      currSlideData._asset
     );
   }, [currSlideData, currSlide]);
 
   console.log("Page currSlideData:", currSlideData);
 
   return (
-    <div 
-      style={{ 
-        width: "inherit", 
-        height: "inherit", 
+    <div
+      style={{
+        width: "inherit",
+        height: "inherit",
         position: "absolute",
         top: 0,
-        left: 0, 
+        left: 0,
         overflow: "hidden",
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
       }}
     >
-      <Container key={currSlideData.asset} node={currSlideData.cSld} zIndex={0} mediaPath={mediaPath} maxDim={maxDim} childFrame={childFrame}/>
+      <Container
+        key={currSlideData._asset}
+        node={currSlideData.cSld}
+        zIndex={0}
+        mediaPath={mediaPath}
+        maxDim={maxDim}
+        childFrame={childFrame}
+      />
     </div>
   );
 };
