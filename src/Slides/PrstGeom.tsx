@@ -90,6 +90,7 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
               : false
             : false;
           const color = extractSolidFillColor(node[NodeAttribs.PROPERTIES].ln.solidFill);
+          const bg_color=extractSolidFillColor(node[NodeAttribs.PROPERTIES].solidFill)
           const lineWidth = emuToPx(node[NodeAttribs.PROPERTIES].ln.w, maxDim.width, 0);
           const x = parseFloat(style.width.replace("px", ""));
           const y = parseFloat(style.height.replace("px", ""));
