@@ -1,4 +1,4 @@
-import React, { JSX, useState, useEffect, use } from "react";
+import React, { JSX, useState, useEffect } from "react";
 import CustGeom from "./CustGeom";
 import PrstGeom from "./PrstGeom";
 import convertPowerPointStyle from "../utils/css_convertor";
@@ -34,6 +34,7 @@ const Shape: React.FC<ShapeProps> = ({
     childFrame
   );
 
+
   useEffect(() => {
     if (!(NodeAttribs.PROPERTIES in node)) return;
     if (!("blipFill" in node[NodeAttribs.PROPERTIES])) return;
@@ -55,10 +56,8 @@ const Shape: React.FC<ShapeProps> = ({
 
   useEffect(() => {
     if (node[NodeAttribs.PROPERTIES]?.prstGeom || node[NodeAttribs.PROPERTIES]?.custGeom) {
-      console.log("genericWrapper false", node[NodeAttribs.ASSET]);
       setGenericWrapper(false);
     } else {
-      console.log("genericWrapper true", node[NodeAttribs.ASSET]);
       setGenericWrapper(true);
     }
   }, []);
@@ -74,7 +73,7 @@ const Shape: React.FC<ShapeProps> = ({
     <div
       key={node[NodeAttribs.ASSET]}
       className={`${node[NodeAttribs.TYPE]} Generic ${node.name ? node.name : ""}`}
-      id={node[NodeAttribs.ASSET]}
+      id={node.id? node.id : node[NodeAttribs.ASSET]}
       style={{
         ...style,
         display: "flex",

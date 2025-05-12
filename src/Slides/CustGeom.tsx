@@ -226,6 +226,7 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
       className={`${node[NodeAttribs.TYPE]} custGeom ${
         node.name ? node.name : ""
       }`}
+      id={node.id ? node.id : node[NodeAttribs.ASSET]}
       style={{ ...style, border: "" }}
     >
       <svg

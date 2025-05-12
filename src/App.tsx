@@ -39,7 +39,6 @@ const App = ({ slidePath, mediaPath }: { slidePath: string, mediaPath: string })
           throw new Error(`Failed to fetch slide data: ${response.statusText}`);
         }
         const data = await response.json();
-        console.log("Fetched slide data:", slideFile, data);
         return data;
       } catch (error) {
         console.error("Error fetching slide data:", slideFile, error);
@@ -52,7 +51,6 @@ const App = ({ slidePath, mediaPath }: { slidePath: string, mediaPath: string })
   useEffect(() => {
     fetchSlideJSON("slide_meta").then((data) => {
       setNumSlides(data.numSlides)
-      console.log("numSlides", numSlides);
     });
   }, []);
 
@@ -64,22 +62,18 @@ const App = ({ slidePath, mediaPath }: { slidePath: string, mediaPath: string })
 
   useEffect(() => {
     if (currSlide && currSlideData) {
-      console.log("currSlideData", currSlideData);
       setLoading(false);
     }
   }, [currSlideData]);
 
   const handlenext = () => {
     if (currSlide < numSlides) {
-      console.clear();
       setCurrSlide((prev) => prev + 1);
     }
   };
 
   const handleprev = () => {
     if (currSlide > 1) {
-      console.clear();
-
       setCurrSlide((prev) => prev - 1);
     }
   };
