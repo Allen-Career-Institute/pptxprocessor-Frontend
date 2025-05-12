@@ -97,6 +97,8 @@ function processSolidFill(stylecss: any, solidFill: any): any {
       stylecss.color = color;
     }
   }
+
+  
 }
 
 function processGradFill(stylecss: any, gradFill: any): any {
