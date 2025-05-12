@@ -1,6 +1,8 @@
 import React, { JSX } from "react";
+import TextP from "./TextP";
 import convertPowerPointStyle from "../utils/css_convertor";
-import { NodeAttribs, StyleConstants } from "../utils/constants";
+import { NodeAttribs } from "../utils/constants";
+
 
 interface TextProps {
   node: any;
@@ -10,17 +12,27 @@ interface TextProps {
   renderChildren: (node: any, zIndex: number, childFrame: any) => JSX.Element;
 }
 
-const Text: React.FC<TextProps> = ({ node, zIndex, maxDim, childFrame, renderChildren }: any) => {
-  const {style, newChildFrame} = convertPowerPointStyle(node, zIndex, maxDim, childFrame);
-  !style.width && (style.width = StyleConstants.INHERIT);
-  !style.height && (style.height = StyleConstants.INHERIT);
-
+const Text: React.FC<TextProps> = ({
+  node,
+  zIndex,
+  maxDim,
+  childFrame,
+  renderChildren,
+}: any) => {
+  const { style, newChildFrame } = convertPowerPointStyle(
+    node,
+    zIndex,
+    maxDim,
+    childFrame
+  );
+  !style.width && (style.width = "inherit");
+  !style.height && (style.height = "inherit");
 
   return (
     <div
-      key={node.asset}
-      className={`${node[NodeAttribs.TYPE]} Text ${node.name? node.name : ""}`}
-      id={node.asset}
+    key={node[NodeAttribs.ASSET]}
+      className={`${node[NodeAttribs.TYPE]} Text ${node.name ? node.name : ""}`}
+      id={node[NodeAttribs.ASSET]}
       style={{
         ...style,
         display: "flex",
