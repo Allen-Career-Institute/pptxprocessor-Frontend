@@ -194,27 +194,27 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
 
   const baseVal = 2;
   const arrowHeadW =
-    ln.headEnd.w == "lg"
+    ln.headEnd?.w == "lg"
       ? baseVal * 3
-      : ln.headEnd.w == "med"
+      : ln.headEnd?.w == "med"
       ? baseVal * 2
       : baseVal;
   const arrowHeadL =
-    ln.headEnd.len == "lg"
+    ln.headEnd?.len == "lg"
       ? baseVal * 3 * 2
-      : ln.headEnd.w == "med"
+      : ln.headEnd?.w == "med"
       ? baseVal * 2 * 2
       : baseVal * 2;
   const arrowTailW =
-    ln.tailEnd.w == "lg"
+    ln.tailEnd?.w == "lg"
       ? baseVal * 3
-      : ln.tailEnd.w == "med"
+      : ln.tailEnd?.w == "med"
       ? baseVal * 2
       : baseVal;
   const arrowTailL =
-    ln.tailEnd.len == "lg"
+    ln.tailEnd?.len == "lg"
       ? baseVal * 3 * 2
-      : ln.tailEnd.w == "med"
+      : ln.tailEnd?.w == "med"
       ? baseVal * 2 * 2
       : baseVal * 2;
 
