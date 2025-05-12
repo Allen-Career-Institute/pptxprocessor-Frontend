@@ -227,7 +227,7 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
     <div
       key={node[NodeAttribs.ASSET]}
       className={`${node[NodeAttribs.TYPE]} prstGeom ${node.name ? node.name : ""}`}
-      id={node[NodeAttribs.ASSET]}
+      id={node.id ? node.id : node[NodeAttribs.ASSET]}
       style={styleCss}
     >
       {lineStyle && renderArrow(lineStyle)}

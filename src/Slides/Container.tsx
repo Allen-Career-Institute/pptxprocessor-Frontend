@@ -33,9 +33,6 @@ const Container: React.FC<ContainerProps> = ({
     style.width = maxDim.width;
     style.height = maxDim.height;
   } else {
-    if (node[NodeAttribs.TYPE] == SlideTypes.SHAPE_TREE) {
-      console.log("spTree", node[NodeAttribs.ASSET], style.width, style.height);
-    }
     !style.width && (style.width = StyleConstants.INHERIT);
     !style.height && (style.height = StyleConstants.INHERIT);
   }
@@ -53,12 +50,12 @@ const Container: React.FC<ContainerProps> = ({
         )
         .filter((childData: any) => childData[NodeAttribs.ASSET])
         .map((childData: any, index: number) => {
-          console.log(
-            "renderComponent node:",
-            zIndex,
-            childData[NodeAttribs.TYPE],
-            childData[NodeAttribs.ASSET]
-          );
+          // console.log(
+          //   "renderComponent node:",
+          //   zIndex,
+          //   childData[NodeAttribs.TYPE],
+          //   childData[NodeAttribs.ASSET]
+          // );
           const newZIndex = zIndex + index + 1;
           if (childData[NodeAttribs.TYPE] === SlideTypes.PICTURE) {
             return (
@@ -155,7 +152,7 @@ const Container: React.FC<ContainerProps> = ({
     <div
       key={node[NodeAttribs.ASSET]}
       className={`${node[NodeAttribs.TYPE]} ${node.name ? node.name : ""}`}
-      id={node[NodeAttribs.ASSET]}
+      id={node.id? node.id : node[NodeAttribs.ASSET]}
       style={style}
     >
       {renderChildren(node, zIndex, newChildFrame)}

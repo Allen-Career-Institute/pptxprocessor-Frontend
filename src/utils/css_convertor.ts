@@ -172,8 +172,7 @@ function processXfrm(
     }
     const invert = xfrm?.flipH ? -1 : 1;
     const rotation = emuRotationToDegrees(parseInt(xfrm?.rot));
-    (stylecss.transform = `rotate(${rotation}deg) scaleX(${invert})`),
-      console.log(stylecss.transform);
+    stylecss.transform = `rotate(${rotation}deg) scaleX(${invert})`;
   }
 }
 

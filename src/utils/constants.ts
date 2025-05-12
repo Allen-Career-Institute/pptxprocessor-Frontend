@@ -2,7 +2,7 @@ export const NodeAttribs = {
   TYPE: "_type",
   CHILDREN: "_children",
   PROPERTIES: "_properties",
-  ASSET: "_asset"
+  ASSET: "_asset",
 }
 
 export const SlideTypes = {
