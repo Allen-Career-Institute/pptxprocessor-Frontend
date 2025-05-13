@@ -22,12 +22,12 @@ export function checkAndReturnColorCode(color: string): string | null {
 export function adjustLuminance(color: string, colorNode: any): string {
   const lumMod = colorNode.lumMod?.val || 100000; // Default to 100% luminance
   const lumOff = colorNode.lumOff?.val || 0; // Default to 0% offset
-  // Convert hex color to RGB
+ 
   const r = parseInt(color.slice(1, 3), 16);
   const g = parseInt(color.slice(3, 5), 16);
   const b = parseInt(color.slice(5, 7), 16);
 
-  // Apply luminance modifier and offset
+console.log(r,g,b,30)
   const adjust = (channel: number) =>
     Math.min(
       255,
@@ -37,7 +37,9 @@ export function adjustLuminance(color: string, colorNode: any): string {
   const adjustedR = adjust(r);
   const adjustedG = adjust(g);
   const adjustedB = adjust(b);
+  console.log(adjustedR,adjustedB,adjustedG,40)
   // Convert back to hex
+
   return `#${((1 << 24) + (Math.round(adjustedR) << 16) + (Math.round(adjustedG) << 8) + Math.round(adjustedB))
     .toString(16)
     .slice(1)
