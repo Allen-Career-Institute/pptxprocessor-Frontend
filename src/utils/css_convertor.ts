@@ -305,7 +305,7 @@ function convertPowerPointStyle(
   node: any,
   zIndex: any,
   maxDim: { width: number; height: number },
-  childFrame: { off: { x: number; y: number }; ext: { x: number; y: number } }
+  childFrame: { off: { x: number, y: number }; ext: { x: number, y: number } }
 ): any {
   const stylecss: any = { zIndex };
 

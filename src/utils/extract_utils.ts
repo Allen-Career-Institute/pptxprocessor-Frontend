@@ -3,7 +3,7 @@ import {
   adjustLuminance,
   checkAndReturnColorCode,
 } from "./helper_utils";
-
+import { NodeAttribs } from "./constants";
 export function extractPx(
   value: number,
   defaultValue: number,
@@ -17,8 +17,9 @@ export function calculateChildFrame(
   node: any,
   maxDim: { width: number; height: number }
 ): any {
-  const chOff = node._properties?.xfrm?.chOff || { x: 0, y: 0 };
-  const chExt = node._properties?.xfrm?.chExt || { cx: 1, cy: 1 };
+  const chOff = node?.xfrm?.chOff || { x: 0, y: 0 };
+  const chExt = node?.xfrm?.chExt || { cx: 1, cy: 1 };
+  console.log(chOff,node)
   return {
     off: {
       x: extractPx(chOff.x, 0, maxDim),

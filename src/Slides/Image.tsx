@@ -17,6 +17,7 @@ const Image: React.FC<ImageProps> = ({
   maxDim,
   childFrame,
 }: any) => {
+  console.log(node);
   const { style } = PowerPointStyle(node, zIndex, maxDim, childFrame);
   !style.width && (style.width = StyleConstants.INHERIT);
   !style.height && (style.height = StyleConstants.INHERIT);
@@ -54,23 +55,48 @@ const Image: React.FC<ImageProps> = ({
   }, []);
   console.log(imageUrl, style.zIndex, style.transform);
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
+  const video = videoRef.current;
 
-    const handlePlay = () => setIsPlaying(true);
-    const handlePause = () => setIsPlaying(false);
-    const handleEnded = () => setIsPlaying(false);
+  if (!video) return;
 
-    video.addEventListener("play", handlePlay);
-    video.addEventListener("pause", handlePause);
-    video.addEventListener("ended", handleEnded);
+  // Parse start and end times as numbers (in seconds)
+  const startTime = node[NodeAttribs.PROPERTIES].media?.trim?.st
+    ? parseFloat(node[NodeAttribs.PROPERTIES].media.trim.st) / 1000
+    : null;
+  const endTime = node[NodeAttribs.PROPERTIES].media?.trim?.end
+    ? parseFloat(node[NodeAttribs.PROPERTIES].media.trim.end) / 1000
+    : null;
 
-    return () => {
-      video.removeEventListener("play", handlePlay);
-      video.removeEventListener("pause", handlePause);
-      video.removeEventListener("ended", handleEnded);
-    };
-  }, []);
+  const handlePlay = () => {
+    setIsPlaying(true);
+    if (startTime !== null) {
+      video.currentTime = startTime; // Set the video to start at the specified time
+    }
+  };
+
+  const handleTimeUpdate = () => {
+    if (endTime !== null && video.currentTime >= endTime) {
+      video.pause(); // Pause the video when it reaches the end time
+    }
+  };
+
+  const handlePause = () => setIsPlaying(false);
+  const handleEnded = () => setIsPlaying(false);
+
+  // Add event listeners
+  video.addEventListener("play", handlePlay);
+  video.addEventListener("pause", handlePause);
+  video.addEventListener("ended", handleEnded);
+  video.addEventListener("timeupdate", handleTimeUpdate);
+
+  // Cleanup event listeners on unmount
+  return () => {
+    video.removeEventListener("play", handlePlay);
+    video.removeEventListener("pause", handlePause);
+    video.removeEventListener("ended", handleEnded);
+    video.removeEventListener("timeupdate", handleTimeUpdate);
+  };
+}, [node, videoRef]);
 
   return (
     <div
