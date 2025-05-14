@@ -1,12 +1,24 @@
-import { emuToPx, adjustLuminance, checkAndReturnColorCode } from "./helper_utils";
+import {
+  emuToPx,
+  adjustLuminance,
+  checkAndReturnColorCode,
+} from "./helper_utils";
 
-export function extractPx(value: number, defaultValue: number, maxDim: any, offset: number = 0): number {
+export function extractPx(
+  value: number,
+  defaultValue: number,
+  maxDim: any,
+  offset: number = 0
+): number {
   return value ? emuToPx(value, maxDim.width, offset) : defaultValue;
 }
 
-export function calculateChildFrame(properties: any, maxDim: { width: number; height: number }): any {
-  const chOff = properties?.xfrm?.chOff || { x: 0, y: 0 };
-  const chExt = properties?.xfrm?.chExt || { cx: 1, cy: 1 };
+export function calculateChildFrame(
+  node: any,
+  maxDim: { width: number; height: number }
+): any {
+  const chOff = node._properties?.xfrm?.chOff || { x: 0, y: 0 };
+  const chExt = node._properties?.xfrm?.chExt || { cx: 1, cy: 1 };
   return {
     off: {
       x: extractPx(chOff.x, 0, maxDim),
@@ -20,8 +32,9 @@ export function calculateChildFrame(properties: any, maxDim: { width: number; he
 }
 
 export const extractOpacity = (node: any): number => {
-  const alpha = node?.srgbClr?.alpha || node?.prstClr?.alpha || node?.schemeClr?.alpha;
-  
+  const alpha =
+    node?.srgbClr?.alpha || node?.prstClr?.alpha || node?.schemeClr?.alpha;
+
   if (alpha) {
     const alphaVal = alpha?.val || "100000"; // Transparency
 
@@ -30,7 +43,7 @@ export const extractOpacity = (node: any): number => {
   } else {
     return 1;
   }
-}
+};
 
 const ColorMap = {
   tx1: "#000000", // Default primary text color (black)
@@ -46,23 +59,25 @@ const ColorMap = {
   yellow: "#FFFF00",
   gray: "#808080",
   cyan: "#00FFFF",
-  magenta: "#FF00FF"
+  magenta: "#FF00FF",
 };
 
 export function extractColor(colorNode: any): any {
-    let adjustedColor = "#000000";
-    if (colorNode) {
-      let clrVal = "tx1";
-      clrVal = colorNode? colorNode.val: clrVal;
-      let color = checkAndReturnColorCode(clrVal);
-      color = color? color : clrVal in ColorMap 
-          ? ColorMap[clrVal as keyof typeof ColorMap] // Map clrVal to its corresponding color
-          : "#000000"; // Fallback to clrVal as is
+  let adjustedColor = "#000000";
+  if (colorNode) {
+    let clrVal = "tx1";
+    clrVal = colorNode ? colorNode.val : clrVal;
+    let color = checkAndReturnColorCode(clrVal);
+    color = color
+      ? color
+      : clrVal in ColorMap
+      ? ColorMap[clrVal as keyof typeof ColorMap] // Map clrVal to its corresponding color
+      : "#000000"; // Fallback to clrVal as is
 
-      // Adjust foreground color brightness
-      adjustedColor = adjustLuminance(color, colorNode);
-    }
-    return adjustedColor
+    // Adjust foreground color brightness
+    adjustedColor = adjustLuminance(color, colorNode);
+  }
+  return adjustedColor;
 }
 
 export function extractSolidFillColor(solidFill: any): any {
@@ -81,7 +96,6 @@ export function extractRgba(color: string): string {
     ${parseInt(color.slice(3, 5), 16)}, 
     ${parseInt(color.slice(5, 7), 16)}`;
 }
-
 
 export function extractFontFamily(fontFamilyNode: any): string {
   if (fontFamilyNode) {

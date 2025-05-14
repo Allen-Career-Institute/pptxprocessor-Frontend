@@ -28,6 +28,19 @@ interface LineStyle {
   head: boolean;
   tail: boolean;
 }
+
+interface ArcStyle {
+  cx: number;
+  cy: number;
+  r: number;
+  startAngle: number;
+  endAngle: number;
+  lineWidth: number;
+  color: string;
+  viewWidth: number;
+  viewHeight: number;
+}
+
 interface EndStyle {
   x: number;
   y: number;
@@ -52,7 +65,10 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
   const [imageUrl, setImageUrl] = useState<string>();
   const [styleCss, setStyleCss] = useState<any>({});
   const [lineStyle, setLineStyle] = useState<LineStyle>();
-  const [arcStyle,setArcStyle]=useState({})
+  const [arcStyle, setArcStyle] = useState<ArcStyle>();
+
+  console.log("PresetGeometry node:", node.name, node._asset, node._type);
+
   useEffect(() => {
     if (!(NodeAttribs.PROPERTIES in node)) return;
     if (!("blipFill" in node[NodeAttribs.PROPERTIES])) return;
@@ -78,6 +94,34 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
           }
         } else if (prst === "ellipse") {
           borderRadius = "50%";
+        } else if (prst === "arc") {
+          border = "";
+          const color = extractSolidFillColor(node._properties.ln.solidFill);
+          const lineWidth = emuToPx(node._properties.ln.w, maxDim.width, 0);
+          const x = parseFloat(style.width.replace("px", ""));
+          const y = parseFloat(style.height.replace("px", ""));
+          const viewWidth = 4 * x || 100;
+          const viewHeight = 4 * y || 100;
+          
+          // Get arc parameters from the geometry
+          const adj1 = prstGeom.avLst?.gd?.find((g: any) => g.name === "adj1")?.fmla.split(" ")[1];
+          const adj2 = prstGeom.avLst?.gd?.find((g: any) => g.name === "adj2")?.fmla.split(" ")[1];
+          
+          // Convert EMU angles to degrees
+          const startAngle = adj1 ? (parseInt(adj1) / 60000) : 0;
+          const endAngle = adj2 ? (parseInt(adj2) / 60000) : 360;
+          
+          setArcStyle({
+            cx: x / 2,
+            cy: y / 2,
+            r: Math.min(x, y) / 2,
+            startAngle,
+            endAngle,
+            lineWidth,
+            color,
+            viewWidth,
+            viewHeight
+          });
         } else if (prst === "line") {
           border = "";
           const flipH = node[NodeAttribs.PROPERTIES].xfrm.flipH
@@ -270,54 +314,44 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
     );
   };
 
-  const renderArc = () => {
-    // Calculate start and end angles in radians
-    const startAngle =
-      (emuRotationToDegrees(prstGeom?.avLst?.gd[0]?.fmla.split(" ")[1]) *
-        Math.PI) /
-      180;
-    const endAngle =
-      (emuRotationToDegrees(prstGeom?.avLst?.gd[1]?.fmla.split(" ")[1]) *
-        Math.PI) /
-      180;
-  
-    // Extract color and line width
-    const color = extractSolidFillColor(node[NodeAttribs.PROPERTIES].ln.solidFill)||"black";
-    const lineWidth = emuToPx(node[NodeAttribs.PROPERTIES].ln.w, maxDim.width, 0);
-  
-    // Calculate center and radius
-    const cx = childFrame.off.x + childFrame.ext.x / 2; // Center x-coordinate
-    const cy = childFrame.off.y + childFrame.ext.y / 2; // Center y-coordinate
-    const radiusX = childFrame.ext.x / 2; // Horizontal radius
-    const radiusY = childFrame.ext.y / 2; // Vertical radius
-  
+  const renderArc = ({
+    cx,
+    cy,
+    r,
+    startAngle,
+    endAngle,
+    lineWidth,
+    color,
+    viewWidth,
+    viewHeight
+  }: ArcStyle): JSX.Element => {
+    // Convert angles to radians
+    const startRad = (startAngle * Math.PI) / 180;
+    const endRad = (endAngle * Math.PI) / 180;
+    
     // Calculate start and end points
-    const x1 = cx + radiusX * Math.cos(startAngle);
-    const y1 = cy + radiusY * Math.sin(startAngle);
-    const x2 = cx + radiusX * Math.cos(endAngle);
-    const y2 = cy + radiusY * Math.sin(endAngle);
-  
-    // Determine if the arc is a large arc (greater than 180 degrees)
-    const largeArcFlag = endAngle - startAngle <= Math.PI ? "0" : "1";
-  
-    // Create the SVG path for the arc
-    const d = `
-      M ${x1} ${y1}
-      A ${radiusX} ${radiusY} 0 ${largeArcFlag} 1 ${x2} ${y2}
-    `;
-  
-    // Render the arc
+    const x1 = cx + r * Math.cos(startRad);
+    const y1 = cy + r * Math.sin(startRad);
+    const x2 = cx + r * Math.cos(endRad);
+    const y2 = cy + r * Math.sin(endRad);
+    
+    // Create arc path
+    const largeArcFlag = endAngle - startAngle <= 180 ? 0 : 1;
+    const pathData = `M ${x1} ${y1} A ${r} ${r} 0 ${largeArcFlag} 1 ${x2} ${y2}`;
+    
     return (
       <svg
-        width={childFrame.ext.x}
-        height={childFrame.ext.y}
-        style={{
-          position: "absolute",
-          left: `${childFrame.off.x}px`,
-          top: `${childFrame.off.y}px`,
-        }}
+        width={viewWidth}
+        height={viewHeight}
+        viewBox={`0 0 ${viewWidth} ${viewHeight}`}
+        style={{ position: "absolute", left: "0px", top: "0px" }}
       >
-        <path d={d} fill="none" stroke={color} strokeWidth={lineWidth} />
+        <path
+          d={pathData}
+          fill="none"
+          stroke={color}
+          strokeWidth={lineWidth}
+        />
       </svg>
     );
   };
@@ -332,7 +366,7 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
       style={styleCss}
     >
       {lineStyle && renderArrow(lineStyle)}
-         {prstGeom.prst==="arc"&&renderArc()}
+      {arcStyle && renderArc(arcStyle)}
       {imageUrl && (
         <img src={imageUrl} style={{ ...style, left: "0px", top: "0px" }} />
       )}
