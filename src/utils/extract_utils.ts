@@ -2,6 +2,7 @@ import {
   emuToPx,
   adjustLuminance,
   checkAndReturnColorCode,
+  emuRotationToDegrees,
 } from "./helper_utils";
 import { NodeAttribs } from "./constants";
 export function extractPx(
@@ -19,7 +20,8 @@ export function calculateChildFrame(
 ): any {
   const chOff = node?.xfrm?.chOff || { x: 0, y: 0 };
   const chExt = node?.xfrm?.chExt || { cx: 1, cy: 1 };
-  console.log(chOff,node)
+  const rot=node?.xfrm?.rot?emuRotationToDegrees(parseInt(node?.xfrm?.rot)):0
+  const flipH=node?.xfrm?.flipH?-1:1
   return {
     off: {
       x: extractPx(chOff.x, 0, maxDim),
@@ -29,6 +31,8 @@ export function calculateChildFrame(
       x: extractPx(chExt.x, 0, maxDim),
       y: extractPx(chExt.y, 0, maxDim),
     },
+    // rot,
+    // flipH
   };
 }
 
@@ -52,6 +56,7 @@ const ColorMap = {
   bg1: "#FFFFFF", // Default primary background color (white)
   bg2: "#F0F0F0", // Default secondary background color (light gray)
   accent1: "#FF0000", // Example accent color
+  accent2:"#ED7D31",
   white: "#FFFFFF",
   black: "#000000",
   red: "#FF0000",

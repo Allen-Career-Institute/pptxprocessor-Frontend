@@ -308,8 +308,8 @@ function convertPowerPointStyle(
   childFrame: {
     off: { x: number; y: number };
     ext: { x: number; y: number };
-    rot: number;
-    flipH: number;
+    // rot: number;
+    // flipH: number;
   }
 ): any {
   const stylecss: any = { zIndex };

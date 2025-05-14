@@ -108,6 +108,7 @@ const Container: React.FC<ContainerProps> = ({
             childData[NodeAttribs.TYPE] === SlideTypes.CONNECTION_SHAPE ||
             childData[NodeAttribs.TYPE] === SlideTypes.GROUP_SHAPE
           ) {
+            console.log(childData)
             return (
               <Shape
                 key={childData[NodeAttribs.ASSET]}
