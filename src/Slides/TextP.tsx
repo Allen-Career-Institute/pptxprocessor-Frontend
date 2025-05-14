@@ -26,9 +26,9 @@ const TextP: React.FC<TextPProps> = ({
 
   return (
     <div
-      key={node.asset}
+      key={node[NodeAttribs.ASSET]}
       className={`${node[NodeAttribs.TYPE]} TextP ${node.name? node.name : ""}`}
-      id={node.asset}
+      id={node[NodeAttribs.ASSET]}
       style={{
         ...style,
         display: "flex",

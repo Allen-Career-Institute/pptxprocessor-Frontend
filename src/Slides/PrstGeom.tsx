@@ -9,8 +9,8 @@ interface PresetGeometryProps {
   mediaPath: string;
   prstGeom: any;
   style: any;
-  maxDim: { width: number; height: number };
-  childFrame: { off: { x: number; y: number }; ext: { x: number; y: number } };
+  maxDim: { width: number, height: number };
+  childFrame: { off: { x: number, y: number }; ext: { x: number, y: number } };
   renderChildren: (node: any, zIndex: number, childFrame: any) => JSX.Element;
 }
 
@@ -176,41 +176,34 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
             head,
             tail,
           });
-        } else if (prst === "Arc") {
-          const startAngle =
-            (emuRotationToDegrees(prstGeom?.avLst?.gd[0]?.fmla.split(" ")[1]) *
-              Math.PI) /
-            180;
-          const endAngle =
-            (emuRotationToDegrees(prstGeom?.avLst?.gd[1]?.fmla.split(" ")[1]) *
-              Math.PI) /
-            180;
-          const color = extractSolidFillColor(
-            node[NodeAttribs.PROPERTIES].ln.solidFill
-          );
-          const lineWidth = emuToPx(
-            node[NodeAttribs.PROPERTIES].ln.w,
-            maxDim.width,
-            0
-          );
-
-          const cx = childFrame.off.x + childFrame.ext.x / 2; // Center x-coordinate
-          const cy = childFrame.off.y + childFrame.ext.y / 2; // Center y-coordinate
-          const radiusX = childFrame.ext.x / 2; // Horizontal radius
-          const radiusY = childFrame.ext.y / 2; // Vertical radius
-
-          const x1 = cx + radiusX * Math.cos(startAngle);
-          const y1 = cy + radiusY * Math.sin(startAngle);
-          const x2 = cx + radiusX * Math.cos(endAngle);
-          const y2 = cy + radiusY * Math.sin(endAngle);
-          const largeArcFlag = endAngle - startAngle <= Math.PI ? "0" : "1";
+        } else if (prst === "arc") {
+          border = "";
+          const color = extractSolidFillColor(node._properties.ln.solidFill);
+          const lineWidth = emuToPx(node._properties.ln.w, maxDim.width, 0);
+          const x = parseFloat(style.width.replace("px", ""));
+          const y = parseFloat(style.height.replace("px", ""));
+          const viewWidth = 4 * x || 100;
+          const viewHeight = 4 * y || 100;
+          
+          // Get arc parameters from the geometry
+          const adj1 = prstGeom.avLst?.gd?.find((g: any) => g.name === "adj1")?.fmla.split(" ")[1];
+          const adj2 = prstGeom.avLst?.gd?.find((g: any) => g.name === "adj2")?.fmla.split(" ")[1];
+          
+          // Convert EMU angles to degrees
+          const startAngle = adj1 ? (parseInt(adj1) / 60000) : 0;
+          const endAngle = adj2 ? (parseInt(adj2) / 60000) : 360;
+          
           setArcStyle({
+            cx: x / 2,
+            cy: y / 2,
+            r: Math.min(x, y) / 2,
             startAngle,
             endAngle,
+            lineWidth,
             color,
-            lineWidth
-          })
-
+            viewWidth,
+            viewHeight
+          });
         }
       }
     }
@@ -325,8 +318,7 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
     viewWidth,
     viewHeight
   }: ArcStyle): JSX.Element => {
-    // Convert angles to radians
-    const startRad = (startAngle * Math.PI) / 180;
+     const startRad = (startAngle * Math.PI) / 180;
     const endRad = (endAngle * Math.PI) / 180;
     
     // Calculate start and end points
@@ -370,7 +362,7 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
       {imageUrl && (
         <img src={imageUrl} style={{ ...style, left: "0px", top: "0px" }} />
       )}
-      {renderChildren(node, zIndex, childFrame)}
+      <>{renderChildren(node, zIndex, childFrame)}</>
     </div>
   );
 };

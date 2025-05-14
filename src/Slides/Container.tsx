@@ -152,7 +152,7 @@ const Container: React.FC<ContainerProps> = ({
     <div
       key={node[NodeAttribs.ASSET]}
       className={`${node[NodeAttribs.TYPE]} ${node.name ? node.name : ""}`}
-      id={node.id? node.id : node[NodeAttribs.ASSET]}
+      id={node.id ? node.id : node[NodeAttribs.ASSET]}
       style={style}
     >
       {renderChildren(node, zIndex, newChildFrame)}

@@ -33,7 +33,7 @@ const Shape: React.FC<ShapeProps> = ({
     maxDim,
     childFrame
   );
-
+node.id==="3"?console.log(childFrame):null
 
   useEffect(() => {
     if (!(NodeAttribs.PROPERTIES in node)) return;
