@@ -13,7 +13,12 @@ interface ContainerProps {
   zIndex: number;
   mediaPath: string;
   maxDim: { width: number; height: number };
-  childFrame: { off: { x: number; y: number }; ext: { x: number; y: number } };
+  childFrame: {
+    off: { x: number; y: number };
+    ext: { x: number; y: number };
+    // rot: number;
+    // flipH: number;
+  };
 }
 
 const Container: React.FC<ContainerProps> = ({
@@ -50,14 +55,10 @@ const Container: React.FC<ContainerProps> = ({
         )
         .filter((childData: any) => childData[NodeAttribs.ASSET])
         .map((childData: any, index: number) => {
-          // console.log(
-          //   "renderComponent node:",
-          //   zIndex,
-          //   childData[NodeAttribs.TYPE],
-          //   childData[NodeAttribs.ASSET]
-          // );
+          
           const newZIndex = zIndex + index + 1;
           if (childData[NodeAttribs.TYPE] === SlideTypes.PICTURE) {
+            console.log(node._type, "61");
             return (
               <Image
                 key={childData[NodeAttribs.ASSET]}
@@ -133,6 +134,7 @@ const Container: React.FC<ContainerProps> = ({
             );
           } else {
             //cSld, spTree, grpSp
+
             return (
               <Container
                 key={childData[NodeAttribs.ASSET]}

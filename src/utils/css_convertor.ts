@@ -170,8 +170,8 @@ function processXfrm(
           : maxDim.height
       }px`;
     }
-    const invert = xfrm?.flipH ? -1 : 1;
-    const rotation = emuRotationToDegrees(parseInt(xfrm?.rot));
+    const invert = xfrm.flipH ? -1 : 1;
+    const rotation = xfrm?.rot?emuRotationToDegrees(parseInt(xfrm?.rot)):0;
     stylecss.transform = `rotate(${rotation}deg) scaleX(${invert})`;
   }
 }
@@ -305,7 +305,12 @@ function convertPowerPointStyle(
   node: any,
   zIndex: any,
   maxDim: { width: number; height: number },
-  childFrame: { off: { x: number, y: number }; ext: { x: number, y: number } }
+  childFrame: {
+    off: { x: number; y: number };
+    ext: { x: number; y: number };
+    rot: number;
+    flipH: number;
+  }
 ): any {
   const stylecss: any = { zIndex };
 

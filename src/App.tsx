@@ -5,7 +5,7 @@ import "./App.css"; // Import the CSS file
 
 const App = ({ slidePath, mediaPath }: { slidePath: string, mediaPath: string }) => {
   const [numSlides, setNumSlides] = useState<any>(10);
-  const [currSlide, setCurrSlide] = useState(2);
+  const [currSlide, setCurrSlide] = useState(42);
   const [currSlideData, setCurrSlideData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [maxDim, setMaxDim] = useState<{ width: number; height: number }>({ width: 1280, height: 720 });
@@ -84,7 +84,7 @@ const App = ({ slidePath, mediaPath }: { slidePath: string, mediaPath: string })
         {!loading && (
           <Page currSlide={currSlide} currSlideData={currSlideData} mediaPath={mediaPath} maxDim={maxDim} />
         )}
-        <button>Event</button>
+        
       </div>
       <div className="pagination">
         <h1>{currSlide}</h1>

@@ -166,8 +166,8 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
         pathW,
         pathH,
         "y"
-      )} L ${resolvePosition(lnTo.pt.x, pathW, pathH, "x")} ${resolvePosition(
-        lnTo.pt.y,
+      )} L ${resolvePosition(lnTo?.pt?.x, pathW, pathH, "x")} ${resolvePosition(
+        lnTo?.pt?.y,
         pathW,
         pathH,
         "y"

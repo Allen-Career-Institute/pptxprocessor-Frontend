@@ -98,12 +98,15 @@ const Image: React.FC<ImageProps> = ({
   };
 }, [node, videoRef]);
 
+const divStyle = {...style}
+delete divStyle["transform"]
+
   return (
     <div
       key={node[NodeAttribs.ASSET]}
       className={`${node[NodeAttribs.TYPE]} ${node.name ? node.name : ""}`}
       id={node.id ? node.id : node[NodeAttribs.ASSET]}
-      style={style}
+      style={divStyle}
     >
       {imageUrl !== "" && (
         <>
