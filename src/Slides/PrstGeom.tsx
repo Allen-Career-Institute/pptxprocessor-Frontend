@@ -126,8 +126,8 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
           border = "";
           const flipH = node[NodeAttribs.PROPERTIES].xfrm.flipH
             ? node[NodeAttribs.PROPERTIES].xfrm.flipH == "1"
-              ? false
-              : true
+              ? true
+              : false
             : true;
           const flipV = node[NodeAttribs.PROPERTIES].xfrm.flipV
             ? node[NodeAttribs.PROPERTIES].xfrm.flipV == "1"
