@@ -101,8 +101,16 @@ const Image: React.FC<ImageProps> = ({
     };
   }, [node, videoRef]);
 
-  const divStyle = { ...style };
-  delete divStyle["transform"];
+  const divStyle = {
+    height: style.height,
+    width: style.width,
+    left: style.left,
+    top: style.top,
+    position: style.position,
+    zIndex: style.zIndex,
+  };
+
+  
 
   return (
     <div
