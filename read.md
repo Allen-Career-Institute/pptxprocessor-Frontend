@@ -34,9 +34,9 @@ App.tsx
 ### 4️⃣ **Slide Factory**
 
 - Uses extracted JSON to render different media types:
-    - **🖼 Images**
-    - **🎥 Videos**
-    - **📝 Text**
+  - **🖼 Images**
+  - **🎥 Videos**
+  - **📝 Text**
 
 ## Workflow
 
@@ -53,10 +53,10 @@ App.tsx
 ## Setup & Usage
 
 1. Install dependencies:
-    ```bash
-    npm install
-    ```
+   ```bash
+   npm install
+   ```
 2. Run the application:
-    ```bash
-    npm start
-    ```
+   ```bash
+   npm start
+   ```
