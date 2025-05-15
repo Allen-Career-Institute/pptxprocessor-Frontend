@@ -1,5 +1,5 @@
 import React, { useEffect, useState, JSX } from "react";
-import { extractSolidFillColor } from "../utils/extract_utils";
+import { extractDash, extractSolidFillColor } from "../utils/extract_utils";
 import { emuToPx, emuRotationToDegrees } from "../utils/helper_utils";
 import { NodeAttribs, StyleConstants } from "../utils/constants";
 
@@ -9,8 +9,8 @@ interface PresetGeometryProps {
   mediaPath: string;
   prstGeom: any;
   style: any;
-  maxDim: { width: number, height: number };
-  childFrame: { off: { x: number, y: number }; ext: { x: number, y: number } };
+  maxDim: { width: number; height: number };
+  childFrame: { off: { x: number; y: number }; ext: { x: number; y: number } };
   renderChildren: (node: any, zIndex: number, childFrame: any) => JSX.Element;
 }
 
@@ -27,6 +27,7 @@ interface LineStyle {
   viewHeight: number;
   head: boolean;
   tail: boolean;
+  dash: object;
 }
 
 interface ArcStyle {
@@ -102,15 +103,19 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
           const y = parseFloat(style.height.replace("px", ""));
           const viewWidth = 4 * x || 100;
           const viewHeight = 4 * y || 100;
-          
+
           // Get arc parameters from the geometry
-          const adj1 = prstGeom.avLst?.gd?.find((g: any) => g.name === "adj1")?.fmla.split(" ")[1];
-          const adj2 = prstGeom.avLst?.gd?.find((g: any) => g.name === "adj2")?.fmla.split(" ")[1];
-          
+          const adj1 = prstGeom.avLst?.gd
+            ?.find((g: any) => g.name === "adj1")
+            ?.fmla.split(" ")[1];
+          const adj2 = prstGeom.avLst?.gd
+            ?.find((g: any) => g.name === "adj2")
+            ?.fmla.split(" ")[1];
+
           // Convert EMU angles to degrees
-          const startAngle = adj1 ? (parseInt(adj1) / 60000) : 0;
-          const endAngle = adj2 ? (parseInt(adj2) / 60000) : 360;
-          
+          const startAngle = adj1 ? parseInt(adj1) / 60000 : 0;
+          const endAngle = adj2 ? parseInt(adj2) / 60000 : 360;
+
           setArcStyle({
             cx: x / 2,
             cy: y / 2,
@@ -120,7 +125,7 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
             lineWidth,
             color,
             viewWidth,
-            viewHeight
+            viewHeight,
           });
         } else if (prst === "line") {
           border = "";
@@ -137,6 +142,7 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
           const color = extractSolidFillColor(
             node[NodeAttribs.PROPERTIES].ln.solidFill
           );
+          const dash = extractDash(node[NodeAttribs.PROPERTIES].ln?.prstDash);
           const bg_color = extractSolidFillColor(
             node[NodeAttribs.PROPERTIES].solidFill
           );
@@ -149,14 +155,21 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
           const y = parseFloat(style.height.replace("px", ""));
           const viewWidth = 4 * x || 100;
           const viewHeight = 4 * y || 100;
-          const head =
-            node[NodeAttribs.PROPERTIES]?.ln?.headEnd?.type === "arrow"
-              ? true
-              : false;
-          const tail =
-            node[NodeAttribs.PROPERTIES]?.ln?.tailEnd?.type === "arrow"
-              ? true
-              : false;
+          let head = false;
+          let tail = false;
+          let paths = node[NodeAttribs.PROPERTIES]?.ln;
+          if (paths) {
+            if (paths.headEnd && paths.headEnd.type !== "none") head = true;
+
+            if (paths.tailEnd && paths.tailEnd.type !== "none") tail = true;
+          }
+          // node[NodeAttribs.PROPERTIES]?.ln?.headEnd?.type!=="none"
+          //   ? true
+          //   : false;
+
+          // node[NodeAttribs.PROPERTIES]?.ln?.tailEnd?.type !=="none"
+          //   ? true
+          //   : false;
 
           const x1 = flipH ? x : 0;
           const y1 = flipV ? 0 : y;
@@ -175,6 +188,7 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
             viewHeight,
             head,
             tail,
+            dash,
           });
         } else if (prst === "arc") {
           border = "";
@@ -184,15 +198,19 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
           const y = parseFloat(style.height.replace("px", ""));
           const viewWidth = 4 * x || 100;
           const viewHeight = 4 * y || 100;
-          
+
           // Get arc parameters from the geometry
-          const adj1 = prstGeom.avLst?.gd?.find((g: any) => g.name === "adj1")?.fmla.split(" ")[1];
-          const adj2 = prstGeom.avLst?.gd?.find((g: any) => g.name === "adj2")?.fmla.split(" ")[1];
-          
+          const adj1 = prstGeom.avLst?.gd
+            ?.find((g: any) => g.name === "adj1")
+            ?.fmla.split(" ")[1];
+          const adj2 = prstGeom.avLst?.gd
+            ?.find((g: any) => g.name === "adj2")
+            ?.fmla.split(" ")[1];
+
           // Convert EMU angles to degrees
-          const startAngle = adj1 ? (parseInt(adj1) / 60000) : 0;
-          const endAngle = adj2 ? (parseInt(adj2) / 60000) : 360;
-          
+          const startAngle = adj1 ? parseInt(adj1) / 60000 : 0;
+          const endAngle = adj2 ? parseInt(adj2) / 60000 : 360;
+
           setArcStyle({
             cx: x / 2,
             cy: y / 2,
@@ -202,7 +220,7 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
             lineWidth,
             color,
             viewWidth,
-            viewHeight
+            viewHeight,
           });
         }
       }
@@ -232,6 +250,7 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
     viewHeight,
     head,
     tail,
+    dash,
   }: LineStyle): JSX.Element => {
     return (
       <svg
@@ -272,6 +291,7 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
             strokeWidth={`${lineWidth}px`}
             markerStart="url(#arrowtail)"
             markerEnd="url(#arrowhead)"
+            {...dash}
           />
         ) : head ? (
           <line
@@ -282,6 +302,7 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
             stroke={color}
             strokeWidth={`${lineWidth}px`}
             markerEnd="url(#arrowhead)"
+            {...dash}
           />
         ) : tail ? (
           <line
@@ -292,6 +313,7 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
             stroke={color}
             strokeWidth={`${lineWidth}px`}
             markerStart="url(#arrowtail)"
+            {...dash}
           />
         ) : (
           <line
@@ -301,6 +323,7 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
             y2={`${y2}px`}
             stroke={color}
             strokeWidth={`${lineWidth}px`}
+            {...dash}
           />
         )}
       </svg>
@@ -316,21 +339,21 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
     lineWidth,
     color,
     viewWidth,
-    viewHeight
+    viewHeight,
   }: ArcStyle): JSX.Element => {
-     const startRad = (startAngle * Math.PI) / 180;
+    const startRad = (startAngle * Math.PI) / 180;
     const endRad = (endAngle * Math.PI) / 180;
-    
+
     // Calculate start and end points
     const x1 = cx + r * Math.cos(startRad);
     const y1 = cy + r * Math.sin(startRad);
     const x2 = cx + r * Math.cos(endRad);
     const y2 = cy + r * Math.sin(endRad);
-    
+
     // Create arc path
     const largeArcFlag = endAngle - startAngle <= 180 ? 0 : 1;
     const pathData = `M ${x1} ${y1} A ${r} ${r} 0 ${largeArcFlag} 1 ${x2} ${y2}`;
-    
+
     return (
       <svg
         width={viewWidth}
@@ -338,12 +361,7 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
         viewBox={`0 0 ${viewWidth} ${viewHeight}`}
         style={{ position: "absolute", left: "0px", top: "0px" }}
       >
-        <path
-          d={pathData}
-          fill="none"
-          stroke={color}
-          strokeWidth={lineWidth}
-        />
+        <path d={pathData} fill="none" stroke={color} strokeWidth={lineWidth} />
       </svg>
     );
   };

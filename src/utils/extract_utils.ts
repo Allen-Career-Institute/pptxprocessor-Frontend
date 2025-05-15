@@ -96,6 +96,13 @@ export function extractSolidFillColor(solidFill: any): any {
   }
   return extractColor(null);
 }
+export function extractDash(prstDash:any):any{
+  if(prstDash?.val==="dash")return {
+    "strokeDasharray":"5,5"
+  }
+
+  return null
+}
 
 export function extractRgba(color: string): string {
   return `rgba(${parseInt(color.slice(1, 3), 16)},
