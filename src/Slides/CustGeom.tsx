@@ -302,10 +302,12 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
           fill="none"
           stroke={lnColor}
           strokeWidth="2"
-          {...(ln.headEnd.type !== "none" && {
-            markerStart: `url(#arrowhead)`,
-          })}
-          {...(ln.tailEnd.type !== "none" && { markerEnd: "url(#tailarrow)" })}
+          {...(ln.headEnd &&
+            ln.headEnd.type !== "none" && {
+              markerStart: `url(#arrowhead)`,
+            })}
+          {...(ln.tailEnd &&
+            ln.tailEnd.type !== "none" && { markerEnd: "url(#tailarrow)" })}
         />
 
         {/* Render connection points */}
