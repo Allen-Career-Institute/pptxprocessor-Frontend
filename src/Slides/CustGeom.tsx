@@ -143,25 +143,27 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
   const moveTo = pathLst.path.moveTo.pt;
   const pathW = pathLst.path.w ? parseFloat(pathLst.path.w) : width;
   const pathH = pathLst.path.h ? parseFloat(pathLst.path.h) : height;
-
+  let start=moveTo;
+  let d = `M ${resolvePosition(moveTo.x, pathW, pathH, "x")} ${resolvePosition(
+  moveTo.y,
+  pathW,
+  pathH,
+  "y"
+)}`;
   const lnTo = pathLst.path.lnTo;
   let pathData = [];
+
+
   if (Array.isArray(lnTo)) {
     for (let i = 0; i < lnTo.length; i++) {
-      pathData.push(
-        `M ${resolvePosition(moveTo.x, pathW, pathH, "x")} ${resolvePosition(
-          moveTo.y,
-          pathW,
-          pathH,
-          "y",
-        )} L ${resolvePosition(
-          lnTo[i].pt.x,
-          pathW,
-          pathH,
-          "x",
-        )} ${resolvePosition(lnTo[i].pt.y, pathW, pathH, "y")}`,
-      );
-    }
+    const pt = lnTo[i].pt;
+    d += ` L ${resolvePosition(pt.x, pathW, pathH, "x")} ${resolvePosition(
+      pt.y,
+      pathW,
+      pathH,
+      "y"
+    )}`;
+  }
   } else {
     pathData.push(
       `M ${resolvePosition(moveTo.x, pathW, pathH, "x")} ${resolvePosition(
@@ -278,23 +280,23 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
               fill="none"
               stroke={lnColor}
               strokeWidth={strokeWidth}
-              {...(ln.headEnd && {
+              {...(ln.headEnd.type!=="none" && {
                 markerStart: `url(#arrowhead)`,
               })}
-              {...(ln.tailEnd && {
+              {...(ln.tailEnd.type!=="none" && {
                 markerEnd: "url(#tailarrow)",
               })}
             />
           );
         })}
-        {/* <path
-          d={pathData}
+        <path
+          d={d}
           fill="none"
           stroke={lnColor}
           strokeWidth="2"
-          {...(ln.headEnd && { markerStart: `url(#arrowhead)` })}
-          {...(ln.tailEnd && { markerEnd: "url(#tailarrow)" })}
-        /> */}
+          {...(ln.headEnd!=="none" && { markerStart: `url(#arrowhead)` })}
+          {...(ln.tailEnd!=="none" && { markerEnd: "url(#tailarrow)" })}
+        />
 
         {/* Render connection points */}
         {cxnLst.cxn.map((cxn: any, index: number) => (

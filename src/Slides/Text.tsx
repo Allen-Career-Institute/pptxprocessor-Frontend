@@ -29,7 +29,7 @@ const Text: React.FC<TextProps> = ({
   );
   !style.width && (style.width = "inherit");
   !style.height && (style.height = "inherit");
-
+console.log("Text:",style)
   return (
     <div
       key={node[NodeAttribs.ASSET]}
