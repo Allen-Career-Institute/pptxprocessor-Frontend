@@ -143,42 +143,50 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
   const moveTo = pathLst.path.moveTo.pt;
   const pathW = pathLst.path.w ? parseFloat(pathLst.path.w) : width;
   const pathH = pathLst.path.h ? parseFloat(pathLst.path.h) : height;
-  let start=moveTo;
+  let start = moveTo;
   let d = `M ${resolvePosition(moveTo.x, pathW, pathH, "x")} ${resolvePosition(
-  moveTo.y,
-  pathW,
-  pathH,
-  "y"
-)}`;
+    moveTo.y,
+    pathW,
+    pathH,
+    "y",
+  )}`;
   const lnTo = pathLst.path.lnTo;
   let pathData = [];
-
-
-  if (Array.isArray(lnTo)) {
-    for (let i = 0; i < lnTo.length; i++) {
-    const pt = lnTo[i].pt;
+  const lnToArray = Array.isArray(lnTo) ? lnTo : lnTo ? [lnTo] : [];
+  // if (Array.isArray(lnTo)) {
+  //   for (let i = 0; i < lnTo.length; i++) {
+  //     const pt = lnTo[i].pt;
+  //     d += ` L ${resolvePosition(pt.x, pathW, pathH, "x")} ${resolvePosition(
+  //       pt.y,
+  //       pathW,
+  //       pathH,
+  //       "y",
+  //     )}`;
+  //   }
+  // } else {
+  //   pathData.push(
+  //     `M ${resolvePosition(moveTo.x, pathW, pathH, "x")} ${resolvePosition(
+  //       moveTo.y,
+  //       pathW,
+  //       pathH,
+  //       "y",
+  //     )} L ${resolvePosition(lnTo?.pt?.x, pathW, pathH, "x")} ${resolvePosition(
+  //       lnTo?.pt?.y,
+  //       pathW,
+  //       pathH,
+  //       "y",
+  //     )}`,
+  //   );
+  //   console.log(`Pathdata ${node.name}`, pathData, moveTo.x, pathW, pathH);
+  // }
+  for (const seg of lnToArray) {
+    const pt = seg.pt;
     d += ` L ${resolvePosition(pt.x, pathW, pathH, "x")} ${resolvePosition(
       pt.y,
       pathW,
       pathH,
-      "y"
+      "y",
     )}`;
-  }
-  } else {
-    pathData.push(
-      `M ${resolvePosition(moveTo.x, pathW, pathH, "x")} ${resolvePosition(
-        moveTo.y,
-        pathW,
-        pathH,
-        "y",
-      )} L ${resolvePosition(lnTo?.pt?.x, pathW, pathH, "x")} ${resolvePosition(
-        lnTo?.pt?.y,
-        pathW,
-        pathH,
-        "y",
-      )}`,
-    );
-    console.log(`Pathdata ${node.name}`, pathData, moveTo.x, pathW, pathH);
   }
 
   // Compute rect dimensions
@@ -272,7 +280,7 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
           </marker>
         </defs>
         {/* Render the path */}
-        {pathData.map(function (data, index) {
+        {/* {pathData.map(function (data, index) {
           return (
             <path
               key={index}
@@ -280,22 +288,24 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
               fill="none"
               stroke={lnColor}
               strokeWidth={strokeWidth}
-              {...(ln.headEnd.type!=="none" && {
+              {...(ln.headEnd.type !== "none" && {
                 markerStart: `url(#arrowhead)`,
               })}
-              {...(ln.tailEnd.type!=="none" && {
+              {...(ln.tailEnd.type !== "none" && {
                 markerEnd: "url(#tailarrow)",
               })}
             />
           );
-        })}
+        })} */}
         <path
           d={d}
           fill="none"
           stroke={lnColor}
           strokeWidth="2"
-          {...(ln.headEnd!=="none" && { markerStart: `url(#arrowhead)` })}
-          {...(ln.tailEnd!=="none" && { markerEnd: "url(#tailarrow)" })}
+          {...(ln.headEnd.type !== "none" && {
+            markerStart: `url(#arrowhead)`,
+          })}
+          {...(ln.tailEnd.type !== "none" && { markerEnd: "url(#tailarrow)" })}
         />
 
         {/* Render connection points */}

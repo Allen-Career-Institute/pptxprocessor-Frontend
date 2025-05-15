@@ -110,8 +110,6 @@ const Image: React.FC<ImageProps> = ({
     zIndex: style.zIndex,
   };
 
-  
-
   return (
     <div
       key={node[NodeAttribs.ASSET]}

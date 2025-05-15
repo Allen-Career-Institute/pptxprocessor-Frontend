@@ -165,7 +165,7 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
             if (paths.headEnd && paths.headEnd.type !== "none") head = true;
             if (paths.tailEnd && paths.tailEnd.type !== "none") tail = true;
           }
-         
+
           const x1 = flipH ? x : 0;
           const y1 = flipV ? 0 : y;
           const x2 = flipH ? 0 : x;
