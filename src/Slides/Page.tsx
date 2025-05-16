@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "../App.css";
 import Container from "./Container";
 import { NodeAttribs, SlideTypes, StyleConstants } from "../utils/constants";
+import { commonTimeNode, onBeginCallback, OnCompleteCallback } from "../utils/animation";
 
 interface PageProps {
   currSlide: number;
@@ -20,6 +21,14 @@ const Page: React.FC<PageProps> = ({
     off: { x: 0, y: 0 },
     ext: { x: 0, y: 0 },
   };
+
+  useEffect(() => {
+    const onComplete: OnCompleteCallback = () => {}
+
+    const onBegin: onBeginCallback = () => {};
+
+    commonTimeNode(currSlideData?.timing, null, onBegin, onComplete, null).init();
+  }, []);
 
   return (
     <div
