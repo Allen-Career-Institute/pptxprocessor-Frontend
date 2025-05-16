@@ -11,7 +11,7 @@ const App = ({
   mediaPath: string;
 }) => {
   const [numSlides, setNumSlides] = useState<any>(10);
-  const [currSlide, setCurrSlide] = useState(42);
+  const [currSlide, setCurrSlide] = useState(12);
   const [currSlideData, setCurrSlideData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [maxDim, setMaxDim] = useState<{ width: number; height: number }>({

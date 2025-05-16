@@ -144,6 +144,7 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
   const pathW = pathLst.path.w ? parseFloat(pathLst.path.w) : width;
   const pathH = pathLst.path.h ? parseFloat(pathLst.path.h) : height;
   let start = moveTo;
+  console.log(resolvePosition(moveTo.x,pathW,pathH,"x"));
   let d = `M ${resolvePosition(moveTo.x, pathW, pathH, "x")} ${resolvePosition(
     moveTo.y,
     pathW,
@@ -225,7 +226,7 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
         ? baseVal * 2 * 2
         : baseVal * 2;
 
-  const lnColor = ln.solidFill ? extractSolidFillColor(ln.solidFill) : "black";
+  const lnColor = ln.solidFill ? extractSolidFillColor(ln.solidFill) : "#FFFFFF";
 
   return (
     <div
@@ -251,7 +252,7 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
       >
         <defs>
           <marker
-            id="arrowhead"
+            id={`arrowhead-${node.id}`}
             markerWidth={arrowHeadW}
             markerHeight={arrowHeadL}
             refX="0"
@@ -262,11 +263,11 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
               points={`0 ${
                 arrowHeadW / 2
               }, ${arrowHeadL} 0, ${arrowHeadL} ${arrowHeadW}`}
-              fill="context-stroke"
+              fill={lnColor}
             />
           </marker>
           <marker
-            id="arrowtail"
+            id={`arrowtail-${node.id}`}
             markerWidth={arrowTailW}
             markerHeight={arrowTailL}
             refX={arrowTailL}
@@ -275,7 +276,7 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
           >
             <polygon
               points={`${arrowTailL} ${arrowTailW / 2}, 0 0, 0 ${arrowTailW}`}
-              fill="context-stroke"
+              fill={lnColor}
             />
           </marker>
         </defs>
@@ -298,17 +299,17 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
           );
         })} */}
         <path
-          d={d}
-          fill="none"
-          stroke={lnColor}
-          strokeWidth="2"
-          {...(ln.headEnd &&
-            ln.headEnd.type !== "none" && {
-              markerStart: `url(#arrowhead)`,
-            })}
-          {...(ln.tailEnd &&
-            ln.tailEnd.type !== "none" && { markerEnd: "url(#tailarrow)" })}
-        />
+  d={d}
+  fill="none"
+  stroke={lnColor}
+  strokeWidth="2"
+  markerStart={
+    ln.headEnd?.type !== "none" ? `url(#arrowhead-${node.id})` : undefined
+  }
+  markerEnd={
+    ln.tailEnd?.type !== "none" ? `url(#arrowtail-${node.id})` : undefined
+  }
+/>
 
         {/* Render connection points */}
         {cxnLst.cxn.map((cxn: any, index: number) => (
