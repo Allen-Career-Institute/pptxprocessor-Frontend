@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "../App.css";
 import Container from "./Container";
 import { NodeAttribs, SlideTypes, StyleConstants } from "../utils/constants";
+import { processTiming } from "../utils/timing_processor";
 
 interface PageProps {
   currSlide: number;
@@ -20,6 +21,12 @@ const Page: React.FC<PageProps> = ({
     off: { x: 0, y: 0 },
     ext: { x: 0, y: 0 },
   };
+
+  useEffect(() => {
+    if (!currSlideData?.timing) return;
+    processTiming(currSlideData?.timing);
+
+  }, [currSlideData?.timing]);
 
   return (
     <div

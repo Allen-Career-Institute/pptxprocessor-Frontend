@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@advisr/pptx-compose-2": "^1.0.3",
+    "expr-eval": "^2.0.2",
     "konva": "^9.3.19",
     "pptx-compose": "^1.0.0",
     "pptx2json": "^0.0.10",

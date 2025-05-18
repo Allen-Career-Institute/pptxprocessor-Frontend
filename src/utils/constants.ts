@@ -21,6 +21,17 @@ export const SlideTypes = {
   SHAPE: "sp",
 };
 
+export const AnimationAttribs = {
+  PARALLEL: "par",
+  SEQUENTIAL: "seq",
+  COMMON_TIME_NODE: "cTn",
+  CONDITION: "cond",
+  START_CONDITION_LIST: "stCondLst",
+  PREV_CONDITION_LIST: "prevCondLst",
+  NEXT_CONDITION_LIST: "nextCondLst",
+  DELAY: "delay",
+}
+
 export const StyleConstants = {
   INHERIT: "inherit",
   AUTO: "auto",
