@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import "../App.css";
 import Container from "./Container";
 import { NodeAttribs, SlideTypes, StyleConstants } from "../utils/constants";
-import { commonTimeNode, onBeginCallback, OnCompleteCallback } from "../utils/animation";
+import { processTiming } from "../utils/timing_processor";
 
 interface PageProps {
   currSlide: number;
@@ -23,11 +23,9 @@ const Page: React.FC<PageProps> = ({
   };
 
   useEffect(() => {
-    const onComplete: OnCompleteCallback = () => {}
 
-    const onBegin: onBeginCallback = () => {};
+    processTiming(currSlideData?.timing);
 
-    commonTimeNode(currSlideData?.timing, null, onBegin, onComplete, null).init();
   }, []);
 
   return (
