@@ -11,7 +11,7 @@ export class SetTimeNode extends CommonTimeNode {
   init = (
     config: any,
     parentNode: TimingNodeInterface | null,
-    commonTimeNodeObj: { [key: string]: TimingNodeInterface }
+    commonTimeNodeObj: { [key: string]: TimingNodeInterface },
   ) => {
     console.log("Initializing", this.id);
 
@@ -36,7 +36,7 @@ export class SetTimeNode extends CommonTimeNode {
 
   onChildBegin = (node: TimingNodeInterface) => {
     this.countBegin++;
-    console.log("Child Begin", this.id, this.countBegin);  
+    console.log("Child Begin", this.id, this.countBegin);
     const properties = node.getProperties();
 
     if (properties.target && properties.attributes) {
@@ -49,7 +49,8 @@ export class SetTimeNode extends CommonTimeNode {
       // Set the final state of the element
       properties.attributes.map((attribute) => {
         if (attribute === "style.visibility") {
-          domEl.style.visibility = this.toVal === "visible" ? "hidden" : "visible";
+          domEl.style.visibility =
+            this.toVal === "visible" ? "hidden" : "visible";
           console.log("Setting invisible", domEl.style.visibility);
         }
       });
@@ -75,7 +76,12 @@ export class SetTimeNode extends CommonTimeNode {
       // Set the final state of the element
       properties.attributes.map((attribute) => {
         if (attribute === "style.visibility") {
-          setTimeout(() => domEl.style.visibility = this.toVal === "visible" ? "visible" : "hidden", this.duration || 0);
+          setTimeout(
+            () =>
+              (domEl.style.visibility =
+                this.toVal === "visible" ? "visible" : "hidden"),
+            this.duration || 0,
+          );
           console.log("Setting invisible", domEl.style.visibility);
         }
       });

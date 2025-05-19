@@ -1,7 +1,4 @@
-import {
-  TimingNodeInterface,
-  getList,
-} from "./animation_utils";
+import { TimingNodeInterface, getList } from "./animation_utils";
 import { CommonTimeNode } from "./CommonTimeNode";
 
 export class SeqTimeNode extends CommonTimeNode {
@@ -12,7 +9,7 @@ export class SeqTimeNode extends CommonTimeNode {
   private processPrevCondition = (
     config: any,
     parentNode: TimingNodeInterface | null,
-    commonTimeNodeObj: { [key: string]: TimingNodeInterface }
+    commonTimeNodeObj: { [key: string]: TimingNodeInterface },
   ) => {
     if (!config.prevCondLst) return;
     const condLst = getList(config.prevCondLst.cond);
@@ -23,7 +20,7 @@ export class SeqTimeNode extends CommonTimeNode {
   private processNextCondition = (
     config: any,
     parentNode: TimingNodeInterface | null,
-    commonTimeNodeObj: { [key: string]: TimingNodeInterface }
+    commonTimeNodeObj: { [key: string]: TimingNodeInterface },
   ) => {
     if (!config.prevCondLst) return;
     const condLst = getList(config.prevCondLst.cond);
@@ -34,7 +31,7 @@ export class SeqTimeNode extends CommonTimeNode {
   init = (
     config: any,
     parentNode: TimingNodeInterface | null,
-    commonTimeNodeObj: { [key: string]: TimingNodeInterface }
+    commonTimeNodeObj: { [key: string]: TimingNodeInterface },
   ) => {
     console.log("Initializing", this.id);
 

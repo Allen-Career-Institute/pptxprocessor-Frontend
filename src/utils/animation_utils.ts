@@ -1,5 +1,3 @@
-
-
 export type OnCompleteCallback = (node: TimingNodeInterface) => void;
 export type OnBeginCallback = (node: TimingNodeInterface) => void;
 export type EmptyFxn = () => void;
@@ -16,10 +14,13 @@ export type propertiesType = {
 };
 export type keyFrameType = { toVal: number; tm: number };
 
-
 // Define a dummy class
 export interface TimingNodeInterface {
-  init: (config: any, parentNode: TimingNodeInterface | null, commonTimeNodeObj: { [key: string]: TimingNodeInterface }) => void;
+  init: (
+    config: any,
+    parentNode: TimingNodeInterface | null,
+    commonTimeNodeObj: { [key: string]: TimingNodeInterface },
+  ) => void;
   setCallbacks(onBegin: OnBeginCallback, onComplete: OnCompleteCallback): void;
   setChildren(children: TimingNodeInterface[]): void;
   begin: BeginFxn;
@@ -29,5 +30,5 @@ export interface TimingNodeInterface {
   getProperties: () => propertiesType;
 }
 
-
-export const getList = (element: any): any[] => Array.isArray(element) ? element : [element];
+export const getList = (element: any): any[] =>
+  Array.isArray(element) ? element : [element];

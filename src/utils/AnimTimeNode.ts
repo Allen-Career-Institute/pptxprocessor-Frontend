@@ -23,7 +23,7 @@ export class AnimTimeNode extends CommonTimeNode {
   applyKeyframes = (
     domEl: HTMLElement,
     keyFrames: keyFrameType[],
-    attribute: string
+    attribute: string,
   ) => {
     console.log("Applying keyframes", keyFrames);
     const startTime = performance.now();
@@ -38,7 +38,7 @@ export class AnimTimeNode extends CommonTimeNode {
           "Current frame",
           frame.tm,
           currentTime,
-          keyFrames[index + 1]?.tm
+          keyFrames[index + 1]?.tm,
         );
         return (
           currentTime >= frame.tm &&
@@ -94,7 +94,7 @@ export class AnimTimeNode extends CommonTimeNode {
   init = (
     config: any,
     parentNode: TimingNodeInterface | null,
-    commonTimeNodeObj: { [key: string]: TimingNodeInterface }
+    commonTimeNodeObj: { [key: string]: TimingNodeInterface },
   ) => {
     console.log("Initializing", this.id);
 
@@ -119,7 +119,7 @@ export class AnimTimeNode extends CommonTimeNode {
         "Searching for dom",
         properties.target,
         domEl,
-        domEl?.getBoundingClientRect()
+        domEl?.getBoundingClientRect(),
       );
       if (!domEl) {
         console.error("Element not found", properties.target);
@@ -135,11 +135,17 @@ export class AnimTimeNode extends CommonTimeNode {
 
       properties.attributes.map((attribute) => {
         let keyFrames: keyFrameType[] = this.tavLst?.tav?.map((tav: any) => {
-          const toVal = tav.val?.strVal? processFormula(tav.val?.strVal?.val, variables) : tav.val?.fltVal? parseFloat(tav.val?.fltVal.val) : tav.val?.intVal? parseInt(tav.val?.intVal.val) : 0;
-          return ({
+          const toVal = tav.val?.strVal
+            ? processFormula(tav.val?.strVal?.val, variables)
+            : tav.val?.fltVal
+              ? parseFloat(tav.val?.fltVal.val)
+              : tav.val?.intVal
+                ? parseInt(tav.val?.intVal.val)
+                : 0;
+          return {
             toVal: toVal,
             tm: parseInt(tav.tm) || 0,
-          })
+          };
         });
         const duration = properties.duration || 0;
         const timeScaling = duration / keyFrames[keyFrames.length - 1].tm;

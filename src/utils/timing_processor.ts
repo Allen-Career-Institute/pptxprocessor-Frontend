@@ -28,7 +28,7 @@ const processChild = (
   config: any,
   attrib: string,
   parentNode: TimingNodeInterface | null,
-  commonTimeNodeObj: { [key: string]: TimingNodeInterface }
+  commonTimeNodeObj: { [key: string]: TimingNodeInterface },
 ) => {
   const child = generateTimeNode(attrib);
   child.init(config, parentNode, commonTimeNodeObj);
@@ -36,7 +36,7 @@ const processChild = (
     config,
     child,
     attrib,
-    commonTimeNodeObj
+    commonTimeNodeObj,
   );
   if (childsChildren.length > 0) {
     child.setChildren(childsChildren);
@@ -48,7 +48,7 @@ const processChildren = (
   config: any,
   parentNode: TimingNodeInterface | null,
   parentAttrib: string | null,
-  commonTimeNodeObj: { [key: string]: TimingNodeInterface }
+  commonTimeNodeObj: { [key: string]: TimingNodeInterface },
 ): TimingNodeInterface[] => {
   const children: TimingNodeInterface[] = [];
   const attribs = ["cTn", "par", "seq", "set", "anim", "cBhvr"];
@@ -59,13 +59,13 @@ const processChildren = (
     config.map((element: any) => {
       if (!parentAttrib)
         throw new Error(
-          "Parent attribute cannot be null, when config is an array"
+          "Parent attribute cannot be null, when config is an array",
         );
       const child = processChild(
         element,
         parentAttrib,
         parentNode,
-        commonTimeNodeObj
+        commonTimeNodeObj,
       );
       children.push(child);
     });
@@ -76,7 +76,7 @@ const processChildren = (
         config[attrib],
         attrib,
         parentNode,
-        commonTimeNodeObj
+        commonTimeNodeObj,
       );
       children.push(child);
     });

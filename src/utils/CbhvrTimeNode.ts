@@ -13,7 +13,7 @@ export class CbhvrTimeNode extends CommonTimeNode {
   init = (
     config: any,
     parentNode: TimingNodeInterface | null,
-    commonTimeNodeObj: { [key: string]: TimingNodeInterface }
+    commonTimeNodeObj: { [key: string]: TimingNodeInterface },
   ) => {
     console.log("Initializing", this.id);
 
@@ -42,7 +42,9 @@ export class CbhvrTimeNode extends CommonTimeNode {
     if (children.length > 0) {
       const child = children[0];
       const properties = child.getProperties();
-      this.duration = properties.duration ? parseInt(properties.duration.toString()) : null;
+      this.duration = properties.duration
+        ? parseInt(properties.duration.toString())
+        : null;
       this.fill = properties.fill;
     }
   }

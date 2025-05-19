@@ -30,7 +30,7 @@ export const AnimationAttribs = {
   PREV_CONDITION_LIST: "prevCondLst",
   NEXT_CONDITION_LIST: "nextCondLst",
   DELAY: "delay",
-}
+};
 
 export const StyleConstants = {
   INHERIT: "inherit",

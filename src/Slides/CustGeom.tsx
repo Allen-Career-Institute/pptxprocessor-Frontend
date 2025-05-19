@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, JSX, use } from "react";
 import { extractSolidFillColor, extractPx } from "../utils/extract_utils";
 import { NodeAttribs } from "../utils/constants";
+import { emuToPx } from "../utils/helper_utils";
 interface CustomGeometryProps {
   node: any;
   zIndex: number;
@@ -138,57 +139,61 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
       return h == 0 ? 0 : (parseFloat(pos) * height) / h;
     }
   };
-
+  const resolveCubic = ({ x, y }: { x: string; y: string }) => {
+    return {
+      x: parseInt(x) / 9525,
+      y: parseInt(y) / 9525,
+    };
+  };
   // Compute path data
-  const moveTo = pathLst.path.moveTo.pt;
-  const pathW = pathLst.path.w ? parseFloat(pathLst.path.w) : width;
-  const pathH = pathLst.path.h ? parseFloat(pathLst.path.h) : height;
-  let start = moveTo;
-  console.log(resolvePosition(moveTo.x,pathW,pathH,"x"));
-  let d = `M ${resolvePosition(moveTo.x, pathW, pathH, "x")} ${resolvePosition(
-    moveTo.y,
-    pathW,
-    pathH,
-    "y",
-  )}`;
-  const lnTo = pathLst.path.lnTo;
-  let pathData = [];
-  const lnToArray = Array.isArray(lnTo) ? lnTo : lnTo ? [lnTo] : [];
-  // if (Array.isArray(lnTo)) {
-  //   for (let i = 0; i < lnTo.length; i++) {
-  //     const pt = lnTo[i].pt;
-  //     d += ` L ${resolvePosition(pt.x, pathW, pathH, "x")} ${resolvePosition(
-  //       pt.y,
-  //       pathW,
-  //       pathH,
-  //       "y",
-  //     )}`;
-  //   }
-  // } else {
-  //   pathData.push(
-  //     `M ${resolvePosition(moveTo.x, pathW, pathH, "x")} ${resolvePosition(
-  //       moveTo.y,
-  //       pathW,
-  //       pathH,
-  //       "y",
-  //     )} L ${resolvePosition(lnTo?.pt?.x, pathW, pathH, "x")} ${resolvePosition(
-  //       lnTo?.pt?.y,
-  //       pathW,
-  //       pathH,
-  //       "y",
-  //     )}`,
-  //   );
-  //   console.log(`Pathdata ${node.name}`, pathData, moveTo.x, pathW, pathH);
-  // }
-  for (const seg of lnToArray) {
-    const pt = seg.pt;
-    d += ` L ${resolvePosition(pt.x, pathW, pathH, "x")} ${resolvePosition(
-      pt.y,
-      pathW,
-      pathH,
-      "y",
-    )}`;
-  }
+  const makePath = () => {
+    const moveTo = Array.isArray(pathLst.path.moveTo)
+      ? pathLst.path.moveTo
+      : [pathLst.path.moveTo];
+    const pathW = pathLst.path.w ? parseFloat(pathLst.path.w) : width;
+    const pathH = pathLst.path.h ? parseFloat(pathLst.path.h) : height;
+    const cubicPath = pathLst?.path?.cubicBezTo
+      ? Array.isArray(pathLst.path.cubicBezTo)
+        ? pathLst.path.cubicBezTo
+        : [pathLst.path.cubicBezTo]
+      : null;
+    console.log(cubicPath, "159");
+    //console.log(resolvePosition(moveTo.pt.x, pathW, pathH, "x"));
+    let d = "";
+
+    for (const move of moveTo) {
+      d += `M ${resolvePosition(move.pt.x, pathW, pathH, "x")} ${resolvePosition(
+        move.pt.y,
+        pathW,
+        pathH,
+        "y",
+      )}`;
+    }
+    if (cubicPath) {
+      for (const cubic of cubicPath) {
+        d += "C";
+        console.log(cubic);
+        for (const pt of cubic.pt) {
+          d += ` ${resolvePosition(pt.x, pathW, pathH, "x")} ${resolvePosition(pt.y, pathW, pathH, "y")},`;
+        }
+      }
+    }
+
+    const lnTo = pathLst.path.lnTo;
+
+    const lnToArray = Array.isArray(lnTo) ? lnTo : lnTo ? [lnTo] : [];
+
+    for (const seg of lnToArray) {
+      const pt = seg.pt;
+      d += ` L ${resolvePosition(pt.x, pathW, pathH, "x")} ${resolvePosition(
+        pt.y,
+        pathW,
+        pathH,
+        "y",
+      )}`;
+    }
+    return d;
+  };
 
   // Compute rect dimensions
   const rectWidth =
@@ -226,7 +231,9 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
         ? baseVal * 2 * 2
         : baseVal * 2;
 
-  const lnColor = ln.solidFill ? extractSolidFillColor(ln.solidFill) : "#FFFFFF";
+  const lnColor = ln.solidFill
+    ? extractSolidFillColor(ln.solidFill)
+    : "#FFFFFF";
 
   return (
     <div
@@ -299,17 +306,21 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
           );
         })} */}
         <path
-  d={d}
-  fill="none"
-  stroke={lnColor}
-  strokeWidth="2"
-  markerStart={
-    ln.headEnd?.type !== "none" ? `url(#arrowhead-${node.id})` : undefined
-  }
-  markerEnd={
-    ln.tailEnd?.type !== "none" ? `url(#arrowtail-${node.id})` : undefined
-  }
-/>
+          d={makePath()}
+          fill="none"
+          stroke={lnColor}
+          strokeWidth="2"
+          markerStart={
+            ln.headEnd?.type !== "none"
+              ? `url(#arrowhead-${node.id})`
+              : undefined
+          }
+          markerEnd={
+            ln.tailEnd?.type !== "none"
+              ? `url(#arrowtail-${node.id})`
+              : undefined
+          }
+        />
 
         {/* Render connection points */}
         {cxnLst.cxn.map((cxn: any, index: number) => (

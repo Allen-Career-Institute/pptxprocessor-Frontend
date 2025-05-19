@@ -4,7 +4,7 @@ import {
   TimingNodeInterface,
   OnBeginCallback,
   OnCompleteCallback,
-  getList
+  getList,
 } from "./animation_utils";
 
 export class CommonTimeNode implements TimingNodeInterface {
@@ -29,7 +29,7 @@ export class CommonTimeNode implements TimingNodeInterface {
   processStartCondition = (
     config: any,
     parentNode: TimingNodeInterface | null,
-    commonTimeNodeObj: { [key: string]: TimingNodeInterface }
+    commonTimeNodeObj: { [key: string]: TimingNodeInterface },
   ) => {
     if (!config.stCondLst) {
       // Subscribe to parent node's begin event
@@ -59,18 +59,16 @@ export class CommonTimeNode implements TimingNodeInterface {
           const domEl = document.getElementById(targetId);
           if (cond.evt === "onClick") {
             if (domEl) {
-              domEl.onclick = () => setTimeout(this.begin, parseInt(cond.delay) || 0);
+              domEl.onclick = () =>
+                setTimeout(this.begin, parseInt(cond.delay) || 0);
             }
           } else {
             throw new Error(`Invalid event type ${cond.evt}`);
           }
-        } else if (
-          Object.keys(cond).length === 1 &&
-          cond.delay
-        ) {
+        } else if (Object.keys(cond).length === 1 && cond.delay) {
           if (parentNode && cond.delay != "indefinite") {
             parentNode.addToBegin(() =>
-              setTimeout(this.begin, parseInt(cond.delay))
+              setTimeout(this.begin, parseInt(cond.delay)),
             );
           }
         } else {
@@ -85,7 +83,7 @@ export class CommonTimeNode implements TimingNodeInterface {
   init = (
     config: any,
     parentNode: TimingNodeInterface | null,
-    commonTimeNodeObj: { [key: string]: TimingNodeInterface }
+    commonTimeNodeObj: { [key: string]: TimingNodeInterface },
   ) => {
     console.log("Initializing", this.id);
 

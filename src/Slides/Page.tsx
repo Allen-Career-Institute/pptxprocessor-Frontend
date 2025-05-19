@@ -25,7 +25,6 @@ const Page: React.FC<PageProps> = ({
   useEffect(() => {
     if (!currSlideData?.timing) return;
     processTiming(currSlideData?.timing);
-
   }, [currSlideData?.timing]);
 
   return (

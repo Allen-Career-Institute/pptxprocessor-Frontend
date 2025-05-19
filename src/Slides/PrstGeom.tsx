@@ -89,7 +89,7 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
 
       const scalingFactor = maxDim.width / 1280;
       const prst = prstGeom.prst;
-      const name=node.name.split(" ")[1]
+      const name = node.name.split(" ")[1];
       if (prst) {
         if (prst === "roundRect") {
           const cornerAdj = prstGeom.avLst?.gd?.fmla.split(" ")[1];
@@ -130,7 +130,7 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
             viewWidth,
             viewHeight,
           });
-        } else if (prst === "line"||name==="Arrow") {
+        } else if (prst === "line" || name === "Arrow") {
           border = "";
           const flipH = node[NodeAttribs.PROPERTIES].xfrm.flipH
             ? node[NodeAttribs.PROPERTIES].xfrm.flipH == "1"
