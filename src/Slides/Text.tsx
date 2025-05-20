@@ -38,8 +38,9 @@ const Text: React.FC<TextProps> = ({
       style={{
         ...style,
         display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
+        flexDirection:"column",
+        alignItems: "left",
+        justifyContent:"left",
       }}
     >
       {renderChildren(node, zIndex, newChildFrame)}

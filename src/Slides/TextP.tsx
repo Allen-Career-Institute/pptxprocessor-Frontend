@@ -26,7 +26,7 @@ const TextP: React.FC<TextPProps> = ({
     maxDim,
     childFrame,
   );
-
+console.log(style,"29")
   return (
     <div
       key={node[NodeAttribs.ASSET]}
@@ -34,7 +34,9 @@ const TextP: React.FC<TextPProps> = ({
       id={node[NodeAttribs.ASSET]}
       style={{
         ...style,
+        
         display: "flex",
+        // flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
       }}
