@@ -1,4 +1,11 @@
-import React, { useState, useEffect, useRef, JSX, use } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  JSX,
+  use,
+  useCallback,
+} from "react";
 import { extractSolidFillColor, extractPx } from "../utils/extract_utils";
 import { NodeAttribs } from "../utils/constants";
 import { emuToPx } from "../utils/helper_utils";
@@ -146,7 +153,8 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
     };
   };
   // Compute path data
-  const makePath = () => {
+
+  const makePath = useCallback(() => {
     const moveTo = Array.isArray(pathLst.path.moveTo)
       ? pathLst.path.moveTo
       : [pathLst.path.moveTo];
@@ -193,7 +201,7 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
       )}`;
     }
     return d;
-  };
+  });
 
   // Compute rect dimensions
   const rectWidth =
@@ -234,7 +242,7 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
   const lnColor = ln.solidFill
     ? extractSolidFillColor(ln.solidFill)
     : "#FFFFFF";
-
+  console.log(style, "237");
   return (
     <div
       ref={containerRef} // Attach the ref to the container

@@ -184,15 +184,36 @@ function processCropping(
   maxDim: { width: number; height: number },
   childFrame: any,
 ): any {
-  let vals = cropping?.srcRect;
+  const vals = cropping?.srcRect || cropping?.stretch?.fillRect;
+
   if (vals) {
-    const cropLeft = vals?.l ? (parseInt(vals.l) / 100000) * 100 : 0;
-    const cropTop = vals?.t ? (parseInt(vals.t) / 100000) * 100 : 0;
-    const cropRight = vals?.r ? (parseInt(vals.r) / 100000) * 100 : 0;
-    const cropBottom = vals?.b ? (parseInt(vals.b) / 100000) * 100 : 0;
-    if (cropLeft || cropTop || cropRight || cropBottom) {
-      stylecss.clipPath = `inset(${cropTop}% ${cropRight}% ${cropBottom}% ${cropLeft}%)`;
+    const rawL = parseInt(vals.l || "0");
+    const rawT = parseInt(vals.t || "0");
+    const rawR = parseInt(vals.r || "0");
+    const rawB = parseInt(vals.b || "0");
+
+    // Convert to percentages (can be negative)
+    const cropLeft = (rawL / 100000) * 100;
+    const cropTop = (rawT / 100000) * 100;
+    const cropRight = (rawR / 100000) * 100;
+    const cropBottom = (rawB / 100000) * 100;
+
+    const cropXPercent = cropLeft + cropRight;
+    const cropYPercent = cropTop + cropBottom;
+
+    // Apply cropping as clip-path, safe for negative values
+    stylecss.clipPath = `inset(${cropTop}% ${cropRight}% ${cropBottom}% ${cropLeft}%)`;
+
+    // Adjust scale only if cropping is positive (to zoom in)
+    if (cropXPercent > 0 || cropYPercent > 0) {
+      const scaleX = 100 / (100 - cropXPercent);
+      const scaleY = 100 / (100 - cropYPercent);
+      const existingTransform = stylecss.transform || "";
+      stylecss.transform =
+        `${existingTransform} scale(${scaleX}, ${scaleY})`.trim();
     }
+
+    stylecss.transformOrigin = "center";
   }
 }
 
