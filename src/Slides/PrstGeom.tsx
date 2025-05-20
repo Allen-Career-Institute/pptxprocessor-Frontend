@@ -186,39 +186,7 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
             dash,
           });
         }
-        // else if (prst === "arc") {
-        //   border = "";
-        //   const color = extractSolidFillColor(node._properties.ln.solidFill);
-        //   const lineWidth = emuToPx(node._properties.ln.w, maxDim.width, 0);
-        //   const x = parseFloat(style.width.replace("px", ""));
-        //   const y = parseFloat(style.height.replace("px", ""));
-        //   const viewWidth = 4 * x || 100;
-        //   const viewHeight = 4 * y || 100;
-
-        //   // Get arc parameters from the geometry
-        //   const adj1 = prstGeom.avLst?.gd
-        //     ?.find((g: any) => g.name === "adj1")
-        //     ?.fmla.split(" ")[1];
-        //   const adj2 = prstGeom.avLst?.gd
-        //     ?.find((g: any) => g.name === "adj2")
-        //     ?.fmla.split(" ")[1];
-
-        //   // Convert EMU angles to degrees
-        //   const startAngle = adj1 ? parseInt(adj1) / 60000 : 0;
-        //   const endAngle = adj2 ? parseInt(adj2) / 60000 : 360;
-
-        //   setArcStyle({
-        //     cx: x / 2,
-        //     cy: y / 2,
-        //     r: Math.min(x, y) / 2,
-        //     startAngle,
-        //     endAngle,
-        //     lineWidth,
-        //     color,
-        //     viewWidth,
-        //     viewHeight,
-        //   });
-        // }
+        
       }
     }
     // if (borderRadius) {

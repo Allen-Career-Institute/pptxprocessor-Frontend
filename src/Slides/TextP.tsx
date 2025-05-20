@@ -37,8 +37,8 @@ console.log(style,"29")
         
         display: "flex",
         // flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
+        alignItems: "left",
+        justifyContent: "left",
       }}
     >
       {renderChildren(node, zIndex, newChildFrame)}

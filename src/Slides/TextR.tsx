@@ -32,8 +32,8 @@ const TextR: React.FC<TextRProps> = ({
       style={{
         ...style,
         display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
+        alignItems: "left",
+        justifyContent: "left",
         margin: `${emuToPx(50000, maxDim.width)}px`, // Add default gap
       }}
     >
