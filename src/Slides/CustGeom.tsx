@@ -6,7 +6,7 @@ import React, {
   use,
   useCallback,
 } from "react";
-import { extractSolidFillColor, extractPx } from "../utils/extract_utils";
+import { extractSolidFillColor, extractPx, extractDash } from "../utils/extract_utils";
 import { NodeAttribs } from "../utils/constants";
 import { emuToPx } from "../utils/helper_utils";
 interface CustomGeometryProps {
@@ -80,7 +80,7 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
   const [width, setWidth] = useState(0); // State for width
   const [height, setHeight] = useState(0); // State for height
   const [strokeWidth, setStrokeWidth] = useState(0); // State for stroke width
-
+  
   useEffect(() => {
     const lnw = extractPx(ln.w, 1, maxDim);
     setStrokeWidth(lnw ? lnw : 1);
@@ -146,15 +146,10 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
       return h == 0 ? 0 : (parseFloat(pos) * height) / h;
     }
   };
-  const resolveCubic = ({ x, y }: { x: string; y: string }) => {
-    return {
-      x: parseInt(x) / 9525,
-      y: parseInt(y) / 9525,
-    };
-  };
+  
   // Compute path data
 
-  const makePath = useCallback(() => {
+  const makePath = () => {
     const moveTo = Array.isArray(pathLst.path.moveTo)
       ? pathLst.path.moveTo
       : [pathLst.path.moveTo];
@@ -165,7 +160,7 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
         ? pathLst.path.cubicBezTo
         : [pathLst.path.cubicBezTo]
       : null;
-    console.log(cubicPath, "159");
+    // console.log(cubicPath, "159");
     //console.log(resolvePosition(moveTo.pt.x, pathW, pathH, "x"));
     let d = "";
 
@@ -201,7 +196,7 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
       )}`;
     }
     return d;
-  });
+  };
 
   // Compute rect dimensions
   const rectWidth =
@@ -242,7 +237,8 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
   const lnColor = ln.solidFill
     ? extractSolidFillColor(ln.solidFill)
     : "#FFFFFF";
-  console.log(style, "237");
+    const dash=ln.prstDash?{strokeDasharray:"5,5"}:{};
+ 
   return (
     <div
       ref={containerRef} // Attach the ref to the container
@@ -296,23 +292,6 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
           </marker>
         </defs>
         {/* Render the path */}
-        {/* {pathData.map(function (data, index) {
-          return (
-            <path
-              key={index}
-              d={data}
-              fill="none"
-              stroke={lnColor}
-              strokeWidth={strokeWidth}
-              {...(ln.headEnd.type !== "none" && {
-                markerStart: `url(#arrowhead)`,
-              })}
-              {...(ln.tailEnd.type !== "none" && {
-                markerEnd: "url(#tailarrow)",
-              })}
-            />
-          );
-        })} */}
         <path
           d={makePath()}
           fill="none"
@@ -328,6 +307,8 @@ const CustomGeometry: React.FC<CustomGeometryProps> = ({
               ? `url(#arrowtail-${node.id})`
               : undefined
           }
+          {...dash}
+       
         />
 
         {/* Render connection points */}

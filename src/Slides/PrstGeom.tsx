@@ -30,7 +30,7 @@ interface LineStyle {
   viewHeight: number;
   head: boolean;
   tail: boolean;
-  dash: object;
+  dashline: object;
 }
 
 interface ArcStyle {
@@ -43,6 +43,7 @@ interface ArcStyle {
   color: string;
   viewWidth: number;
   viewHeight: number;
+  dash:object
 }
 
 interface EndStyle {
@@ -118,7 +119,8 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
           // Convert EMU angles to degrees
           const startAngle = adj1 ? parseInt(adj1) / 60000 : 0;
           const endAngle = adj2 ? parseInt(adj2) / 60000 : 360;
-
+          const dash=node[NodeAttribs.PROPERTIES].ln?.prstDash?{strokeDasharray:"5,7"}:{};
+         console.log("123",dash)
           setArcStyle({
             cx: x / 2,
             cy: y / 2,
@@ -129,7 +131,9 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
             color,
             viewWidth,
             viewHeight,
+            dash,
           });
+       
         } else if (prst === "line" || name === "Arrow") {
           border = "";
           const flipH = node[NodeAttribs.PROPERTIES].xfrm.flipH
@@ -145,7 +149,7 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
           const color = extractSolidFillColor(
             node[NodeAttribs.PROPERTIES].ln.solidFill,
           );
-          const dash = extractDash(node[NodeAttribs.PROPERTIES].ln?.prstDash);
+          const dashline = node[NodeAttribs.PROPERTIES].ln?.prstDash?{strokeDasharray:"7,3"}:{};
           const bg_color = extractSolidFillColor(
             node[NodeAttribs.PROPERTIES].solidFill,
           );
@@ -183,7 +187,7 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
             viewHeight,
             head,
             tail,
-            dash,
+            dashline,
           });
         }
         
@@ -214,7 +218,7 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
     viewHeight,
     head,
     tail,
-    dash,
+    dashline,
   }: LineStyle): JSX.Element => {
     return (
       <svg
@@ -259,7 +263,7 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
             strokeWidth={`${lineWidth}px`}
             markerStart="url(#arrowtail)"
             markerEnd="url(#arrowhead)"
-            {...dash}
+            {...dashline}
           />
         ) : head ? (
           <line
@@ -270,7 +274,7 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
             stroke={color}
             strokeWidth={`${lineWidth}px`}
             markerEnd="url(#arrowhead)"
-            {...dash}
+            {...dashline}
           />
         ) : tail ? (
           <line
@@ -281,7 +285,7 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
             stroke={color}
             strokeWidth={`${lineWidth}px`}
             markerStart="url(#arrowtail)"
-            {...dash}
+            {...dashline}
           />
         ) : (
           <line
@@ -291,7 +295,7 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
             y2={`${y2}px`}
             stroke={color}
             strokeWidth={`${lineWidth}px`}
-            {...dash}
+            {...dashline}
           />
         )}
       </svg>
@@ -308,6 +312,8 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
     color,
     viewWidth,
     viewHeight,
+    dash,
+    
   }: ArcStyle): JSX.Element => {
     const startRad = (startAngle * Math.PI) / 180;
     const endRad = (endAngle * Math.PI) / 180;
@@ -317,11 +323,11 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
     const y1 = cy + r * Math.sin(startRad);
     const x2 = cx + r * Math.cos(endRad);
     const y2 = cy + r * Math.sin(endRad);
-
+    
     // Create arc path
     const largeArcFlag = endAngle - startAngle <= 180 ? 0 : 1;
     const pathData = `M ${x1} ${y1} A ${r} ${r} 0 ${largeArcFlag} 1 ${x2} ${y2}`;
-
+   
     return (
       <svg
         width={viewWidth}
@@ -329,7 +335,7 @@ const PresetGeometry: React.FC<PresetGeometryProps> = ({
         viewBox={`0 0 ${viewWidth} ${viewHeight}`}
         style={{ position: "absolute", left: "0px", top: "0px" }}
       >
-        <path d={pathData} fill="none" stroke={color} strokeWidth={lineWidth} />
+        <path d={pathData} fill="none" stroke={color} strokeWidth={lineWidth} {...dash} />
       </svg>
     );
   };
